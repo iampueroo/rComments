@@ -1,0 +1,13 @@
+{
+   "content_scripts": [ {
+      "js": [ "jquery-1.11.1.min.js", "lazyReddit.js" ],
+      "matches": [ "http://reddit.com/*", "https://reddit.com/*", "http://*.reddit.com/*", "https://*.reddit.com/*" ]
+   } ],
+   "description": "Quick and hassle-free traversal of Reddit comments.",
+   "homepage_url": "http://reddit.com",
+   "manifest_version": 2,
+   "minimum_chrome_version": "20.0",
+   "name": "rComments",
+   "permissions": [ "tabs", "history", "http://reddit.com/*", "https://reddit.com/*", "http://*.reddit.com/*", "https://*.reddit.com/*"],
+   "version": "0.1"
+}
