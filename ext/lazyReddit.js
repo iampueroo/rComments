@@ -1,7 +1,8 @@
 var rCommentsController = {
 
-	model : rComments,
+	model : rCommentsModel,
 	view : rCommentsView,
+	request : new XMLHttpRequest(),
 
 	init : function() {
 		var self = this;
@@ -16,14 +17,23 @@ var rCommentsController = {
 
 	showFirstComment : function($el) {
 		var self = this,
-			$request = model.firstRequest($el);
+			requestData = model.firstRequest($el),
+			request = this.request;
 
-		$request.done(function(data) {
-			self.view.show(data, $el);
-			self.model.store(data, $el);
-		});
+		if (requestData.cached) {
+			self.view.show(requestData.cached, el);
+			return;
+		}
+
+		request.abort();
+
+		request = $.getJSON(requestData).done(function(data) {
+				self.view.show(data, $el);
+				self.model.store(requestData.url, data);
+			});
+
+		this.request = request;
 	}
-
 };
 
 var rCommentsView = {
@@ -77,47 +87,39 @@ var rCommentsView = {
 	},
 };
 
-var rComments = {
+var rCommentsModel = {
 
 	commentCache : [],
 	commentStatus : [],
 
 	firstRequest : function($el) {
-		var self = this,
-			url = $el.attr('href') + '.json';
-			cached = this.commentCache[url];
-
-		if (cached) return cached;
-
-		var params = this.requestParams(url);
-
-		return $.post(url, params).done(function(data) {
-			self.commentCache[url] = data;
-			self.commentStatus[url] = {
-				limit : 1,
-				depth : 1
+		var url = $el.attr('href') + '.json',
+			data = {
+				url : url,
+				params : this.requestParams(url),
+				cached : this.commentCache[url],
 			};
-		});
+
+		return data;
 	},
 
 	requestParams : function(url) {
-		var status = this.commentStatus[url],
-			limit = 1,
-			depth = 1;
+		var params = this.commentStatus[url];
 
-		if (status) {
-			//
-			// Change based on reply / next question.
-		}
+		// TODO: update comment status for replies, more comments
+		if (!params) params = {
+			limit : 1,
+			depth : 1
+		};
 
-		return {
-				limit : limit,
-				depth : depth,
-				sort : 'top',
-			};
+		params['sort'] = 'top';
+
+		return params;
 	},
 
-
+	cache : function(url, data) {
+		self.commentCache[url] = data;
+	}
 };
 
 rCommentsController.init();
