@@ -1,6 +1,23 @@
 // Note: these commits were done in an airplane with no internet
 // so there is a very good chance it is broken right now.
 
+var Comment = function(data) {
+
+	init = function(json) {
+		this.data = $.extend(json.data);
+	};
+
+	// Fuck this function.
+	toHtml = function() {
+		var d  = this.data;
+		return '' +
+			'<div class="comment">' +
+				'<div class="tagline">' + d.author + '</div>' +
+				'<div class="entry">' + d.body_html + '</div>' +
+			'</div>';
+	};
+};
+
 var rCommentsController = {
 
 	model : rCommentsModel,
@@ -33,8 +50,8 @@ var rCommentsController = {
 		request.abort();
 
 		request = $.getJSON(requestData).done(function(data) {
-				self.view.show(data, $el);
-				self.model.store(requestData.url, data);
+				var commentJson = self.model.registerComment(requestData.url, data);
+				self.view.show(commentJson, $el);
 			});
 
 		this.request = request;
@@ -44,21 +61,13 @@ var rCommentsController = {
 var rCommentsView = {
 	$popup : null,
 
-	show : function(data, $el) {
-		var commentHtml = this.toHtml(data),
-			popup = this.popup($el);
+	show : function(json, $el) {
+		var comment = new Comment(json),
+			html = comment.toHtml(),
+			popup = this.pqopup($el);
 
 		popup.html(commentHtml);
 		popup.show();
-	},
-
-	toHtml : function(json) {
-		var html = '' +
-			'<div class="comment">' +
-				'<div class="tagline">Username</div>' +
-				'<div class="entry">This is a comment test</div>' +
-			'</div>';
-		return html;
 	},
 
 	popup : function($el) {
