@@ -11,7 +11,7 @@ var Comment = function(data) {
 	toHtml = function() {
 		var d  = this.data;
 		return '' +
-			'<div class="comment">' +
+			'<div class="comment thing" id=' + d.id + '>' +
 				'<div class="tagline">' + d.author + '</div>' +
 				'<div class="entry">' + d.body_html + '</div>' +
 			'</div>';
@@ -38,19 +38,19 @@ var rCommentsController = {
 	renderComment : function($el) {
 		var self = this,
 			url = $el.attr('href'),
-			commentId = 412, // mocked for now.
+			commentId = $el.closest('.thing').attr('id'), // this gonna break
 			requestData = model.getRequestData(url, commentId),
 			request = this.request;
+
+		request.abort();
 
 		if (requestData.cached) {
 			self.view.show(requestData.cached, el);
 			return;
 		}
 
-		request.abort();
-
 		request = $.getJSON(requestData).done(function(data) {
-				var commentJson = self.model.registerComment(requestData.url, data);
+				var commentJson = self.model.registerComment(requestData.url, data, commentId);
 				self.view.show(commentJson, $el);
 			});
 
@@ -140,8 +140,25 @@ var rCommentsModel = {
 		return params;
 	},
 
-	cache : function(url, commentId, data) {
-		this.commentCache[this.genKey(url, commentId)] = data;
+	registerComment : function(url, data, commentId) {
+		var key = this.genKey(url, commentId),
+			params = this.commentStatus[key],
+			json = this.extractJson(data, params);
+
+		this.commentCache[key] = json;
+		return json;
+	},
+
+	extractJson : function(data, params) {
+		var isCommentReply = params.depth == 2,
+			commentIndex = params.limit - 1,
+			commentList = data[1]['data']['children'];
+
+		if (isCommentReply) {
+			commentList = commentList[0]['data']['replies']['data']['children'];
+		}
+
+		return commentList[commentIndex];
 	},
 
 	genKey : function(url, commentId) {
