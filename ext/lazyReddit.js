@@ -1,3 +1,6 @@
+// Note: these commits were done in an airplane with no internet
+// so there is a very good chance it is broken right now.
+
 var rCommentsController = {
 
 	model : rCommentsModel,
@@ -8,16 +11,18 @@ var rCommentsController = {
 		var self = this;
 		$('body')
 			.on('mouseover', 'a.comments', function() {
-				self.showFirstComment($(this));
+				self.renderComment($(this));
 			})
 			.on('mouseleave', 'a.comments', function() {
 				self.view.hidePopup();
 			});
 	},
 
-	showFirstComment : function($el) {
+	renderComment : function($el) {
 		var self = this,
-			requestData = model.firstRequest($el),
+			url = $el.attr('href'),
+			commentId = 412, // mocked for now.
+			requestData = model.getRequestData(url, commentId),
 			request = this.request;
 
 		if (requestData.cached) {
@@ -92,33 +97,46 @@ var rCommentsModel = {
 	commentCache : [],
 	commentStatus : [],
 
-	firstRequest : function($el) {
-		var url = $el.attr('href') + '.json',
+	getRequestData : function(url, commentId) {
+		var key = this.genKey(url, commentId),
+			params = this.requestParams(url, commentId);
+
 			data = {
 				url : url,
-				params : this.requestParams(url),
-				cached : this.commentCache[url],
+				params : params,
+				cached : this.commentCache[key]
 			};
 
 		return data;
 	},
 
-	requestParams : function(url) {
-		var params = this.commentStatus[url];
+	requestParams : function(url, commentId) {
+		var key = this.genKey(url, commentId),
+			params = this.commentStatus[key];
 
-		// TODO: update comment status for replies, more comments
-		if (!params) params = {
-			limit : 1,
-			depth : 1
-		};
+		if (!params) {
+			params = {
+				depth : (commentId ? 2 : 1),
+				limit : 0, // Incremented below 
+				sort : 'top'
+			};
 
-		params['sort'] = 'top';
+			if (commentId) params.comment = commentId;
+		}
+
+		params.limit++;
+
+		this.commentStatus[key] = params;
 
 		return params;
 	},
 
-	cache : function(url, data) {
-		self.commentCache[url] = data;
+	cache : function(url, commentId, data) {
+		this.commentCache[this.genKey(url, commentId)] = data;
+	},
+
+	genKey : function(url, commentId) {
+		return url + commentId;
 	}
 };
 
