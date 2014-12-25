@@ -54,6 +54,7 @@ var Comment = function(json) {
 
 var rCommentsView = {
 	$popup : null,
+	_id : '_lazy_comment_div',
 
 	show : function($el, json) {
 		var comment = new Comment(json),
@@ -68,7 +69,7 @@ var rCommentsView = {
 		var $popup = this.$popup;
 
 		if (!$popup) {
-			$popup = $('<div/>', {id : this._popupId})
+			$popup = $('<div/>', {id : this._id})
 				.appendTo("body");
 		}
 
@@ -181,9 +182,12 @@ var rCommentsController = {
 			.on('mouseover', 'a.comments', function() {
 				self.renderComment($(this));
 			})
-			.on('mouseleave', 'a.comments', function() {
-				self.view.hidePopup();
+			.on('mouseleave', 'a.comments', function(e) {
+				self.handleAnchorMouseLeave(e, this);
+			})
+			.on('mouseleave', '#' + self.view._id, function() {
 				self.request.abort();
+				self.view.hidePopup();
 			});
 	},
 
@@ -210,7 +214,19 @@ var rCommentsController = {
 			});
 
 		this.request = request;
+	},
+
+	handleAnchorMouseLeave : function(e, commentAnchor) {
+		var $commentAnchor = $(commentAnchor),
+			bottom = $commentAnchor.offset().top + $commentAnchor.outerHeight();
+
+		// Do stuff only if exiting anchor not through comment.
+		if (e.pageY >= bottom) return;
+
+		this.request.abort();
+		this.view.hidePopup();
 	}
+
 };
 
 rCommentsController.init();
