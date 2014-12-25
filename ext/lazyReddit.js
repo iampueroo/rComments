@@ -6,12 +6,17 @@ var Comment = function(json) {
 
 	// Fuck this function.
 	this.toHtml = function() {
-		var d  = this.data;
-		return '' +
+		var d  = this.data,
+			commentHtml = $($('<div>').html(d.body_html).text()), // html entity weirdness
+			body_html = $('<div>').addClass('entry').append(commentHtml);
+
+		var wrapper = $( '' +
 			'<div class="comment thing" id=' + d.id + '>' +
 				'<div class="tagline">' + d.author + '</div>' +
-				'<div class="entry">' + d.body_html + '</div>' +
-			'</div>';
+			'</div>'
+		);
+
+		return wrapper.append(body_html);
 	};
 
 	this.init(json);
@@ -24,6 +29,7 @@ var rCommentsView = {
 		var comment = new Comment(json),
 			commentHtml = comment.toHtml(),
 			popup = this.popup($el);
+
 		popup.html(commentHtml);
 		popup.show();
 	},
@@ -55,7 +61,7 @@ var rCommentsView = {
 	},
 
 	hidePopup : function() {
-		this.$popup.hide();
+		if (this.$popup) this.$popup.hide();
 	},
 };
 
@@ -138,6 +144,7 @@ var rCommentsController = {
 			})
 			.on('mouseleave', 'a.comments', function() {
 				self.view.hidePopup();
+				self.request.abort();
 			});
 	},
 
