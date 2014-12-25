@@ -8,15 +8,45 @@ var Comment = function(json) {
 	this.toHtml = function() {
 		var d  = this.data,
 			commentHtml = $($('<div>').html(d.body_html).text()), // html entity weirdness
-			body_html = $('<div>').addClass('entry').append(commentHtml);
+			$body_html = $('<div>').addClass('entry').append(commentHtml),
+			$tagline = this.buildTagline();
 
-		var wrapper = $( '' +
-			'<div class="comment thing" id=' + d.id + '>' +
-				'<div class="tagline">' + d.author + '</div>' +
-			'</div>'
-		);
+		var $wrapper = $('<div>')
+			.addClass('comment').addClass('thing')
+			.attr('id', d.id);
 
-		return wrapper.append(body_html);
+		$wrapper.append($tagline).append($body_html);
+		return $wrapper;
+	};
+
+	this.buildTagline = function() {
+		var $wrapper = $('<div>').addClass('tagline');
+
+		$wrapper
+			.append(this.authorTag())
+			.append(this.voteTag());
+
+		return $wrapper;
+	};
+
+	this.voteTag = function() {
+		var votes = this.data.ups - this.data.downs,
+			$wrapper = $('<span>'),
+			$unvoted = $('<span>').addClass('score unvoted').html(votes + ' points'),
+			$likes = $('<span>').addClass('score likes').html((votes + 1)  + ' points'),
+			$dislikes = $('<span>').addClass('score dislikes').html((votes + 1) + ' points');
+
+		$wrapper.append($dislikes).append($unvoted).append($likes);
+
+		return $wrapper;
+	};
+
+	this.authorTag = function() {
+		var author = this.data.author;
+		return $('<a>')
+			.attr('href', '/user/' + author)
+			.addClass('author')
+			.html(author);
 	};
 
 	this.init(json);
