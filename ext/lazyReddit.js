@@ -55,7 +55,7 @@ var Comment = function(json) {
 var rCommentsView = {
 	$popup : null,
 
-	show : function(json, $el) {
+	show : function($el, json) {
 		var comment = new Comment(json),
 			commentHtml = comment.toHtml(),
 			popup = this.popup($el);
@@ -93,6 +93,15 @@ var rCommentsView = {
 	hidePopup : function() {
 		if (this.$popup) this.$popup.hide();
 	},
+
+	loading : function($el) {
+		var popup = this.popup($el),
+			$loadingEl = $('<div>')
+				.append('<span>Fetching comment...</span>');
+
+		popup.html($loadingEl);
+		popup.show();
+	}
 };
 
 var rCommentsModel = {
@@ -186,16 +195,18 @@ var rCommentsController = {
 			request = self.request,
 			commentJson;
 
+		self.view.loading($el);
+
 		request.abort();
 
 		if (requestData.cached) {
-			self.view.show(requestData.cached, $el);
+			self.view.show($el, requestData.cached);
 			return;
 		}
 
 		request = $.getJSON(requestData.url, requestData.params).done(function(data) {
 				commentJson = self.model.registerComment(requestData.url, data, commentId);
-				self.view.show(commentJson, $el);
+				self.view.show($el, commentJson);
 			});
 
 		this.request = request;
