@@ -6,16 +6,20 @@ var Comment = function(json) {
 
 	// Fuck this function.
 	this.toHtml = function() {
-		var d  = this.data,
-			commentHtml = $($('<div>').html(d.body_html).text()), // html entity weirdness
-			$body_html = $('<div>').addClass('entry').append(commentHtml),
+		var d = this.data,
+			$commentHtml = $($('<div>').html(d.body_html).text()), // html entity weirdness
+			$bodyHtml = $('<div>').addClass('entry').append($commentHtml),
 			$tagline = this.buildTagline();
 
 		var $wrapper = $('<div>')
-			.addClass('comment').addClass('thing')
-			.attr('id', d.id);
+			.attr('id', d.id)
+			.addClass('comment thing');
 
-		$wrapper.append($tagline).append($body_html);
+		$wrapper
+			.append($tagline)
+			.append($bodyHtml)
+			.append($('<div>').addClass('children')) // Children container
+			.append(this.nextReply());
 		return $wrapper;
 	};
 
@@ -41,6 +45,10 @@ var Comment = function(json) {
 		return $wrapper;
 	};
 
+	this.nextReply = function() {
+		return $('<div class="_lazy_next_reply">Next Reply</div>');
+	};
+
 	this.authorTag = function() {
 		var author = this.data.author;
 		return $('<a>')
@@ -55,13 +63,23 @@ var Comment = function(json) {
 var rCommentsView = {
 	$popup : null,
 	_id : '_lazy_comment_div',
+	prefix : '_lazy_comments_',
+
 
 	show : function($el, json) {
 		var comment = new Comment(json),
 			commentHtml = comment.toHtml(),
-			popup = this.popup($el);
+			container;
 
-		popup.html(commentHtml);
+		if (this.isFirstComment($el)) {
+			popup = this.popup($el);
+			popup.html(commentHtml);
+		} else {
+			$el.find('.children').first()
+				.append(commentHtml)
+				.find('.' + this.prefix + 'loading').remove();
+		}
+
 		popup.show();
 	},
 
@@ -76,16 +94,18 @@ var rCommentsView = {
 		var offset = $el.offset(),
 			height = $el.outerHeight();
 
-		$popup.css({
-			'position' : 'absolute',
-			'top' : offset.top + height + "px",
-			'left' : offset.left,
-			'max-width' : '500px',
-			'background' : '#fff',
-			'padding' : '0px',
-			'border' : '1px solid #777',
-			'z-index' : '99'
-		});
+		if (this.isFirstComment($el)) {
+			$popup.css({
+					'position' : 'absolute',
+					'top' : offset.top + height + "px",
+					'left' : offset.left,
+					'max-width' : '500px',
+					'background' : '#fff',
+					'padding' : '0px',
+					'border' : '1px solid #777',
+					'z-index' : '99'
+				});
+		}
 
 		this.$popup = $popup;
 		return $popup;
@@ -95,18 +115,29 @@ var rCommentsView = {
 		if (this.$popup) this.$popup.hide();
 	},
 
+	isFirstComment : function($el) {
+		return $el.is('a');
+	},
+
 	loading : function($el) {
-		var popup = this.popup($el),
+		var isFirst = this.isFirstComment($el),
 			$loadingEl = $('<div>')
+				.addClass(this.prefix + 'loading')
 				.append('<span>Fetching comment...</span>');
 
-		popup.html($loadingEl);
-		popup.show();
+		if (isFirst) {
+			popup = this.popup($el);
+			popup.html($loadingEl);
+			popup.show();
+		} else {
+			$el.find('.children').first().append($loadingEl);
+		}
 	}
 };
 
 var rCommentsModel = {
 
+	listingCache : {},
 	commentCache : {},
 	commentStatus : {},
 
@@ -116,8 +147,8 @@ var rCommentsModel = {
 
 			data = {
 				url : url,
-				params : params,
-				cached : this.commentCache[key]
+				params : params
+				// cached : this.commentCache[key]
 			};
 
 		return data;
@@ -130,7 +161,7 @@ var rCommentsModel = {
 		if (!params) {
 			params = {
 				depth : (commentId ? 2 : 1),
-				limit : 0, // Incremented below 
+				limit : (commentId ? 1 : 0), // Incremented below 
 				sort : 'top'
 			};
 
@@ -138,7 +169,6 @@ var rCommentsModel = {
 		}
 
 		params.limit++;
-
 		this.commentStatus[key] = params;
 
 		return params;
@@ -147,18 +177,26 @@ var rCommentsModel = {
 	registerComment : function(url, data, commentId) {
 		var key = this.genKey(url, commentId),
 			params = this.commentStatus[key],
-			json = this.extractJson(data, params);
+			listingJson = this.extractListingJson(data),
+			commentJson = this.extractCommentJson(data, params);
 
-		this.commentCache[key] = json;
-		return json;
+		this.listingCache[commentJson.data.id] = listingJson;
+		this.commentCache[key] = commentJson;
+
+		return commentJson;
 	},
 
-	extractJson : function(data, params) {
+	extractListingJson : function(data) {
+		return data[0]['data']['children'][0]['data'];
+	},
+
+	extractCommentJson : function(data, params) {
 		var isCommentReply = params.depth == 2,
 			commentIndex = params.limit - 1,
 			commentList = data[1]['data']['children'];
 
 		if (isCommentReply) {
+			commentIndex--;
 			commentList = commentList[0]['data']['replies']['data']['children'];
 		}
 
@@ -167,6 +205,10 @@ var rCommentsModel = {
 
 	genKey : function(url, commentId) {
 		return url + commentId;
+	},
+
+	getUrl : function(commentId) {
+		return this.listingCache[commentId].permalink;
 	}
 };
 
@@ -178,6 +220,7 @@ var rCommentsController = {
 
 	init : function() {
 		var self = this;
+
 		$('body')
 			.on('mouseover', 'a.comments', function() {
 				self.renderComment($(this));
@@ -188,16 +231,20 @@ var rCommentsController = {
 			.on('mouseleave', '#' + self.view._id, function() {
 				self.request.abort();
 				self.view.hidePopup();
+			})
+			.on('click', '._lazy_next_reply', function() {
+				self.renderComment($(this).parents('.comment').first());
 			});
 	},
 
 	renderComment : function($el) {
 		var self = this,
-			url = $el.attr('href') + '.json',
-			commentId = $el.closest('.thing').attr('id'), // this gonna break
-			requestData = self.model.getRequestData(url, commentId),
+			commentId = $el.closest('.thing').attr('id'),
 			request = self.request,
+			url = ($el.attr('href') || self.model.getUrl(commentId)) + '.json',
 			commentJson;
+
+		var requestData = self.model.getRequestData(url, commentId);
 
 		self.view.loading($el);
 
@@ -226,7 +273,6 @@ var rCommentsController = {
 		this.request.abort();
 		this.view.hidePopup();
 	}
-
 };
 
 rCommentsController.init();
