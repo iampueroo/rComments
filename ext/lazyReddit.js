@@ -21,7 +21,7 @@ var Comment = function(json) {
 			.append($tagline)
 			.append($bodyHtml)
 			.append($('<div>').addClass('children')) // Children container
-			.append(this.nextReply());
+			.append(this.nextReply(!!d.replies));
 
 		return $wrapper;
 	};
@@ -48,8 +48,11 @@ var Comment = function(json) {
 		return $wrapper;
 	};
 
-	this.nextReply = function() {
-		return $('<div class="' + this.prefix + 'next_reply">See Next Reply</div>');
+	this.nextReply = function(hasChildren) {
+		var _class = hasChildren ?  this.prefix + 'next_reply' : this.prefix + 'no_reply',
+			html = hasChildren ? 'See Next Reply' : 'No Replies';
+
+		return $('<div class="' + _class + '">' + html + '</div>');
 	};
 
 	this.authorTag = function() {
