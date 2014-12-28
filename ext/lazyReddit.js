@@ -3,10 +3,9 @@ var Comment = function(json) {
 	this.prefix = '_lazy_comments_';
 
 	this.init = function(json) {
-		this.data = json.data;
+		this.data = json;
 	};
 
-	// Fuck this function.
 	this.toHtml = function() {
 		var d = this.data,
 			$commentHtml = $($('<div>').html(d.body_html).text()), // html entity weirdness
@@ -135,12 +134,20 @@ var rCommentsView = {
 				.append('<span>Fetching comment...</span>');
 
 		if (isFirst) {
-			popup = this.popup($el);
+			var popup = this.popup($el);
 			popup.find('.' + this.prefix + 'content').html($loadingEl);
 			popup.show();
 		} else {
 			$el.find('._lazy_comments_content, .children').first().append($loadingEl);
 		}
+	},
+
+	loadContentHtml : function($el, content) {
+		this.popup($el).find('.' + this.prefix + 'content').html(content);
+	},
+
+	contentHtml : function() {
+		return this.$popup.find('.' + this.prefix + 'content').html();
 	}
 };
 
@@ -152,14 +159,14 @@ var rCommentsModel = {
 	currentListing : {},
 
 	getRequestData : function(url, commentId) {
-		var key = this.genKey(url, commentId),
-			params = this.requestParams(url, commentId);
+		var params = this.requestParams(url, commentId);
 
-			data = {
-				url : url,
-				params : params
-				// cached : this.commentCache[key]
-			};
+		data = {
+			url : url,
+			params : params
+		};
+
+		if (!commentId) data.cached = this.cache(url);
 
 		return data;
 	},
@@ -188,10 +195,9 @@ var rCommentsModel = {
 		var key = this.genKey(url, commentId),
 			params = this.commentStatus[key],
 			listingJson = this.extractListingJson(data),
-			commentJson = this.extractCommentJson(data, params);
+			commentJson = this.extractCommentJson(data, params).data;
 
-		this.listingCache[commentJson.data.id] = listingJson;
-		this.commentCache[key] = commentJson;
+		this.listingCache[commentJson.id] = listingJson;
 		this.currentListing = listingJson;
 
 		return commentJson;
@@ -215,7 +221,7 @@ var rCommentsModel = {
 	},
 
 	genKey : function(url, commentId) {
-		url = url.slice(url.indexOf('/r/')); // Ok now I'm getting sloppy.
+		url = this.cleanUrl(url);
 		return commentId ? url + commentId : url;
 	},
 
@@ -223,6 +229,23 @@ var rCommentsModel = {
 		var listing = this.listingCache[commentId];
 
 		return listing ? listing.permalink : this.currentListing.permalink;
+	},
+
+	cache : function(url, args) {
+		url = this.cleanUrl(url);
+
+		if (args)
+			this.commentCache[url] = args;
+		else
+			return this.commentCache[url];
+	},
+
+	setCurrentListing : function(commentId) {
+		this.currentListing = this.listingCache[commentId];
+	},
+
+	cleanUrl : function(url) {
+		return url.slice(url.indexOf('/r/')); // Ok now I'm getting sloppy.
 	}
 };
 
@@ -264,6 +287,7 @@ var rCommentsController = {
 			request = self.request,
 			commentId = $el.closest('.thing').attr('id'),
 			url = ($el.attr('href') || self.model.getUrl(commentId)) + '.json',
+			isNextComment = $el.is('#_lazy_comment_div'),
 			commentJson;
 
 		var requestData = self.model.getRequestData(url, commentId);
@@ -272,17 +296,26 @@ var rCommentsController = {
 
 		request.abort();
 
-		if (requestData.cached) {
-			self.view.show($el, requestData.cached);
+		if (requestData.cached && !isNextComment) {
+			self.view.loadContentHtml($el, requestData.cached.content);
+			self.model.setCurrentListing(requestData.cached.commentId);
 			return;
 		}
 
 		request = $.getJSON(requestData.url, requestData.params).done(function(data) {
 				commentJson = self.model.registerComment(requestData.url, data, commentId);
 				self.view.show($el, commentJson);
+				self.updateCache(requestData.url, commentJson.id, commentId);
 			});
 
 		this.request = request;
+	},
+
+	updateCache : function(url, commentId, isCommentReply) {
+		this.model.cache(url, {
+			content : this.view.contentHtml(),
+			commentId : commentId
+		});
 	},
 
 	handleAnchorMouseLeave : function(e, commentAnchor) {
