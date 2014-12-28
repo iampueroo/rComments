@@ -49,7 +49,7 @@ var Comment = function(json) {
 	};
 
 	this.nextReply = function() {
-		return $('<div class="_lazy_next_reply">Next Reply</div>');
+		return $('<div class="_lazy_next_reply">See Next Reply</div>');
 	};
 
 	this.authorTag = function() {
@@ -220,15 +220,17 @@ var rCommentsController = {
 	model : rCommentsModel,
 	view : rCommentsView,
 	request : new XMLHttpRequest(),
+	go : false,
 
 	init : function() {
 		var self = this;
 
 		$('body')
-			.on('mouseover', 'a.comments', function() {
+			.on('mouseenter', 'a.comments', function() {
 				var $this = $(this);
+				self.go = true;
 				setTimeout(function() {
-					self.renderComment($this);
+					if (self.go) self.renderComment($this);
 				}, 250);
 			})
 			.on('mouseleave', 'a.comments', function(e) {
@@ -273,6 +275,7 @@ var rCommentsController = {
 		var $commentAnchor = $(commentAnchor),
 			bottom = $commentAnchor.offset().top + $commentAnchor.outerHeight();
 
+		this.go = false;
 		// Do stuff only if exiting anchor not through comment.
 		if (e.pageY >= bottom) return;
 
