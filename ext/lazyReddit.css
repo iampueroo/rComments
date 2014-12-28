@@ -10,6 +10,6 @@
 	background-color: rgb(247, 247, 248);
 }
 
-._lazy_next_reply {
+._lazy_comments_next_reply, ._lazy_comments_next_comment {
 	cursor: pointer;
 }

@@ -23,6 +23,7 @@ var Comment = function(json) {
 			.append($bodyHtml)
 			.append($('<div>').addClass('children')) // Children container
 			.append(this.nextReply());
+
 		return $wrapper;
 	};
 
@@ -49,7 +50,7 @@ var Comment = function(json) {
 	};
 
 	this.nextReply = function() {
-		return $('<div class="_lazy_next_reply">See Next Reply</div>');
+		return $('<div class="' + this.prefix + 'next_reply">See Next Reply</div>');
 	};
 
 	this.authorTag = function() {
@@ -76,9 +77,9 @@ var rCommentsView = {
 
 		if (this.isFirstComment($el)) {
 			popup = this.popup($el);
-			popup.html(commentHtml);
+			popup.find('.' + this.prefix + 'content').html(commentHtml);
 		} else {
-			$el.find('.children').first()
+			$el.find('._lazy_comments_content, .children').first()
 				.append(commentHtml)
 				.find('.' + this.prefix + 'loading').remove();
 		}
@@ -90,8 +91,13 @@ var rCommentsView = {
 		var $popup = this.$popup;
 
 		if (!$popup) {
-			$popup = $('<div/>', {id : this._id})
-				.appendTo("body");
+			$popup = $('<div>', {id : this._id})
+				.append($('<div>').addClass(this.prefix + 'content'))
+				.append($('<div>')
+					.html('Next Comment')
+					.addClass(this.prefix + 'next_comment'));
+
+			$popup.appendTo("body");
 		}
 
 		var offset = $el.offset(),
@@ -130,10 +136,10 @@ var rCommentsView = {
 
 		if (isFirst) {
 			popup = this.popup($el);
-			popup.html($loadingEl);
+			popup.find('.' + this.prefix + 'content').html($loadingEl);
 			popup.show();
 		} else {
-			$el.find('.children').first().append($loadingEl);
+			$el.find('._lazy_comments_content, .children').first().append($loadingEl);
 		}
 	}
 };
@@ -143,6 +149,7 @@ var rCommentsModel = {
 	listingCache : {},
 	commentCache : {},
 	commentStatus : {},
+	currentListing : {},
 
 	getRequestData : function(url, commentId) {
 		var key = this.genKey(url, commentId),
@@ -185,6 +192,7 @@ var rCommentsModel = {
 
 		this.listingCache[commentJson.data.id] = listingJson;
 		this.commentCache[key] = commentJson;
+		this.currentListing = listingJson;
 
 		return commentJson;
 	},
@@ -207,11 +215,14 @@ var rCommentsModel = {
 	},
 
 	genKey : function(url, commentId) {
-		return url + commentId;
+		url = url.slice(url.indexOf('/r/')); // Ok now I'm getting sloppy.
+		return commentId ? url + commentId : url;
 	},
 
 	getUrl : function(commentId) {
-		return this.listingCache[commentId].permalink;
+		var listing = this.listingCache[commentId];
+
+		return listing ? listing.permalink : this.currentListing.permalink;
 	}
 };
 
@@ -240,15 +251,18 @@ var rCommentsController = {
 				self.request.abort();
 				self.view.hidePopup();
 			})
-			.on('click', '._lazy_next_reply', function() {
+			.on('click', '._lazy_comments_next_reply', function() {
 				self.renderComment($(this).parents('.comment').first());
+			})
+			.on('click', '._lazy_comments_next_comment', function() {
+				self.renderComment($(this).parent());
 			});
 	},
 
 	renderComment : function($el) {
 		var self = this,
-			commentId = $el.closest('.thing').attr('id'),
 			request = self.request,
+			commentId = $el.closest('.thing').attr('id'),
 			url = ($el.attr('href') || self.model.getUrl(commentId)) + '.json',
 			commentJson;
 
