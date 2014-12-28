@@ -1,5 +1,7 @@
 var Comment = function(json) {
 
+	this.prefix = '_lazy_comments_';
+
 	this.init = function(json) {
 		this.data = json.data;
 	};
@@ -13,6 +15,7 @@ var Comment = function(json) {
 
 		var $wrapper = $('<div>')
 			.attr('id', d.id)
+			.addClass(this.prefix + 'comment ')
 			.addClass('comment thing');
 
 		$wrapper

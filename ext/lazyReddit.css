@@ -1,0 +1,15 @@
+._lazy_comments_comment {
+	border: solid 1px rgb(230, 230, 230);
+	border-radius: 3px;
+	font-family: verdana, arial, helvetica, sans-serif;
+	margin: 0 8px 8px 10px;
+	padding: 5px 5px 5px 8px;
+}
+
+._lazy_comments_comment:nth-child(even) {
+	background-color: rgb(247, 247, 248);
+}
+
+._lazy_next_reply {
+	cursor: pointer;
+}
