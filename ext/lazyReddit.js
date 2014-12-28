@@ -226,7 +226,10 @@ var rCommentsController = {
 
 		$('body')
 			.on('mouseover', 'a.comments', function() {
-				self.renderComment($(this));
+				var $this = $(this);
+				setTimeout(function() {
+					self.renderComment($this);
+				}, 250);
 			})
 			.on('mouseleave', 'a.comments', function(e) {
 				self.handleAnchorMouseLeave(e, this);
