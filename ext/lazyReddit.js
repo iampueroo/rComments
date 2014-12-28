@@ -96,7 +96,7 @@ var rCommentsView = {
 			$popup = $('<div>', {id : this._id})
 				.append($('<div>').addClass(this.prefix + 'content'))
 				.append($('<div>')
-					.html('Next Comment')
+					.html('See Next Comment')
 					.addClass(this.prefix + 'next_comment'));
 
 			$popup.appendTo("body");
@@ -151,13 +151,30 @@ var rCommentsView = {
 
 	contentHtml : function() {
 		return this.$popup.find('.' + this.prefix + 'content').html();
+	},
+
+	updateParentComment : function($el, isLastReply) {
+		if (!isLastReply) return;
+
+		var container = $el.find('.' + this.prefix + 'next_comment').first();
+
+		if (!container.length) container = $el.find('> .' + this.prefix + 'next_reply').first();
+
+		var html = container.html()
+			.replace('See Next Comment', 'No More Comments')
+			.replace('See Next Reply' , 'No More Replies');
+
+		container
+			.removeClass(this.prefix + 'next_comment')
+			.addClass(this.prefix + 'no_reply')
+			.html(html);
 	}
 };
 
 var rCommentsModel = {
 
 	listingCache : {},
-	commentCache : {},
+	htmlCache : {},
 	commentStatus : {},
 	currentListing : {},
 
@@ -198,19 +215,22 @@ var rCommentsModel = {
 		var key = this.genKey(url, commentId),
 			params = this.commentStatus[key],
 			listingJson = this.extractListingJson(data),
-			commentJson = this.extractCommentJson(data, params).data;
+			commentData = this.extractCommentData(data, params),
+			commentJson = commentData.json,
+			isLastReply = commentData.isLastReply;
 
-		this.listingCache[commentJson.id] = listingJson;
+
+		this.listingCache[commentData.json.id] = listingJson;
 		this.currentListing = listingJson;
 
-		return commentJson;
+		return commentData;
 	},
 
 	extractListingJson : function(data) {
 		return data[0]['data']['children'][0]['data'];
 	},
 
-	extractCommentJson : function(data, params) {
+	extractCommentData : function(data, params) {
 		var isCommentReply = params.depth == 2,
 			commentIndex = params.limit - 1,
 			commentList = data[1]['data']['children'];
@@ -220,7 +240,12 @@ var rCommentsModel = {
 			commentList = commentList[0]['data']['replies']['data']['children'];
 		}
 
-		return commentList[commentIndex];
+		var hasMoreReplies = !!commentList[commentIndex + 1]; // "More comments"
+
+		return {
+			json: commentList[commentIndex].data,
+			isLastReply : !hasMoreReplies
+		};
 	},
 
 	genKey : function(url, commentId) {
@@ -238,9 +263,9 @@ var rCommentsModel = {
 		url = this.cleanUrl(url);
 
 		if (args)
-			this.commentCache[url] = args;
+			this.htmlCache[url] = args;
 		else
-			return this.commentCache[url];
+			return this.htmlCache[url];
 	},
 
 	setCurrentListing : function(commentId) {
@@ -287,7 +312,7 @@ var rCommentsController = {
 			commentId = $el.closest('.thing').attr('id'),
 			url = ($el.attr('href') || self.model.getUrl(commentId)) + '.json',
 			isNextComment = $el.is('#_lazy_comment_div'),
-			commentJson;
+			commentData;
 
 		var requestData = self.model.getRequestData(url, commentId);
 
@@ -302,9 +327,10 @@ var rCommentsController = {
 		}
 
 		request = $.getJSON(requestData.url, requestData.params).done(function(data) {
-				commentJson = self.model.registerComment(requestData.url, data, commentId);
-				self.view.show($el, commentJson);
-				self.updateCache(requestData.url, commentJson.id, commentId);
+				commentData = self.model.registerComment(requestData.url, data, commentId);
+				self.view.show($el, commentData.json);
+				self.view.updateParentComment($el, commentData.isLastReply);
+				self.updateCache(requestData.url, commentData.id, commentId);
 			});
 
 		this.request = request;
