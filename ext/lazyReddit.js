@@ -261,11 +261,7 @@ var rCommentsController = {
 
 		$('body')
 			.on('mouseenter', 'a.comments', function() {
-				var $this = $(this);
-				self.go = true;
-				setTimeout(function() {
-					if (self.go) self.renderComment($this);
-				}, 250);
+				self.handleAnchorMouseEnter(this);
 			})
 			.on('mouseleave', 'a.comments', function(e) {
 				self.handleAnchorMouseLeave(e, this);
@@ -316,6 +312,18 @@ var rCommentsController = {
 			content : this.view.contentHtml(),
 			commentId : commentId
 		});
+	},
+
+	handleAnchorMouseEnter : function(commentAnchor) {
+		var self = this,
+			$commentAnchor = $(commentAnchor);
+
+		if ($commentAnchor.html().split(' ').length <= 1) return;
+
+		self.go = true;
+		setTimeout(function() {
+			if (self.go) self.renderComment($commentAnchor);
+		}, 250);
 	},
 
 	handleAnchorMouseLeave : function(e, commentAnchor) {
