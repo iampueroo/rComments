@@ -1,6 +1,8 @@
 var Comment = function(json) {
 
 	this.prefix = '_lazy_comments_';
+	this.nextReplyText = '&#8618 Next Reply';
+	this.nextCommentText = '&#8595 Next Comment';
 
 	this.init = function(json) {
 		this.data = json;
@@ -50,9 +52,9 @@ var Comment = function(json) {
 
 	this.nextReply = function(hasChildren) {
 		var _class = hasChildren ?  this.prefix + 'next_reply' : this.prefix + 'no_reply',
-			html = hasChildren ? 'See Next Reply' : 'No Replies';
+			html = hasChildren ? this.nextReplyText : 'No Replies';
 
-		return $('<div class="' + _class + '">' + html + '</div>');
+		return $('<span class="' + _class + '">' + html + '</span>');
 	};
 
 	this.authorTag = function() {
@@ -70,6 +72,9 @@ var rCommentsView = {
 	$popup : null,
 	_id : '_lazy_comment_div',
 	prefix : '_lazy_comments_',
+	nextReplyText : '&#8618 Next Reply',
+	nextCommentText : '&#8595 Next Comment',
+
 
 
 	show : function($el, json) {
@@ -90,13 +95,14 @@ var rCommentsView = {
 	},
 
 	popup : function($el) {
-		var $popup = this.$popup;
+		var $popup = this.$popup,
+			html = this.nextCommentText;
 
 		if (!$popup) {
 			$popup = $('<div>', {id : this._id})
 				.append($('<div>').addClass(this.prefix + 'content'))
 				.append($('<div>')
-					.html('See Next Comment')
+					.html(html)
 					.addClass(this.prefix + 'next_comment'));
 
 			$popup.appendTo("body");
@@ -106,15 +112,10 @@ var rCommentsView = {
 			height = $el.outerHeight();
 
 		if (this.isFirstComment($el)) {
+			$popup.find('.' + this.prefix + 'next_comment').html(html);
 			$popup.css({
-					'position' : 'absolute',
 					'top' : offset.top + height + "px",
 					'left' : offset.left,
-					'max-width' : '500px',
-					'background' : '#fff',
-					'padding' : '0px',
-					'border' : '1px solid #777',
-					'z-index' : '99'
 				});
 		}
 
@@ -156,18 +157,21 @@ var rCommentsView = {
 	updateParentComment : function($el, isLastReply) {
 		if (!isLastReply) return;
 
-		var container = $el.find('.' + this.prefix + 'next_comment').first();
+		var container = $el.find('> .' + this.prefix + 'next_reply').first();
 
-		if (!container.length) container = $el.find('> .' + this.prefix + 'next_reply').first();
+		if (!container.length) container = this.$popup.find('.' + this.prefix + 'next_comment').first();
 
-		var html = container.html()
-			.replace('See Next Comment', 'No More Comments')
-			.replace('See Next Reply' , 'No More Replies');
 
-		container
-			.removeClass(this.prefix + 'next_comment')
-			.addClass(this.prefix + 'no_reply')
-			.html(html);
+		if (container.hasClass(this.prefix + 'next_comment')) {
+			container
+				.addClass(this.prefix + 'next_comment_none')
+				.html('No more Comments');
+		} else {
+			container
+				.removeClass(this.prefix + 'next_reply')
+				.addClass(this.prefix + 'no_reply')
+				.html('No More replies');
+		}
 	}
 };
 
