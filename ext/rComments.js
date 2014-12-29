@@ -69,12 +69,11 @@ var Comment = function(json) {
 	this.arrows = function() {
 		var VOTE_URL = 'http://www.reddit.com/api/vote/.json',
 			score = this.data.ups - this.data.downs,
-			$arrows = $('<div>').addClass('midcol unvoted')
+			$arrows = $('<div>').addClass(this.prefix + 'midcol unvoted')
 				.append($('<div>').addClass('arrow up'))
 				.append($('<div>').addClass('arrow down'));
 
-		$arrows = this.handleVote($arrows, this.data.likes);
-		return $arrows;
+		return this.handleVote($arrows, this.data.likes);
 	};
 
 	this.handleVote = function($arrows, vote) {
@@ -86,14 +85,14 @@ var Comment = function(json) {
 		// Switch statement with boolean cases? #yolo(?)
 		switch(vote) {
 			case true:
-			$arrows.addClass('likes');
-			$arrows.find('.up').removeClass('up').addClass('upmod'); break;
+				$arrows.addClass('likes');
+				$arrows.find('.up').removeClass('up').addClass('upmod'); break;
 			case false:
-			$arrows.addClass('dislikes');
-			$arrows.find('.down').removeClass('down').addClass('downmod'); break;
+				$arrows.addClass('dislikes');
+				$arrows.find('.down').removeClass('down').addClass('downmod'); break;
 			default:
-			$arrows.addClass('unvoted');
-			$arrows.find('.score').addClass('unvoted');
+				$arrows.addClass('unvoted');
+				$arrows.find('.score').addClass('unvoted');
 		}
 
 		return $arrows;
