@@ -135,6 +135,7 @@ var rCommentsView = {
 		var isFirst = this.isFirstComment($el),
 			$loadingEl = $('<div>')
 				.addClass(this.prefix + 'loading')
+				.addClass(this.prefix + 'comment comment thing')
 				.append('<span>Fetching comment...</span>');
 
 		if (isFirst) {

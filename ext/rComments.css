@@ -17,6 +17,10 @@
 	background-color: white;
 }
 
+._rcomments_loading {
+	padding: 10px;
+}
+
 ._rcomments_next_reply, ._rcomments_next_comment {
 	cursor: pointer;
 }
