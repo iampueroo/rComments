@@ -1,6 +1,6 @@
 var Comment = function(json) {
 
-	this.prefix = '_lazy_comments_';
+	this.prefix = '_rcomments_';
 	this.nextReplyText = '&#8618 Next Reply';
 	this.nextCommentText = '&#8595 Next Comment';
 
@@ -70,8 +70,8 @@ var Comment = function(json) {
 
 var rCommentsView = {
 	$popup : null,
-	_id : '_lazy_comment_div',
-	prefix : '_lazy_comments_',
+	_id : '_rcomment_div',
+	prefix : '_rcomments_',
 	nextReplyText : '&#8618 Next Reply',
 	nextCommentText : '&#8595 Next Comment',
 
@@ -86,7 +86,7 @@ var rCommentsView = {
 			popup = this.popup($el);
 			popup.find('.' + this.prefix + 'content').html(commentHtml);
 		} else {
-			$el.find('._lazy_comments_content, .children').first()
+			$el.find('._rcomments_content, .children').first()
 				.append(commentHtml)
 				.find('.' + this.prefix + 'loading').remove();
 		}
@@ -142,7 +142,7 @@ var rCommentsView = {
 			popup.find('.' + this.prefix + 'content').html($loadingEl);
 			popup.show();
 		} else {
-			$el.find('._lazy_comments_content, .children').first().append($loadingEl);
+			$el.find('._rcomments_content, .children').first().append($loadingEl);
 		}
 	},
 
@@ -302,10 +302,10 @@ var rCommentsController = {
 				self.request.abort();
 				self.view.hidePopup();
 			})
-			.on('click', '._lazy_comments_next_reply', function() {
+			.on('click', '._rcomments_next_reply', function() {
 				self.renderComment($(this).parents('.comment').first());
 			})
-			.on('click', '._lazy_comments_next_comment', function() {
+			.on('click', '._rcomments_next_comment', function() {
 				self.renderComment($(this).parent());
 			});
 	},
@@ -315,7 +315,7 @@ var rCommentsController = {
 			request = self.request,
 			commentId = $el.closest('.thing').attr('id'),
 			url = ($el.attr('href') || self.model.getUrl(commentId)) + '.json',
-			isNextComment = $el.is('#_lazy_comment_div'),
+			isNextComment = $el.is('#_rcomment_div'),
 			commentData;
 
 		var requestData = self.model.getRequestData(url, commentId);

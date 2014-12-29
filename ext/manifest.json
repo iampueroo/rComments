@@ -1,7 +1,7 @@
 {
    "content_scripts": [ {
-      "js": [ "jquery-1.11.1.min.js", "lazyReddit.js"],
-      "css" : ["lazyReddit.css"],
+      "js": [ "jquery-1.11.1.min.js", "rComments.js"],
+      "css" : ["rComments.css"],
       "matches": [ "http://reddit.com/*", "https://reddit.com/*", "http://*.reddit.com/*", "https://*.reddit.com/*" ]
    } ],
    "description": "Unbelievably quick, easy, and lazy way to consume Reddit comments.",

@@ -1,4 +1,4 @@
-#_lazy_comment_div {
+#_rcomment_div {
 	position: absolute;
 	background-color: #fff;
 	background-color: rgba(255,255,255,.9);
@@ -8,7 +8,7 @@
 	z-index: 2147483647; /* One more than 'Use subreddit style' option */
 }
 
-._lazy_comments_comment {
+._rcomments_comment {
 	border: solid 1px rgb(230, 230, 230);
 	border-radius: 3px;
 	font-family: verdana, arial, helvetica, sans-serif;
@@ -17,32 +17,32 @@
 	background-color: white;
 }
 
-._lazy_comments_next_reply, ._lazy_comments_next_comment {
+._rcomments_next_reply, ._rcomments_next_comment {
 	cursor: pointer;
 }
 
-._lazy_comments_next_reply:hover {
+._rcomments_next_reply:hover {
 	text-decoration: underline;
 }
 
-._lazy_comments_comment:nth-child(even) {
+._rcomments_comment:nth-child(even) {
 	background-color: rgb(247, 247, 248);
 }
 
-._lazy_comments_content {
+._rcomments_content {
 	padding-top: 5px;
 }
 
-._lazy_comments_next_comment {
+._rcomments_next_comment {
 	text-align: center;
 	padding: 8px;
 	font-size: 12px;
 	background-image: linear-gradient(to bottom, rgba(255,255,255,.9), rgba(0, 0, 0, .2));
 }
 
-._lazy_comments_next_comment:hover {
+._rcomments_next_comment:hover {
 	background-image: linear-gradient(to bottom, rgba(255,255,255,.9), rgba(0, 0, 0, .3));
 }
-._lazy_comments_next_comment_none, ._lazy_comments_no_reply {
+._rcomments_next_comment_none, ._rcomments_no_reply {
 	color: lightgray;
 }
