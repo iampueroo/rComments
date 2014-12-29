@@ -75,8 +75,6 @@ var rCommentsView = {
 	nextReplyText : '&#8618 Next Reply',
 	nextCommentText : '&#8595 Next Comment',
 
-
-
 	show : function($el, json) {
 		var comment = new Comment(json),
 			commentHtml = comment.toHtml(),
@@ -224,7 +222,6 @@ var rCommentsModel = {
 			commentJson = commentData.json,
 			isLastReply = commentData.isLastReply;
 
-
 		this.listingCache[commentData.json.id] = listingJson;
 		this.currentListing = listingJson;
 
@@ -260,7 +257,6 @@ var rCommentsModel = {
 
 	getUrl : function(commentId) {
 		var listing = this.listingCache[commentId];
-
 		return listing ? listing.permalink : this.currentListing.permalink;
 	},
 
@@ -317,7 +313,7 @@ var rCommentsController = {
 			commentId = $el.closest('.thing').attr('id'),
 			url = ($el.attr('href') || self.model.getUrl(commentId)) + '.json',
 			isNextComment = $el.is('#_rcomment_div'),
-			commentData;
+			commentData, content;
 
 		var requestData = self.model.getRequestData(url, commentId);
 
@@ -326,8 +322,9 @@ var rCommentsController = {
 		request.abort();
 
 		if (requestData.cached && !isNextComment) {
-			self.view.loadContentHtml($el, requestData.cached.content);
-			self.model.setCurrentListing(requestData.cached.commentId);
+			content = requestData.cached.content;
+			self.view.loadContentHtml($el, content);
+			self.model.setCurrentListing($(content).attr('id'));
 			return;
 		}
 
