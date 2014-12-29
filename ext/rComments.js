@@ -11,21 +11,22 @@ var Comment = function(json) {
 	this.toHtml = function() {
 		var d = this.data,
 			$commentHtml = $($('<div>').html(d.body_html).text()), // html entity weirdness
-			$bodyHtml = $('<div>').addClass('entry').append($commentHtml),
-			$tagline = this.buildTagline();
+			$bodyHtml = $('<div>').append($commentHtml),
+			$tagline = this.buildTagline(),
+			$wrapper, $entry;
 
-		var $wrapper = $('<div>')
+		$wrapper = $('<div>')
 			.attr('id', d.id)
-			.addClass(this.prefix + 'comment ')
-			.addClass('comment thing');
+			.addClass(this.prefix + 'comment comment thing');
 
-		$wrapper
+		$entry = $('<div>')
+			.addClass('entry')
 			.append($tagline)
 			.append($bodyHtml)
 			.append(this.nextReply(!!d.replies))
 			.append($('<div>').addClass('children'));
 
-		return $wrapper;
+		return $wrapper.append(this.arrows()).append($entry);
 	};
 
 	this.buildTagline = function() {
@@ -63,6 +64,39 @@ var Comment = function(json) {
 			.attr('href', '/user/' + author)
 			.addClass('author')
 			.html(author);
+	};
+
+	this.arrows = function() {
+		var VOTE_URL = 'http://www.reddit.com/api/vote/.json',
+			score = this.data.ups - this.data.downs,
+			$arrows = $('<div>').addClass('midcol unvoted')
+				.append($('<div>').addClass('arrow up'))
+				.append($('<div>').addClass('arrow down'));
+
+		$arrows = this.handleVote($arrows, this.data.likes);
+		return $arrows;
+	};
+
+	this.handleVote = function($arrows, vote) {
+		// Reset - gross, could find a better way of doing this.
+		$arrows.removeClass('unvoted likes dislikes');
+		$arrows.find('.arrow.up, .arrow.upmod').removeClass('upmod').addClass('up');
+		$arrows.find('.arrow.down, .arrow.downmod').removeClass('downmod').addClass('down');
+
+		// Switch statement with boolean cases? #yolo(?)
+		switch(vote) {
+			case true:
+			$arrows.addClass('likes');
+			$arrows.find('.up').removeClass('up').addClass('upmod'); break;
+			case false:
+			$arrows.addClass('dislikes');
+			$arrows.find('.down').removeClass('down').addClass('downmod'); break;
+			default:
+			$arrows.addClass('unvoted');
+			$arrows.find('.score').addClass('unvoted');
+		}
+
+		return $arrows;
 	};
 
 	this.init(json);
