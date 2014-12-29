@@ -22,8 +22,8 @@ var Comment = function(json) {
 		$wrapper
 			.append($tagline)
 			.append($bodyHtml)
-			.append($('<div>').addClass('children')) // Children container
-			.append(this.nextReply(!!d.replies));
+			.append(this.nextReply(!!d.replies))
+			.append($('<div>').addClass('children'));
 
 		return $wrapper;
 	};
@@ -54,7 +54,7 @@ var Comment = function(json) {
 		var _class = hasChildren ?  this.prefix + 'next_reply' : this.prefix + 'no_reply',
 			html = hasChildren ? this.nextReplyText : 'No Replies';
 
-		return $('<span class="' + _class + '">' + html + '</span>');
+		return $('<div>').addClass(_class).html(html);
 	};
 
 	this.authorTag = function() {
@@ -85,7 +85,7 @@ var rCommentsView = {
 			popup.find('.' + this.prefix + 'content').html(commentHtml);
 		} else {
 			$el.find('._rcomments_content, .children').first()
-				.append(commentHtml)
+				.prepend(commentHtml)
 				.find('.' + this.prefix + 'loading').remove();
 		}
 
@@ -141,7 +141,7 @@ var rCommentsView = {
 			popup.find('.' + this.prefix + 'content').html($loadingEl);
 			popup.show();
 		} else {
-			$el.find('._rcomments_content, .children').first().append($loadingEl);
+			$el.find('._rcomments_content, .children').first().prepend($loadingEl);
 		}
 	},
 

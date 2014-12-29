@@ -25,6 +25,10 @@
 	cursor: pointer;
 }
 
+._rcomments_next_reply, ._rcomments_no_reply {
+	padding-bottom: 5px;
+}
+
 ._rcomments_next_reply:hover {
 	text-decoration: underline;
 }
