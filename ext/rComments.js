@@ -190,7 +190,7 @@ var rCommentsView = {
 	updateParentComment : function($el, isLastReply) {
 		if (!isLastReply) return;
 
-		var container = $el.find('> .' + this.prefix + 'next_reply').first();
+		var container = $el.find('> .entry > .' + this.prefix + 'next_reply').first();
 
 		if (!container.length) container = this.$popup.find('.' + this.prefix + 'next_comment').first();
 
