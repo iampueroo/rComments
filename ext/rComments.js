@@ -67,9 +67,8 @@ var Comment = function(json) {
 	};
 
 	this.arrows = function() {
-		var VOTE_URL = 'http://www.reddit.com/api/vote/.json',
-			score = this.data.ups - this.data.downs,
-			$arrows = $('<div>').addClass(this.prefix + 'midcol unvoted')
+		var score = this.data.ups - this.data.downs,
+			$arrows = $('<div>').addClass(this.prefix + 'arrows unvoted')
 				.append($('<div>').addClass('arrow up'))
 				.append($('<div>').addClass('arrow down'));
 
@@ -337,6 +336,9 @@ var rCommentsController = {
 			})
 			.on('click', '._rcomments_next_comment', function() {
 				self.renderComment($(this).parent());
+			})
+			.on('click', '._rcomments_arrows .arrow', function() {
+				self.handleVote(this);
 			});
 	},
 
@@ -400,6 +402,28 @@ var rCommentsController = {
 
 		this.request.abort();
 		this.view.hidePopup();
+	},
+
+	handleVote : function(arrow) {
+		if (!this.modhash) return;
+
+		var VOTE_URL = '/api/vote/.json';
+
+		var $arrow = $(arrow),
+			id = 't1_' + $arrow.parents('.' + this.view.prefix + 'comment').first().attr('id'),
+			data, dir;
+
+		if ($arrow.hasClass('up')) dir = 1;
+		else if ($arrow.hasClass('down')) dir = -1;
+		else dir = 0;
+
+		data = {
+			id : id,
+			dir : dir,
+			modhash : this.modhash
+		};
+
+		$.post(VOTE_URL, data);
 	}
 };
 
