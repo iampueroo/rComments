@@ -318,6 +318,7 @@ var rCommentsController = {
 	view : rCommentsView,
 	request : new XMLHttpRequest(),
 	go : false,
+	disableRequest : false,
 
 	init : function() {
 		var self = this;
@@ -351,12 +352,16 @@ var rCommentsController = {
 	},
 
 	renderComment : function($el) {
+		if (this.disableRequest) return;
+
 		var self = this,
 			request = self.request,
 			commentId = $el.closest('.thing').attr('id'),
 			url = ($el.attr('href') || self.model.getUrl(commentId)) + '.json',
 			isNextComment = $el.is('#_rcomment_div'),
 			commentData, content;
+
+		self.disableRequest = true;
 
 		var requestData = self.model.getRequestData(url, commentId);
 
@@ -376,6 +381,7 @@ var rCommentsController = {
 				self.view.show($el, commentData.json);
 				self.view.updateParentComment($el, commentData.isLastReply);
 				self.updateCache(requestData.url, commentData.id);
+				self.disableRequest = false;
 			});
 
 		this.request = request;
