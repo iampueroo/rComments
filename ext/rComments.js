@@ -1,14 +1,13 @@
-var Comment = function(json) {
+var Comment =  {
 
-	this.prefix = '_rcomments_';
-	this.nextReplyText = '&#8618 Next Reply';
-	this.nextCommentText = '&#8595 Next Comment';
+	prefix : '_rcomments_',
+	nextReplyText : '&#8618 Next Reply',
+	nextCommentText : '&#8595 Next Comment',
 
-	this.init = function(json) {
+	getHtml : function(json) {
+
 		this.data = json;
-	};
 
-	this.toHtml = function() {
 		var d = this.data,
 			$commentHtml = $($('<div>').html(d.body_html).text()), // html entity weirdness
 			$bodyHtml = $('<div>').append($commentHtml),
@@ -27,9 +26,9 @@ var Comment = function(json) {
 			.append($('<div>').addClass('children'));
 
 		return $wrapper.append(this.arrows()).append($entry);
-	};
+	},
 
-	this.buildTagline = function() {
+	buildTagline : function() {
 		var $wrapper = $('<div>').addClass('tagline');
 
 		$wrapper
@@ -37,9 +36,9 @@ var Comment = function(json) {
 			.append(this.voteTag());
 
 		return $wrapper;
-	};
+	},
 
-	this.voteTag = function() {
+	voteTag : function() {
 		var votes = this.data.ups - this.data.downs,
 			$wrapper = $('<span>'),
 			$unvoted = $('<span>').addClass('score unvoted').html(votes + ' points'),
@@ -49,33 +48,33 @@ var Comment = function(json) {
 		$wrapper.append($dislikes).append($unvoted).append($likes);
 
 		return $wrapper;
-	};
+	},
 
-	this.nextReply = function(hasChildren) {
+	nextReply : function(hasChildren) {
 		var _class = hasChildren ?  this.prefix + 'next_reply' : this.prefix + 'no_reply',
 			html = hasChildren ? this.nextReplyText : 'No Replies';
 
 		return $('<div>').addClass(_class).html(html);
-	};
+	},
 
-	this.authorTag = function() {
+	authorTag : function() {
 		var author = this.data.author;
 		return $('<a>')
 			.attr('href', '/user/' + author)
 			.addClass('author')
 			.html(author);
-	};
+	},
 
-	this.arrows = function() {
+	arrows : function() {
 		var score = this.data.ups - this.data.downs,
 			$arrows = $('<div>').addClass(this.prefix + 'arrows unvoted')
 				.append($('<div>').addClass('arrow up'))
 				.append($('<div>').addClass('arrow down'));
 
 		return this.handleVote($arrows, this.data.likes);
-	};
+	},
 
-	this.handleVote = function($arrows, vote) {
+	handleVote : function($arrows, vote) {
 		// Reset - gross, could find a better way of doing this.
 		$arrows.removeClass('unvoted likes dislikes');
 		$arrows.find('.arrow.up, .arrow.upmod').removeClass('upmod').addClass('up');
@@ -95,9 +94,7 @@ var Comment = function(json) {
 		}
 
 		return $arrows;
-	};
-
-	this.init(json);
+	}
 };
 
 var rCommentsView = {
@@ -107,9 +104,8 @@ var rCommentsView = {
 	nextReplyText : '&#8618 Next Reply',
 	nextCommentText : '&#8595 Next Comment',
 
-	show : function($el, json) {
-		var comment = new Comment(json),
-			commentHtml = comment.toHtml(),
+	show : function($el, json) {debugger;
+		var commentHtml = Comment.getHtml(json),
 			container;
 
 		if (this.isFirstComment($el)) {
