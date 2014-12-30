@@ -206,6 +206,19 @@ var rCommentsView = {
 				.addClass(this.prefix + 'no_reply')
 				.html('No More replies');
 		}
+	},
+
+	handleError : function($el) {
+		var errorHtml = $('<div>An error occured.</div>');
+
+		if (this.isFirstComment($el)) {
+			popup = this.popup($el);
+			popup.find('.' + this.prefix + 'content').html(errorHtml);
+		} else {
+			$el.find('._rcomments_content, .children').first()
+				.prepend(errorHtml)
+				.find('.' + this.prefix + 'loading').remove();
+		}
 	}
 };
 
@@ -377,13 +390,20 @@ var rCommentsController = {
 			return;
 		}
 
-		request = $.getJSON(requestData.url, requestData.params).done(function(data) {
-				commentData = self.model.registerComment(requestData.url, data, commentId);
-				self.view.show($el, commentData.json);
-				self.view.updateParentComment($el, commentData.isLastReply);
-				self.updateCache(requestData.url, commentData.id);
-				self.disableRequest = false;
-			});
+		request = $.ajax({
+			dataType: "json",
+			url: requestData.url,
+			data: requestData.params,
+			timeout: 1000
+		})
+		.success(function(data) {
+			commentData = self.model.registerComment(requestData.url, data, commentId);
+			self.view.updateParentComment($el, commentData.isLastReply);
+			self.view.show($el, commentData.json);
+			self.updateCache(requestData.url, commentData.id);
+		})
+		.error(function() { self.view.handleError($el); })
+		.always(function() { self.disableRequest = false; });
 
 		this.request = request;
 	},
