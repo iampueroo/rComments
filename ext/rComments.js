@@ -5,7 +5,6 @@ var Comment =  {
 	nextCommentText : '&#8595 Next Comment',
 
 	getHtml : function(json) {
-
 		this.data = json;
 
 		var d = this.data,
@@ -82,12 +81,16 @@ var Comment =  {
 
 		// Switch statement with boolean cases? #yolo(?)
 		switch(vote) {
+			case 1:
 			case true:
 				$arrows.addClass('likes');
-				$arrows.find('.up').removeClass('up').addClass('upmod'); break;
+				$arrows.find('.up').removeClass('up').addClass('upmod');
+				break;
+			case -1:
 			case false:
 				$arrows.addClass('dislikes');
-				$arrows.find('.down').removeClass('down').addClass('downmod'); break;
+				$arrows.find('.down').removeClass('down').addClass('downmod');
+				break;
 			default:
 				$arrows.addClass('unvoted');
 				$arrows.find('.score').addClass('unvoted');
@@ -104,7 +107,7 @@ var rCommentsView = {
 	nextReplyText : '&#8618 Next Reply',
 	nextCommentText : '&#8595 Next Comment',
 
-	show : function($el, json) {debugger;
+	show : function($el, json) {
 		var commentHtml = Comment.getHtml(json),
 			container;
 
@@ -316,6 +319,11 @@ var rCommentsController = {
 	init : function() {
 		var self = this;
 
+		$.getJSON('/api/me.json', function(response) {
+			if (!response.data) return;
+			self.modhash = response.data.modhash;
+		});
+
 		$('body')
 			.on('mouseenter', 'a.comments', function() {
 				self.handleAnchorMouseEnter(this);
@@ -363,13 +371,13 @@ var rCommentsController = {
 				commentData = self.model.registerComment(requestData.url, data, commentId);
 				self.view.show($el, commentData.json);
 				self.view.updateParentComment($el, commentData.isLastReply);
-				self.updateCache(requestData.url, commentData.id, commentId);
+				self.updateCache(requestData.url, commentData.id);
 			});
 
 		this.request = request;
 	},
 
-	updateCache : function(url, commentId, isCommentReply) {
+	updateCache : function(url, commentId) {
 		this.model.cache(url, {
 			content : this.view.contentHtml(),
 			commentId : commentId
@@ -407,6 +415,8 @@ var rCommentsController = {
 
 		var $arrow = $(arrow),
 			id = 't1_' + $arrow.parents('.' + this.view.prefix + 'comment').first().attr('id'),
+			url = this.model.currentListing.permalink + '.json',
+			commentId = $arrow.parents('comment').first().attr('id'),
 			data, dir;
 
 		if ($arrow.hasClass('up')) dir = 1;
@@ -416,10 +426,12 @@ var rCommentsController = {
 		data = {
 			id : id,
 			dir : dir,
-			modhash : this.modhash
+			uh : this.modhash
 		};
 
 		$.post(VOTE_URL, data);
+		Comment.handleVote($arrow.parent(), dir);
+		this.updateCache(url, commentId);
 	}
 };
 
