@@ -3,6 +3,7 @@ var Comment =  {
 	prefix : '_rcomments_',
 	nextReplyText : '&#8618 Next Reply',
 	nextCommentText : '&#8595 Next Comment',
+	isLoggedIn : false,
 
 	getHtml : function(json) {
 		this.data = json;
@@ -65,6 +66,8 @@ var Comment =  {
 	},
 
 	arrows : function() {
+		if (!this.isLoggedIn) return $();
+
 		var score = this.data.ups - this.data.downs,
 			$arrows = $('<div>').addClass(this.prefix + 'arrows unvoted')
 				.append($('<div>').addClass('arrow up'))
@@ -322,6 +325,7 @@ var rCommentsController = {
 		$.getJSON('/api/me.json', function(response) {
 			if (!response.data) return;
 			self.modhash = response.data.modhash;
+			Comment.isLoggedIn = true; // Sure... this works.
 		});
 
 		$('body')
