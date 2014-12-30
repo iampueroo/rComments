@@ -197,6 +197,7 @@ var rCommentsView = {
 
 		if (container.hasClass(this.prefix + 'next_comment')) {
 			container
+				.removeClass(this.prefix + 'next_comment')
 				.addClass(this.prefix + 'next_comment_none')
 				.html('No more Comments');
 		} else {
