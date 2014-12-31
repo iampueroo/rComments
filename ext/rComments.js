@@ -394,7 +394,7 @@ var rCommentsController = {
 			dataType: "json",
 			url: requestData.url,
 			data: requestData.params,
-			timeout: 1000
+			timeout: 4000
 		})
 		.success(function(data) {
 			commentData = self.model.registerComment(requestData.url, data, commentId);
