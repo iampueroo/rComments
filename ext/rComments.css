@@ -53,11 +53,11 @@
 	text-align: center;
 	padding: 8px;
 	font-size: 12px;
-	background-image: linear-gradient(to bottom, rgba(255,255,255,.9), rgba(0, 0, 0, .2));
+	background-image: linear-gradient(to bottom, rgba(0, 0, 0, .2), rgba(255,255,255,.9));
 }
 
 ._rcomments_next_comment:hover {
-	background-image: linear-gradient(to bottom, rgba(255,255,255,.9), rgba(0, 0, 0, .3));
+	background-image: linear-gradient(to bottom, rgba(0, 0, 0, .3), rgba(255,255,255,.9));
 }
 ._rcomments_next_comment_none, ._rcomments_no_reply {
 	color: lightgray;

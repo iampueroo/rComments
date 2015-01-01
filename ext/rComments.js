@@ -132,10 +132,11 @@ var rCommentsView = {
 
 		if (!$popup) {
 			$popup = $('<div>', {id : this._id})
-				.append($('<div>').addClass(this.prefix + 'content'))
 				.append($('<div>')
 					.html(html)
-					.addClass(this.prefix + 'next_comment'));
+					.addClass(this.prefix + 'next_comment'))
+				.append($('<div>').addClass(this.prefix + 'content'));
+
 
 			$popup.appendTo("body");
 		}
@@ -375,8 +376,6 @@ var rCommentsController = {
 			isNextComment = $el.is('#_rcomment_div'),
 			commentData, content;
 
-		self.disableRequest = true;
-
 		var requestData = self.model.getRequestData(url, commentId);
 
 		self.view.loading($el);
@@ -389,6 +388,8 @@ var rCommentsController = {
 			self.model.setCurrentListing($(content).attr('id'));
 			return;
 		}
+
+		self.disableRequest = true;
 
 		request = $.ajax({
 			dataType: "json",
