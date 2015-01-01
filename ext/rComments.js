@@ -181,11 +181,11 @@ var rCommentsView = {
 	},
 
 	loadContentHtml : function($el, content) {
-		this.popup($el).find('.' + this.prefix + 'content').html(content);
+		this.popup($el).html(content);
 	},
 
 	contentHtml : function() {
-		return this.$popup.find('.' + this.prefix + 'content').html();
+		return this.$popup.html();
 	},
 
 	updateParentComment : function($el, isLastReply) {
@@ -385,7 +385,7 @@ var rCommentsController = {
 		if (requestData.cached && !isNextComment) {
 			content = requestData.cached.content;
 			self.view.loadContentHtml($el, content);
-			self.model.setCurrentListing($(content).attr('id'));
+			self.model.setCurrentListing($(content).find('._rcomments_comment').attr('id'));
 			return;
 		}
 
