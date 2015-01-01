@@ -139,6 +139,9 @@ var rCommentsView = {
 
 
 			$popup.appendTo("body");
+		} else {
+			$popup.find('.' + this.prefix + 'next_comment_none').html(html)
+				.removeClass().addClass(this.prefix + 'next_comment');
 		}
 
 		var offset = $el.offset(),
@@ -194,7 +197,6 @@ var rCommentsView = {
 		var container = $el.find('> .entry > .' + this.prefix + 'next_reply').first();
 
 		if (!container.length) container = this.$popup.find('.' + this.prefix + 'next_comment').first();
-
 
 		if (container.hasClass(this.prefix + 'next_comment')) {
 			container
@@ -399,8 +401,8 @@ var rCommentsController = {
 		})
 		.success(function(data) {
 			commentData = self.model.registerComment(requestData.url, data, commentId);
-			self.view.updateParentComment($el, commentData.isLastReply);
 			self.view.show($el, commentData.json);
+			self.view.updateParentComment($el, commentData.isLastReply);
 			self.updateCache(requestData.url, commentData.id);
 		})
 		.error(function() { self.view.handleError($el); })
