@@ -6,6 +6,8 @@ var Comment =  {
 	isLoggedIn : false,
 
 	getHtml : function(json) {
+		if (!json) return this.noReplyHtml();
+
 		this.data = json;
 
 		var d = this.data,
@@ -26,6 +28,12 @@ var Comment =  {
 			.append($('<div>').addClass('children'));
 
 		return $wrapper.append(this.arrows()).append($entry);
+	},
+
+	noReplyHtml : function() {
+		return $('<div>')
+			.addClass(this.prefix + 'comment comment thing')
+			.html('Oops, no more replies.');
 	},
 
 	buildTagline : function() {
@@ -269,10 +277,9 @@ var rCommentsModel = {
 		var key = this.genKey(url, commentId),
 			params = this.commentStatus[key],
 			listingJson = this.extractListingJson(data),
-			commentData = this.extractCommentData(data, params),
-			commentJson = commentData.json,
-			isLastReply = commentData.isLastReply;
+			commentData = this.extractCommentData(data, params);
 
+		if (!commentData) return;
 		this.listingCache[commentData.json.id] = listingJson;
 		this.currentListing = listingJson;
 
@@ -286,14 +293,23 @@ var rCommentsModel = {
 	extractCommentData : function(data, params) {
 		var isCommentReply = params.depth == 2,
 			commentIndex = params.limit - 1,
-			commentList = data[1]['data']['children'];
+			commentList = data[1]['data']['children'],
+			hasMoreReplies, commentData;
 
 		if (isCommentReply) {
 			commentIndex--;
-			commentList = commentList[0]['data']['replies']['data']['children'];
+			commentList = commentList[0]['data']['replies']['data'];
+			if (!commentList) return null; // Sometimes reddit lies to us. See below.
+			commentList = commentList['children'];
 		}
 
-		var hasMoreReplies = !!commentList[commentIndex + 1]; // "More comments"
+		// Reddit had replied to parent comment saying there were
+		// more replies. They lied.
+		if (!commentList[commentIndex]) {
+			return null;
+		}
+
+		hasMoreReplies = !!commentList[commentIndex + 1]; // "More comments"
 
 		return {
 			json: commentList[commentIndex].data,
@@ -376,7 +392,7 @@ var rCommentsController = {
 			commentId = $el.closest('.thing').attr('id'),
 			url = ($el.attr('href') || self.model.getUrl(commentId)) + '.json',
 			isNextComment = $el.is('#_rcomment_div'),
-			commentData, content;
+			commentData, commentJson, isLastComment, content;
 
 		var requestData = self.model.getRequestData(url, commentId);
 
@@ -401,9 +417,17 @@ var rCommentsController = {
 		})
 		.success(function(data) {
 			commentData = self.model.registerComment(requestData.url, data, commentId);
-			self.view.show($el, commentData.json);
-			self.view.updateParentComment($el, commentData.isLastReply);
-			self.updateCache(requestData.url, commentData.id);
+			isLastReply = true;
+
+			if (commentData) {
+				commentJson = commentData.json;
+				isLastReply = commentData.isLastReply;
+				commentId = commentData.json.id; // Different value.
+			}
+
+			self.view.show($el, commentJson);
+			self.view.updateParentComment($el, isLastReply);
+			self.updateCache(requestData.url, commentId);
 		})
 		.error(function() { self.view.handleError($el); })
 		.always(function() { self.disableRequest = false; });
@@ -412,6 +436,8 @@ var rCommentsController = {
 	},
 
 	updateCache : function(url, commentId) {
+		if (!commentId) return;
+
 		this.model.cache(url, {
 			content : this.view.contentHtml(),
 			commentId : commentId
