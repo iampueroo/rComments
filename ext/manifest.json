@@ -4,11 +4,11 @@
       "css" : ["rComments.css"],
       "matches": [ "http://reddit.com/*", "https://reddit.com/*", "http://*.reddit.com/*", "https://*.reddit.com/*" ]
    } ],
-   "description": "Unbelievably quick, easy, and lazy way to consume Reddit comments.",
+   "description": "Quick, easy, and lazy way to go through Reddit comments.",
    "homepage_url": "http://reddit.com",
    "manifest_version": 2,
    "minimum_chrome_version": "20.0",
-   "name": "LazyReddit",
-   "permissions": [ "tabs", "history", "http://reddit.com/*", "https://reddit.com/*", "http://*.reddit.com/*", "https://*.reddit.com/*"],
-   "version": "0.2"
+   "name": "rComments",
+   "permissions": [ "http://reddit.com/*", "https://reddit.com/*", "http://*.reddit.com/*", "https://*.reddit.com/*"],
+   "version": "0.9"
 }
