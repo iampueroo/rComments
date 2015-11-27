@@ -260,7 +260,7 @@ var rCommentsModel = {
 		if (!params) {
 			params = {
 				depth : (commentId ? 2 : 1),
-				limit : (commentId ? 1 : 0), // Incremented below 
+				limit : (commentId ? 1 : 0), // Incremented below
 				sort : 'top'
 			};
 
@@ -384,12 +384,12 @@ var rCommentsController = {
 			});
 	},
 
-	renderComment : function($el) {
+	renderComment : function($el, init) {
 		if (this.disableRequest) return;
 
 		var self = this,
 			request = self.request,
-			commentId = $el.closest('.thing').attr('id'),
+			commentId = !init && $el.closest('.thing').attr('id'),
 			url = ($el.attr('href') || self.model.getUrl(commentId)) + '.json',
 			isNextComment = $el.is('#_rcomment_div'),
 			commentData, commentJson, isLastComment, content;
@@ -452,7 +452,7 @@ var rCommentsController = {
 
 		self.go = true;
 		setTimeout(function() {
-			if (self.go) self.renderComment($commentAnchor);
+			if (self.go) self.renderComment($commentAnchor, true);
 		}, 250);
 	},
 
