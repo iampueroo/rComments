@@ -45,8 +45,8 @@
 
     <script>
     var buttons = document.getElementsByClassName('download-btn');
-    buttons[0].addEventListener('click', chrome.webstore.install);
-    buttons[1].addEventListener('click', chrome.webstore.install);
+    buttons[0].addEventListener('click', function() { chrome.webstore.install(); });
+    buttons[1].addEventListener('click', function() { chrome.webstore.install(); });
     </script>
   </body>
 </html>
