@@ -1,4 +1,4 @@
-rrComments
+rComments
 =========
 
 Quick, easy, and lazy way to go through Reddit comments.
