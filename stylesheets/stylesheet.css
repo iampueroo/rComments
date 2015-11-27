@@ -57,7 +57,7 @@ a {
   color: #fff;
   text-align: center;
   background-color: #159957;
-  background-image: linear-gradient(120deg, #155799, #159957); }
+  background-image: linear-gradient(120deg, #5f2c82 , #49a09d); }
 
 @media screen and (min-width: 64em) {
   .page-header {
@@ -112,7 +112,7 @@ a {
   margin-top: 2rem;
   margin-bottom: 1rem;
   font-weight: normal;
-  color: #159957; }
+  color: #71606c; }
 .main-content p {
   margin-bottom: 1em; }
 .main-content code {
@@ -243,3 +243,12 @@ a {
 @media screen and (max-width: 42em) {
   .site-footer {
     font-size: 0.9rem; } }
+
+.download-btn-2 {
+  border: solid 1px #5f2c82;
+  color: #5f2c82;
+}
+.download-btn-2:hover {
+  background-color: #5f2c82;
+  color: white;
+}
