@@ -62,9 +62,7 @@
 				$tagline = this.buildTagline(),
 				$wrapper, $entry;
 
-			$wrapper = $('<div>')
-				.attr('id', d.id)
-				.addClass(this.prefix + 'comment comment thing');
+			$wrapper = $('<div id="'+d.id+'"" class="'+this.prefix+'comment comment thing">');
 
 			$entry = $('<div>')
 				.addClass('entry')
@@ -77,13 +75,12 @@
 		},
 
 		noReplyHtml : function() {
-			return $('<div>')
-				.addClass(this.prefix + 'comment comment thing')
-				.html('Oops, no more replies.');
+			var div = '<div class="'+this.prefix+'comment comment thing">Oops, no more replies.</div>';
+			return $(div);
 		},
 
 		buildTagline : function() {
-			var $wrapper = $('<div>').addClass('tagline');
+			var $wrapper = $('<div class="tagline"></div>');
 
 			$wrapper
 				.append(this.authorTag())
@@ -94,10 +91,11 @@
 
 		voteTag : function() {
 			var votes = this.data.ups - this.data.downs,
-				$wrapper = $('<span>'),
-				$unvoted = $('<span>').addClass('score unvoted').html(votes + ' points'),
-				$likes = $('<span>').addClass('score likes').html((votes + 1)  + ' points'),
-				$dislikes = $('<span>').addClass('score dislikes').html((votes + 1) + ' points');
+				$wrapper = $('<span></span>'),
+				$unvoted = $('<span class="score unvoted">' + votes + ' points</span>'),
+				$unvoted = $('<span class="score unvoted">' + votes + ' points</span>');
+				$likes = $('<span class="score likes">' + (votes + 1)  + ' points</span>'),
+				$dislikes = $('<span class="score dislikes">' + (votes + 1) + ' points</span>');
 
 			$wrapper.append($dislikes).append($unvoted).append($likes);
 
