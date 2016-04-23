@@ -187,7 +187,7 @@
 						.html(this.nextCommentText)
 						.addClass(this.prefix + 'next_comment'))
 					.append($('<div>').addClass(this.prefix + 'content'));
-				this.$popup.appendTo("body");
+				this.$popup.appendTo('body');
 			}
 			return this.$popup;
 		},
@@ -204,7 +204,7 @@
 			if (this.isFirstComment($el)) {
 				$popup.find('.' + this.prefix + 'next_comment').html(this.nextCommentText);
 				$popup.css({
-						'top' : offset.top + height + "px",
+						'top' : offset.top + height + 'px',
 						'left' : offset.left,
 					});
 			}
