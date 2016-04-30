@@ -1,5 +1,6 @@
 (function() {
-	var _formEncode = function(data) {
+
+	function _formEncode(data) {
 		var encodedString = '';
 		for (key in data) {
 			encodedString += key + '=' + data[key] + '&';
@@ -7,7 +8,7 @@
 		return encodedString.slice(0, -1);
 	}
 	// screw you jQuery
-	var _request = function(url, options) {
+	function _request(url, options) {
 		if (typeof url === 'object') {
 			options = url;
 			url = options.url;
