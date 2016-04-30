@@ -196,7 +196,7 @@
 		},
 
 		hidePopup : function() {
-			// if (this.$popup) this.$popup.hide();
+			if (this.$popup) this.$popup.hide();
 		},
 
 		isFirstComment : function($el) {
