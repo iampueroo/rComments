@@ -163,40 +163,44 @@
 		},
 
 		getPopup: function() {
-			if (!this.$popup) {
-				this.$popup = $('<div>', {id : this._id})
-					.append($('<div>')
-						.html(this.nextCommentText)
-						.addClass(this.prefix + 'next_comment'))
-					.append($('<div>').addClass(this.prefix + 'content'));
-				this.$popup.appendTo('body').hide();
+			if (!this._popup) {
+				var popupInnerHTML = ''
+					+ '<div class="'+this.prefix+'next_comment">'
+					+ 	this.nextCommentText
+					+ '</div>'
+					+ '<div class="'+this.prefix+'content'+'"></div>';
+				var popup = document.createElement('div');
+				popup.id = this._id;
+				popup.style.display = 'none';
+				popup.innerHTML = popupInnerHTML;
+				document.body.appendChild(popup);
+				this._popup = popup;
 			}
-			return this.$popup;
+			return this._popup;
 		},
 
 		popup : function($el) {
-			var $popup = this.getPopup();
+			var popup = this.getPopup();
 
-			$popup.find('.' + this.prefix + 'next_comment_none').html(this.nextCommentText)
+			$(popup).find('.' + this.prefix + 'next_comment_none').html(this.nextCommentText)
 				.removeClass().addClass(this.prefix + 'next_comment');
 
 			var offset = $el.offset(),
 				height = $el.outerHeight();
 
 			if (this.isFirstComment($el)) {
-				$popup.find('.' + this.prefix + 'next_comment').html(this.nextCommentText);
-				$popup.css({
+				$(popup).find('.' + this.prefix + 'next_comment').html(this.nextCommentText);
+				$(popup).css({
 						'top' : offset.top + height + 'px',
 						'left' : offset.left,
 					});
 			}
 
-			this.$popup = $popup;
-			return $popup;
+			return $(popup);
 		},
 
 		hidePopup : function() {
-			if (this.$popup) this.$popup.hide();
+			if (this._popup) this._popup.style.display = 'none';
 		},
 
 		isFirstComment : function($el) {
@@ -224,7 +228,7 @@
 		},
 
 		contentHtml : function() {
-			return this.$popup.html();
+			return this._popup.innerHTML;
 		},
 
 		updateParentComment : function($el, isLastReply) {
@@ -232,7 +236,7 @@
 
 			var container = $el.find('> .entry > .' + this.prefix + 'next_reply').first();
 
-			if (!container.length) container = this.$popup.find('.' + this.prefix + 'next_comment').first();
+			if (!container.length) container = $(this._popup).find('.' + this.prefix + 'next_comment').first();
 
 			if (container.hasClass(this.prefix + 'next_comment')) {
 				container
@@ -383,20 +387,21 @@
 
 		init : function() {
 			var self = this;
+			var popup = this.view.getPopup();
 
 			_request('/api/me.json').then(function(response) {
 				if (!response.data) return;
 				self.modhash = response.data.modhash;
 				Comment.isLoggedIn = true; // Sure... this works.
 			});
-
-			this.view.getPopup()
-				.on('click', '._rcomments_next_reply', function() {
-					self.renderComment($(this).parents('.comment').first());
-				})
-				.on('click', '._rcomments_next_comment', function() {
-					self.renderComment($(this).parent());
-				})
+			popup.addEventListener('click', function(e) {
+				if (e.target.className === '_rcomments_next_reply') {
+					return self.renderComment(e.target.parentElement.parentElement);
+				} else if (e.target.className === '_rcomments_next_comment') {
+					return self.renderComment(e.target.parentElement);
+				}
+			});
+			$(popup)
 				.on('click', '._rcomments_arrows .arrow', function(e) {
 					self.handleVote(this);
 					e.stopImmediatePropagation();
@@ -415,10 +420,11 @@
 				})
 		},
 
-		renderComment : function($el, init) {
+		renderComment : function(el, init) {
 			if (this.disableRequest) return;
 
 			var self = this,
+				$el = $(el),
 				request = self.request,
 				commentId = !init && $el.closest('.thing').attr('id'),
 				url = ($el.attr('href') || self.model.getUrl(commentId)) + '.json',
