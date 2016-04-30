@@ -394,18 +394,18 @@
 				self.modhash = response.data.modhash;
 				Comment.isLoggedIn = true; // Sure... this works.
 			});
+
 			popup.addEventListener('click', function(e) {
 				if (e.target.className === '_rcomments_next_reply') {
-					return self.renderComment(e.target.parentElement.parentElement);
+					self.renderComment(e.target.parentElement.parentElement);
 				} else if (e.target.className === '_rcomments_next_comment') {
-					return self.renderComment(e.target.parentElement);
-				}
-			});
-			$(popup)
-				.on('click', '._rcomments_arrows .arrow', function(e) {
-					self.handleVote(this);
+					self.renderComment(e.target.parentElement);
+				} else if (e.target.classList && e.target.classList[0] === 'arrow') {
 					e.stopImmediatePropagation();
-				});
+					self.handleVote(e.target);
+				}
+				return false;
+			});
 
 			$('body')
 				.on('mouseenter', 'a.comments', function() {
