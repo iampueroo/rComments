@@ -58,78 +58,61 @@
 			this.data = json;
 
 			var d = this.data,
-				$commentHtml = $($('<div>').html(d.body_html).text()), // html entity weirdness
-				$bodyHtml = $('<div>').append($commentHtml),
-				$tagline = this.buildTagline(),
-				$wrapper, $entry;
+				commentHtml = $('<div>' + d.body_html + '</div>').text(), // html entity weirdness
+				bodyHtml = '<div>' + commentHtml + '</div>',
+				tagline = this.buildTagline(),
+				arrows = this.arrows();
 
-			$wrapper = $('<div id="'+d.id+'"" class="'+this.prefix+'comment comment thing">');
+			var wrapperOpen = '<div id="'+d.id+'"" class="'+this.prefix+'comment comment thing">';
 
-			$entry = $('<div>')
-				.addClass('entry')
-				.append($tagline)
-				.append($bodyHtml)
-				.append(this.nextReply(!!d.replies))
-				.append($('<div>').addClass('children'));
-
-			return $wrapper.append(this.arrows()).append($entry);
+			var entry = '<div class="entry">'
+				+ 	tagline
+				+ 	bodyHtml
+				+ 	this.nextReply(!!d.replies)
+				+ 	'<div class="children"></div>'
+				+ '</div>';
+			return wrapperOpen + arrows + entry + '</div>';
 		},
 
 		noReplyHtml : function() {
-			var div = '<div class="'+this.prefix+'comment comment thing">Oops, no more replies.</div>';
-			return $(div);
+			return '<div class="'+this.prefix+'comment comment thing">Oops, no more replies.</div>';
 		},
 
 		buildTagline : function() {
-			var $wrapper = $('<div class="tagline"></div>');
-
-			$wrapper
-				.append(this.authorTag())
-				.append(this.voteTag());
-
-			return $wrapper;
+			return '<div class="tagline">' + this.authorTag() + this.voteTag() + '</div>';
 		},
 
 		voteTag : function() {
 			var votes = this.data.ups - this.data.downs,
-				$wrapper = $('<span></span>'),
-				$unvoted = $('<span class="score unvoted">' + votes + ' points</span>'),
-				$unvoted = $('<span class="score unvoted">' + votes + ' points</span>');
-				$likes = $('<span class="score likes">' + (votes + 1)  + ' points</span>'),
-				$dislikes = $('<span class="score dislikes">' + (votes + 1) + ' points</span>');
-
-			$wrapper.append($dislikes).append($unvoted).append($likes);
-
-			return $wrapper;
+				unvoted = '<span class="score unvoted">' + votes + ' points</span>',
+				likes = '<span class="score likes">' + (votes + 1)  + ' points</span>',
+				dislikes = '<span class="score dislikes">' + (votes + 1) + ' points</span>';
+			return '<span>' + dislikes + unvoted + likes + '</span>';
 		},
 
 		nextReply : function(hasChildren) {
 			var _class = hasChildren ?  this.prefix + 'next_reply' : this.prefix + 'no_reply',
 				html = hasChildren ? this.nextReplyText : 'No Replies';
-
-			return $('<div>').addClass(_class).html(html);
+			return '<div class="' + _class + '">' + html + '</div>';
 		},
 
 		authorTag : function() {
 			var author = this.data.author;
-			return $('<a>')
-				.attr('href', '/user/' + author)
-				.addClass('author')
-				.html(author);
+			return '<a class="author" href="/user/' + author + '">' + author + '</a>';
 		},
 
 		arrows : function() {
-			if (!this.isLoggedIn) return $();
-
-			var score = this.data.ups - this.data.downs,
-				$arrows = $('<div>').addClass(this.prefix + 'arrows unvoted')
-					.append($('<div>').addClass('arrow up'))
-					.append($('<div>').addClass('arrow down'));
-
-			return this.handleVote($arrows, this.data.likes);
+			if (!this.isLoggedIn) return '';
+			var score = this.data.ups - this.data.downs;
+			var arrows = '<div class="' + this.prefix + 'arrows unvoted">'
+					+ '<div class="arrow up"></div>'
+					+ '<div class="arrow down"></div>'
+				+ '</div>';
+			return this.applyVote(arrows, this.data.likes)[0].outerHTML;
 		},
 
-		handleVote : function($arrows, vote) {
+		applyVote : function(arrows, vote) {
+			$arrows = $(arrows);
 			// Reset - gross, could find a better way of doing this.
 			$arrows.removeClass('unvoted likes dislikes');
 			$arrows.find('.arrow.up, .arrow.upmod').removeClass('upmod').addClass('up');
@@ -213,7 +196,7 @@
 		},
 
 		hidePopup : function() {
-			if (this.$popup) this.$popup.hide();
+			// if (this.$popup) this.$popup.hide();
 		},
 
 		isFirstComment : function($el) {
@@ -534,7 +517,7 @@
 				uh : this.modhash
 			};
 			$.post(VOTE_URL, data);
-			Comment.handleVote($arrow.parent(), dir);
+			Comment.applyVote($arrow.parent(), dir);
 			this.updateCache(url, commentId);
 		}
 	};
