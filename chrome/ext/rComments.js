@@ -177,15 +177,16 @@
 
 		getPopup: function() {
 			if (!this._popup) {
-				var popupInnerHTML = ''
-					+ '<div class="'+this.prefix+'next_comment">'
-					+ 	this.nextCommentText
-					+ '</div>'
-					+ '<div class="'+this.prefix+'content'+'"></div>';
 				var popup = document.createElement('div');
+				var nextCommentDiv = document.createElement('div');
+				var contentDiv = document.createElement('div');
+				nextCommentDiv.className = this.prefix+'next_comment';
+				nextCommentDiv.innerHTML = this.nextCommentText;
+				contentDiv.className = this.prefix+'content';
 				popup.id = this._id;
 				popup.style.display = 'none';
-				popup.innerHTML = popupInnerHTML;
+				popup.appendChild(nextCommentDiv);
+				popup.appendChild(contentDiv);
 				document.body.appendChild(popup);
 				this._popup = popup;
 			}
