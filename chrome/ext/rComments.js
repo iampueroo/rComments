@@ -104,38 +104,51 @@
 		arrows : function() {
 			if (!this.isLoggedIn) return '';
 			var score = this.data.ups - this.data.downs;
-			var arrows = '<div class="' + this.prefix + 'arrows unvoted">'
-					+ '<div class="arrow up"></div>'
-					+ '<div class="arrow down"></div>'
-				+ '</div>';
-			return this.applyVote(arrows, this.data.likes)[0].outerHTML;
+			var arrowDiv = document.createElement('div');
+			var arrowUp = document.createElement('div');
+			var arrowDown = document.createElement('div');
+			arrowDiv.className = this.prefix + 'arrows unvoted';
+			arrowUp.className = 'arrow up';
+			arrowDown.className = 'arrow down';
+			arrowDiv.appendChild(arrowUp);
+			arrowDiv.appendChild(arrowDown);
+			return this.applyVote(arrowDiv, this.data.likes).outerHTML;
 		},
 
 		applyVote : function(arrows, vote) {
-			$arrows = $(arrows);
+			var upArrow = arrows.querySelector('.arrow.up, .arrow.upmod');
+			var downArrow = arrows.querySelector('.arrow.down, .arrow.downmod');
 			// Reset - gross, could find a better way of doing this.
-			$arrows.removeClass('unvoted likes dislikes');
-			$arrows.find('.arrow.up, .arrow.upmod').removeClass('upmod').addClass('up');
-			$arrows.find('.arrow.down, .arrow.downmod').removeClass('downmod').addClass('down');
+			arrows.classList.remove('unvoted');
+			arrows.classList.remove('likes');
+			arrows.classList.remove('dislikes');
+			upArrow.classList.remove('upmod');
+			upArrow.classList.add('up');
+			downArrow.classList.remove('downmod');
+			downArrow.classList.add('down');
 
 			// Switch statement with boolean cases? #yolo(?)
 			switch(vote) {
 				case 1:
 				case true:
-					$arrows.addClass('likes');
-					$arrows.find('.up').removeClass('up').addClass('upmod');
+					arrows.classList.add('likes');
+					upArrow.classList.remove('up');
+					upArrow.classList.add('upmod');
 					break;
 				case -1:
 				case false:
-					$arrows.addClass('dislikes');
-					$arrows.find('.down').removeClass('down').addClass('downmod');
+					arrows.classList.add('dislikes');
+					downArrow.classList.remove('down');
+					downArrow.classList.add('downmod');
 					break;
 				default:
-					$arrows.addClass('unvoted');
-					$arrows.find('.score').addClass('unvoted');
+					arrows.classList.add('unvoted');
+					if (arrows.querySelector('.score')) {
+						arrows.querySelector('.score').classList.add('unovoted');
+					}
 			}
 
-			return $arrows;
+			return arrows;
 		}
 	};
 
@@ -523,7 +536,7 @@
 				uh : this.modhash
 			};
 			$.post(VOTE_URL, data);
-			Comment.applyVote($arrow.parent(), dir);
+			Comment.applyVote($arrow.parent()[0], dir);
 			this.updateCache(url, commentId);
 		}
 	};
