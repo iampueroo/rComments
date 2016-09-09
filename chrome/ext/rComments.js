@@ -153,26 +153,29 @@
 	};
 
 	var rCommentsView = {
-		$popup : null,
+		popup : null,
 		_id : '_rcomment_div',
 		prefix : '_rcomments_',
 		nextReplyText : '&#8618 Next Reply',
 		nextCommentText : '&#8595 Next Comment',
 
-		show : function($el, json) {
+		show : function(el, json) {
 			var commentHtml = Comment.getHtml(json),
 				container;
 
-			if (this.isFirstComment($el)) {
-				popup = this.popup($el);
-				popup.find('.' + this.prefix + 'content').html(commentHtml);
+			if (this.isFirstComment(el)) {
+				popup = this.popup($(el));
+				popup = popup[0];
+				popup.querySelector('.' + this.prefix + 'content').innerHTML = commentHtml;
 			} else {
-				$el.find('._rcomments_content, .children').first()
-					.prepend(commentHtml)
-					.find('.' + this.prefix + 'loading').remove();
+				var content = el.querySelector('._rcomments_content, .children');
+				var loading = content.getElementsByClassName(this.prefix + 'loading')[0];
+				if (loading) {
+					loading.parentNode.removeChild(loading);
+				}
+				content.innerHTML = commentHtml + content.innerHTML;
 			}
-
-			popup.show();
+			popup.style.display = 'block'
 		},
 
 		getPopup: function() {
@@ -202,7 +205,7 @@
 			var offset = $el.offset(),
 				height = $el.outerHeight();
 
-			if (this.isFirstComment($el)) {
+			if (this.isFirstComment($el[0])) {
 				$(popup).find('.' + this.prefix + 'next_comment').html(this.nextCommentText);
 				$(popup).css({
 						'top' : offset.top + height + 'px',
@@ -217,12 +220,12 @@
 			if (this._popup) this._popup.style.display = 'none';
 		},
 
-		isFirstComment : function($el) {
-			return $el.is('a');
+		isFirstComment : function(el) {
+			return el.tagName.toLowerCase() === 'a';
 		},
 
 		loading : function($el) {
-			var isFirst = this.isFirstComment($el),
+			var isFirst = this.isFirstComment($el[0]),
 				$loadingEl = $('<div>')
 					.addClass(this.prefix + 'loading')
 					.addClass(this.prefix + 'comment comment thing')
@@ -268,7 +271,7 @@
 		handleError : function($el) {
 			var errorHtml = $('<div>A timeout error occured.</div>');
 
-			if (this.isFirstComment($el)) {
+			if (this.isFirstComment($el[0])) {
 				popup = this.popup($el);
 				popup.find('.' + this.prefix + 'content').html(errorHtml);
 			} else {
@@ -434,7 +437,19 @@
 				})
 		},
 
+		findClosestThing: function(el) {
+			var node = el;
+			while (node.classList.indexOf('thing') < 0) {
+				node = node.parentNode;
+				if (node.tagName.toLowerCase() === 'body') {
+					throw new Error('rComments: Could not find .thing for ' + el.tagName);
+				}
+			}
+			return node;
+		},
+
 		renderComment : function(el, init) {
+			if (el.find) debugger;
 			if (this.disableRequest) return;
 
 			var self = this,
@@ -473,7 +488,7 @@
 					commentId = commentData.json.id; // Different value.
 				}
 
-				self.view.show($el, commentJson);
+				self.view.show(el, commentJson);
 				self.view.updateParentComment($el, isLastReply);
 				self.updateCache(requestData.url, commentId);
 				self.disableRequest = false;
@@ -494,14 +509,13 @@
 		},
 
 		handleAnchorMouseEnter : function(commentAnchor) {
-			var self = this,
-				$commentAnchor = $(commentAnchor);
+			var self = this;
 
-			if ($commentAnchor.html().split(' ').length <= 1) return;
+			if (commentAnchor.text.split(' ').length <= 1) return;
 
 			self.go = true;
 			setTimeout(function() {
-				if (self.go) self.renderComment($commentAnchor, true);
+				if (self.go) self.renderComment(commentAnchor, true);
 			}, 250);
 		},
 
