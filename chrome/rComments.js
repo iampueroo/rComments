@@ -1,7 +1,7 @@
-(function() {
+(() => {
 
 	function decodeHTML(html) {
-		var txt = document.createElement("textarea");
+		let txt = document.createElement("textarea");
 		txt.innerHTML = html;
 		return txt.value;
 	}
@@ -16,7 +16,7 @@
 	}
 
 	function _formEncode(data) {
-		var encodedString = '';
+		let encodedString = '';
 		for (key in data) {
 			encodedString += key + '=' + data[key] + '&';
 		}
@@ -30,15 +30,15 @@
 		} else if (!options) {
 			options = {};
 		}
-		var type = options.type || 'GET';
-		var data = _formEncode(options.data || {});
+		let type = options.type || 'GET';
+		let data = _formEncode(options.data || {});
 		if (type === 'GET') {
 			url += '?' + data;
 			data = undefined;
 		}
 
-		var xhttp = new XMLHttpRequest();
-		var promise = new Promise((resolve, reject) => {
+		let xhttp = new XMLHttpRequest();
+		let promise = new Promise((resolve, reject) => {
 			xhttp.onreadystatechange = function() {
 				if (xhttp.readyState === 4 && xhttp.status == 200) {
 					resolve(JSON.parse(xhttp.responseText));
@@ -60,7 +60,7 @@
 		return promise;
 	}
 
-	var Comment =  {
+	let Comment =  {
 
 		prefix : '_rcomments_',
 		nextReplyText : '&#8618 Next Reply',
@@ -71,15 +71,15 @@
 			if (!json || !json.id) return this.noReplyHtml();
 
 			this.data = json;
-			var d = this.data,
+			let d = this.data,
 				commentHtml = '<div>' + decodeHTML(d.body_html) + '</div>',
 				bodyHtml = '<div>' + commentHtml + '</div>',
 				tagline = this.buildTagline(),
 				arrows = this.arrows();
 
-			var wrapperOpen = '<div id="'+d.id+'"" class="'+this.prefix+'comment comment thing">';
+			let wrapperOpen = '<div id="'+d.id+'"" class="'+this.prefix+'comment comment thing">';
 
-			var entry = '<div class="entry">'
+			let entry = '<div class="entry">'
 				+ 	tagline
 				+ 	bodyHtml
 				+ 	this.nextReply(!!d.replies)
@@ -97,30 +97,30 @@
 		},
 
 		voteTag : function() {
-			var votes = this.data.ups - this.data.downs,
+			let votes = this.data.ups - this.data.downs,
 				unvoted = '<span class="score unvoted">' + votes + ' points</span>',
 				likes = '<span class="score likes">' + (votes + 1)  + ' points</span>',
-				dislikes = '<span class="score dislikes">' + (votes + 1) + ' points</span>';
+				dislikes = '<span class="score dislikes">' + (votes - 1) + ' points</span>';
 			return '<span>' + dislikes + unvoted + likes + '</span>';
 		},
 
 		nextReply : function(hasChildren) {
-			var _class = hasChildren ?  this.prefix + 'next_reply' : this.prefix + 'no_reply',
+			let _class = hasChildren ?  this.prefix + 'next_reply' : this.prefix + 'no_reply',
 				html = hasChildren ? this.nextReplyText : 'No Replies';
-			return '<div class="' + _class + '">' + html + '</div>';
+			return '<div class="' + _class + '" style="padding-top:5px">' + html + '</div>';
 		},
 
 		authorTag : function() {
-			var author = this.data.author;
+			let author = this.data.author;
 			return '<a class="author" href="/user/' + author + '">' + author + '</a>';
 		},
 
 		arrows : function() {
 			if (!this.isLoggedIn) return '';
-			var score = this.data.ups - this.data.downs;
-			var arrowDiv = document.createElement('div');
-			var arrowUp = document.createElement('div');
-			var arrowDown = document.createElement('div');
+			let score = this.data.ups - this.data.downs;
+			let arrowDiv = document.createElement('div');
+			let arrowUp = document.createElement('div');
+			let arrowDown = document.createElement('div');
 			arrowDiv.className = this.prefix + 'arrows unvoted';
 			arrowUp.className = 'arrow up';
 			arrowDown.className = 'arrow down';
@@ -130,8 +130,8 @@
 		},
 
 		applyVote : function(arrows, vote) {
-			var upArrow = arrows.querySelector('.arrow.up, .arrow.upmod');
-			var downArrow = arrows.querySelector('.arrow.down, .arrow.downmod');
+			let upArrow = arrows.querySelector('.arrow.up, .arrow.upmod');
+			let downArrow = arrows.querySelector('.arrow.down, .arrow.downmod');
 			// Reset - gross, could find a better way of doing this.
 			arrows.classList.remove('unvoted');
 			arrows.classList.remove('likes');
@@ -166,7 +166,7 @@
 		}
 	};
 
-	var rCommentsView = {
+	let rCommentsView = {
 		popup : null,
 		_id : '_rcomment_div',
 		prefix : '_rcomments_',
@@ -174,17 +174,17 @@
 		nextCommentText : '&#8595 Next Comment',
 
 		show : function(el, json) {
-			var commentHtml = Comment.getHtml(json),
+			let commentHtml = Comment.getHtml(json),
 				popup,
 				container;
 
 			if (this.isFirstComment(el)) {
-				var popup = this.popup(el);
+				let popup = this.popup(el);
 				popup.querySelector('.' + this.prefix + 'content').innerHTML = commentHtml;
 				popup.style.display = 'block';
 			} else {
-				var content = el.querySelector('._rcomments_content, .children');
-				var loading = content.getElementsByClassName(this.prefix + 'loading')[0];
+				let content = el.querySelector('._rcomments_content, .children');
+				let loading = content.getElementsByClassName(this.prefix + 'loading')[0];
 				if (loading) {
 					loading.parentNode.removeChild(loading);
 				}
@@ -194,9 +194,9 @@
 
 		getPopup: function() {
 			if (!this._popup) {
-				var popup = document.createElement('div');
-				var nextCommentDiv = document.createElement('div');
-				var contentDiv = document.createElement('div');
+				let popup = document.createElement('div');
+				let nextCommentDiv = document.createElement('div');
+				let contentDiv = document.createElement('div');
 				nextCommentDiv.className = this.prefix+'next_comment';
 				nextCommentDiv.innerHTML = this.nextCommentText;
 				contentDiv.className = this.prefix+'content';
@@ -212,20 +212,20 @@
 		},
 
 		popup : function(el) {
-			var popup = this.getPopup();
+			let popup = this.getPopup();
+			let nextCommentNone = popup.getElementsByClassName(this.prefix + 'next_comment_none')[0];
 
-			var nextCommentNone = popup.getElementsByClassName(this.prefix + 'next_comment_none')[0];
 			if (nextCommentNone) {
 				nextCommentNone.innerHTML = this.nextCommentText;
 				nextCommentNone.classList = [this.prefix + 'next_comment'];
 			}
 
-			var clientRect = el.getBoundingClientRect();
+			let clientRect = el.getBoundingClientRect();
 
 			if (this.isFirstComment(el)) {
-				var windowOffsetY = window.window.pageYOffset;
-				var windowOffsetX = window.pageXOffset;
-				var nextComment = popup.getElementsByClassName(this.prefix + 'next_comment')[0];
+				let windowOffsetY = window.window.pageYOffset;
+				let windowOffsetX = window.pageXOffset;
+				let nextComment = popup.getElementsByClassName(this.prefix + 'next_comment')[0];
 				if (nextComment) {
 					nextComment.innerHTML = this.nextCommentText;
 				}
@@ -245,18 +245,18 @@
 		},
 
 		loading : function(el) {
-			var isFirst = this.isFirstComment(el);
-			var loadingClasses = this.prefix + 'loading ' + this.prefix + 'comment comment thing';
-			var loadingContent = '<div class="' + loadingClasses + '">' +
+			let isFirst = this.isFirstComment(el);
+			let loadingClasses = this.prefix + 'loading ' + this.prefix + 'comment comment thing';
+			let loadingContent = '<div class="' + loadingClasses + '">' +
 				'<span>Fetching comment...</span>' +
 				'</div>';
 
 			if (isFirst) {
-				var popup = this.popup(el);
+				let popup = this.popup(el);
 				popup.querySelector('.' + this.prefix + 'content').innerHTML = loadingContent;
 				popup.style.display = 'block';
 			} else {
-				var children = el.querySelector('._rcomments_content, .children');
+				let children = el.querySelector('._rcomments_content, .children');
 				if (children) {
 					children.innerHTML = loadingContent + children.innerHTML;
 				}
@@ -274,8 +274,8 @@
 		updateParentComment : function(el, isLastReply) {
 			if (!isLastReply) return;
 
-			var container;
-			for (var i = 0; i < el.children.length; i++) {
+			let container;
+			for (let i = 0; i < el.children.length; i++) {
 				if (el.children[i].classList.contains('entry')) {
 					container = el.children[i].querySelector('.' + this.prefix + 'next_reply');
 					break;
@@ -298,14 +298,14 @@
 		},
 
 		handleError : function(el) {
-			var errorHtml = '<div>A timeout error occured.</div>';
+			let errorHtml = '<div>A timeout error occured.</div>';
 
 			if (this.isFirstComment(el)) {
 				this.popup(el).querySelector('.' + this.prefix + 'content').innerHTML = errorHtml;
 			} else {
-				var node = el.querySelector('._rcomments_content, .children');
+				let node = el.querySelector('._rcomments_content, .children');
 				node.innerHTML = errorHtml + node.innerHTML;
-				var loading = node.querySelector('.' + this.prefix + 'loading');
+				let loading = node.querySelector('.' + this.prefix + 'loading');
 				if (loading) {
 					loading.remove();
 				}
@@ -313,7 +313,7 @@
 		}
 	};
 
-	var rCommentsModel = {
+	let rCommentsModel = {
 
 		listingCache : {},
 		htmlCache : {},
@@ -321,7 +321,7 @@
 		currentListing : {},
 
 		getRequestData : function(url, commentId) {
-			var params = this.requestParams(url, commentId);
+			let params = this.requestParams(url, commentId);
 
 			data = {
 				url : url,
@@ -334,7 +334,7 @@
 		},
 
 		requestParams : function(url, commentId) {
-			var key = this.genKey(url, commentId),
+			let key = this.genKey(url, commentId),
 				params = this.commentStatus[key];
 
 			if (!params) {
@@ -354,7 +354,7 @@
 		},
 
 		registerComment : function(url, data, commentId) {
-			var key = this.genKey(url, commentId),
+			let key = this.genKey(url, commentId),
 				params = this.commentStatus[key],
 				listingJson = this.extractListingJson(data),
 				commentData = this.extractCommentData(data, params);
@@ -371,7 +371,7 @@
 		},
 
 		extractCommentData : function(data, params) {
-			var isCommentReply = params.depth == 2,
+			let isCommentReply = params.depth == 2,
 				commentIndex = params.limit - 1,
 				commentList = data[1]['data']['children'],
 				hasMoreReplies, commentData;
@@ -403,7 +403,7 @@
 		},
 
 		getUrl : function(commentId) {
-			var listing = this.listingCache[commentId];
+			let listing = this.listingCache[commentId];
 			return listing ? listing.permalink : this.currentListing.permalink;
 		},
 
@@ -425,7 +425,7 @@
 		}
 	};
 
-	var rCommentsController = {
+	let rCommentsController = {
 
 		model : rCommentsModel,
 		view : rCommentsView,
@@ -434,7 +434,7 @@
 		disableRequest : false,
 
 		init : function() {
-			var popup = this.view.getPopup();
+			let popup = this.view.getPopup();
 
 			_request('/api/me.json').then((response) => {
 				if (!response.data) return;
@@ -442,7 +442,7 @@
 				Comment.isLoggedIn = true; // Sure... this works.
 			})
 
-			var firstLink = document.querySelector('.sitetable .title.loggedin');
+			let firstLink = document.querySelector('.sitetable .title.loggedin');
 			if (firstLink && firstLink.target === '_blank') {
 				Comment.openInNewWindow = true;
 			}
@@ -459,9 +459,9 @@
 				return false;
 			});
 
-			var active = false;
+			let active = false;
 			document.body.addEventListener('mousemove', (e) => {
-				var commentAnchors = e.path.filter(function(n) {
+				let commentAnchors = e.path.filter(function(n) {
 					return n && n.nodeName == 'A' && n.classList && n.classList.contains('comments');
 				});
 				if (commentAnchors.length === 1 && (!active || active.href !== commentAnchors[0].href)) {
@@ -490,34 +490,33 @@
 
 		renderComment : function(el, init) {
 			if (this.disableRequest) return;
-			var self = this,
-				request = self.request,
+			let request = this.request,
 				commentId = !init && this.findClosestThing(el).id,
-				url = (el.href || self.model.getUrl(commentId)) + '.json',
+				url = (el.href || this.model.getUrl(commentId)) + '.json',
 				isNextComment = el.id === '_rcomment_div',
 				commentData, commentJson, isLastComment, content;
 
-			var requestData = self.model.getRequestData(url, commentId);
+			let requestData = this.model.getRequestData(url, commentId);
 
-			self.view.loading(el);
+			this.view.loading(el);
 			request.abort();
 
 			if (requestData.cached && !isNextComment) {
 				content = requestData.cached.content;
-				self.view.loadContentHtml(el, content);
-				var id = self.view.getPopup().querySelector('._rcomments_comment').id;
-				self.model.setCurrentListing(id);
+				this.view.loadContentHtml(el, content);
+				let id = this.view.getPopup().querySelector('._rcomments_comment').id;
+				this.model.setCurrentListing(id);
 				return;
 			}
 
-			self.disableRequest = true;
+			this.disableRequest = true;
 			request = _request({
 				url : requestData.url,
 				data: requestData.params,
 				timeout: 4000
 			});
-			request.then(function(data) {
-				commentData = self.model.registerComment(requestData.url, data, commentId);
+			request.then(data => {
+				commentData = this.model.registerComment(requestData.url, data, commentId);
 				isLastReply = true;
 
 				if (commentData) {
@@ -526,13 +525,13 @@
 					commentId = commentData.json.id; // Different value.
 				}
 
-				self.view.show(el, commentJson);
-				self.view.updateParentComment(el, isLastReply);
-				self.updateCache(requestData.url, commentId);
-				self.disableRequest = false;
-			}, function() {
-				self.view.handleError(el);
-				self.disableRequest = false;
+				this.view.show(el, commentJson);
+				this.view.updateParentComment(el, isLastReply);
+				this.updateCache(requestData.url, commentId);
+				this.disableRequest = false;
+			}, () => {
+				this.view.handleError(el);
+				this.disableRequest = false;
 			});
 			this.request = request;
 		},
@@ -542,23 +541,20 @@
 
 			this.model.cache(url, {
 				content : this.view.contentHtml(),
-				commentId : commentId
+				commentId
 			});
 		},
 
 		handleAnchorMouseEnter : function(commentAnchor) {
-			var self = this;
-
 			if (commentAnchor.text.split(' ').length <= 1) return;
-
-			self.go = true;
-			setTimeout(function() {
-				if (self.go) self.renderComment(commentAnchor, true);
+			this.go = true;
+			setTimeout(() => {
+				if (this.go) this.renderComment(commentAnchor, true);
 			}, 250);
 		},
 
 		handleAnchorMouseLeave : function(e, commentAnchor) {
-			var bbox = commentAnchor.getBoundingClientRect(),
+			let bbox = commentAnchor.getBoundingClientRect(),
 				bottom = bbox.top + window.pageYOffset + bbox.height;
 
 			this.go = false;
@@ -571,9 +567,9 @@
 		handleVote : function(arrow) {
 			if (!this.modhash) return;
 
-			var VOTE_URL = '/api/vote/.json';
+			const VOTE_URL = '/api/vote/.json';
 
-			var parentComment = getFirstParent(arrow, '.' + this.view.prefix + 'comment'),
+			let parentComment = getFirstParent(arrow, '.' + this.view.prefix + 'comment'),
 				id = parentComment && ('t1_' + parentComment.id),
 				url = this.model.currentListing.permalink + '.json',
 				commentId = getFirstParent(arrow, '.comment').id,
