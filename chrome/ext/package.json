@@ -1,0 +1,15 @@
+{
+  "name": "rcomments",
+  "version": "1.0.0",
+  "description": "Quick and hassle-free traversal of Reddit comments",
+  "main": "rComments.js",
+  "scripts": {
+    "build": "babel rComments.js -o ./dist/rComments.min.js --presets=babili"
+  },
+  "author": "Ignacio Ampuero",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^5.8.38",
+    "babili": "0.0.8"
+  }
+}
