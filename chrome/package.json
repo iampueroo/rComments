@@ -4,7 +4,7 @@
   "description": "Quick and hassle-free traversal of Reddit comments",
   "main": "rComments.js",
   "scripts": {
-    "build-js": "babel rComments.js -o ./dist/rComments.min.js --presets=babili",
+    "build-js": "babel rComments.js -o ./dist/rComments.min.js",
     "build-css": "cleancss rComments.css -o ./dist/rComments.min.css",
     "build": "npm run build-js && npm run build-css"
   },
