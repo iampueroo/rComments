@@ -200,6 +200,7 @@
 				popup.appendChild(nextCommentDiv);
 				popup.appendChild(contentDiv);
 				document.body.appendChild(popup);
+				popup.addEventListener('mouseleave', this.hidePopup.bind(this));
 				this._popup = popup;
 			}
 			return this._popup;
@@ -437,17 +438,20 @@
 				return false;
 			});
 
-			$('body')
-				.on('mouseenter', 'a.comments', function() {
-					self.handleAnchorMouseEnter(this);
-				})
-				.on('mouseleave', 'a.comments', function(e) {
-					self.handleAnchorMouseLeave(e, this);
-				})
-				.on('mouseleave', '#' + self.view._id, function() {
-					self.request.abort();
-					self.view.hidePopup();
-				})
+			var active = false;
+			document.body.addEventListener('mousemove', function(e) {
+				var commentAnchors = e.path.filter(function(n) {
+					return n && n.nodeName == 'A' && n.classList && n.classList.contains('comments');
+				});
+				if (commentAnchors.length === 1 && (!active || active.href !== commentAnchors[0].href)) {
+					// Hovering over anchor for the first tme
+					active = commentAnchors[0];
+					self.handleAnchorMouseEnter(active);
+				} else if (active && commentAnchors.length === 0) {
+					self.handleAnchorMouseLeave(e, active);
+					active = false;
+				}
+			});
 		},
 
 		findClosestThing: function(el) {
@@ -502,7 +506,7 @@
 				}
 
 				self.view.show(el, commentJson);
-				self.view.updateParentComment($el, isLastReply);
+				self.view.updateParentComment(el, isLastReply);
 				self.updateCache(requestData.url, commentId);
 				self.disableRequest = false;
 			}, function() {
