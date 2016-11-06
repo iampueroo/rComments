@@ -1,5 +1,14 @@
 (function() {
 
+	function getFirstParent(el, query) {
+		if (!el.parentElement) {
+			return;
+		} else if (el.parentElement.matches(query)) {
+			return el.parentElement;
+		}
+		return getFirstParent(el.parentElement, query)
+	}
+
 	function _formEncode(data) {
 		var encodedString = '';
 		for (key in data) {
@@ -161,12 +170,13 @@
 
 		show : function(el, json) {
 			var commentHtml = Comment.getHtml(json),
+				popup,
 				container;
 
 			if (this.isFirstComment(el)) {
-				popup = this.popup($(el));
-				popup = popup[0];
+				var popup = this.popup(el);
 				popup.querySelector('.' + this.prefix + 'content').innerHTML = commentHtml;
+				popup.style.display = 'block';
 			} else {
 				var content = el.querySelector('._rcomments_content, .children');
 				var loading = content.getElementsByClassName(this.prefix + 'loading')[0];
@@ -175,7 +185,6 @@
 				}
 				content.innerHTML = commentHtml + content.innerHTML;
 			}
-			popup.style.display = 'block'
 		},
 
 		getPopup: function() {
@@ -196,24 +205,29 @@
 			return this._popup;
 		},
 
-		popup : function($el) {
+		popup : function(el) {
 			var popup = this.getPopup();
 
-			$(popup).find('.' + this.prefix + 'next_comment_none').html(this.nextCommentText)
-				.removeClass().addClass(this.prefix + 'next_comment');
-
-			var offset = $el.offset(),
-				height = $el.outerHeight();
-
-			if (this.isFirstComment($el[0])) {
-				$(popup).find('.' + this.prefix + 'next_comment').html(this.nextCommentText);
-				$(popup).css({
-						'top' : offset.top + height + 'px',
-						'left' : offset.left,
-					});
+			var nextCommentNone = popup.getElementsByClassName(this.prefix + 'next_comment_none')[0];
+			if (nextCommentNone) {
+				nextCommentNone.innerHTML = this.nextCommentText;
+				nextCommentNone.classList = [this.prefix + 'next_comment'];
 			}
 
-			return $(popup);
+			var clientRect = el.getBoundingClientRect();
+
+			if (this.isFirstComment(el)) {
+				var windowOffsetY = window.window.pageYOffset;
+				var windowOffsetX = window.pageXOffset;
+				var nextComment = popup.getElementsByClassName(this.prefix + 'next_comment')[0];
+				if (nextComment) {
+					nextComment.innerHTML = this.nextCommentText;
+				}
+				popup.style.top = clientRect.top + clientRect.height + windowOffsetY + 'px';
+				popup.style.left = clientRect.left + windowOffsetX + 'px';
+			}
+
+			return popup;
 		},
 
 		hidePopup : function() {
@@ -224,58 +238,57 @@
 			return el.tagName.toLowerCase() === 'a';
 		},
 
-		loading : function($el) {
-			var isFirst = this.isFirstComment($el[0]),
-				$loadingEl = $('<div>')
-					.addClass(this.prefix + 'loading')
-					.addClass(this.prefix + 'comment comment thing')
-					.append('<span>Fetching comment...</span>');
+		loading : function(el) {
+			var isFirst = this.isFirstComment(el);
+			var loadingClasses = this.prefix + 'loading ' + this.prefix + 'comment comment thing';
+			var loadingContent = '<div class="' + loadingClasses + '">' +
+				'<span>Fetching comment...</span>' +
+				'</div>';
 
 			if (isFirst) {
-				var popup = this.popup($el);
-				popup.find('.' + this.prefix + 'content').html($loadingEl);
-				popup.show();
+				var popup = this.popup(el);
+				popup.querySelector('.' + this.prefix + 'content').innerHTML = loadingContent;
+				popup.style.display = 'block';
 			} else {
-				$el.find('._rcomments_content, .children').first().prepend($loadingEl);
+				$(el).find('._rcomments_content, .children').first().prepend($(loadingContent));
 			}
 		},
 
-		loadContentHtml : function($el, content) {
-			this.popup($el).html(content);
+		loadContentHtml : function(el, content) {
+			this.popup(el).innerHTML = content;
 		},
 
 		contentHtml : function() {
 			return this._popup.innerHTML;
 		},
 
-		updateParentComment : function($el, isLastReply) {
+		updateParentComment : function(el, isLastReply) {
 			if (!isLastReply) return;
 
-			var container = $el.find('> .entry > .' + this.prefix + 'next_reply').first();
+			var container = el.querySelector('> .entry > .' + this.prefix + 'next_reply');
 
-			if (!container.length) container = $(this._popup).find('.' + this.prefix + 'next_comment').first();
+			if (!container) {
+				container = this._popup.querySelector('.' + this.prefix + 'next_comment');
+			}
 
-			if (container.hasClass(this.prefix + 'next_comment')) {
-				container
-					.removeClass(this.prefix + 'next_comment')
-					.addClass(this.prefix + 'next_comment_none')
-					.html('No more Comments');
+			if (container.classList.contains(this.prefix + 'next_comment')) {
+				container.classList.remove(this.prefix + 'next_comment');
+				container.classList.add(this.prefix + 'next_comment_none');
+				container.innerHTML = 'No more Comments';
 			} else {
-				container
-					.removeClass(this.prefix + 'next_reply')
-					.addClass(this.prefix + 'no_reply')
-					.html('No More replies');
+				container.classList.remove(this.prefix + 'next_reply');
+				container.classList.add(this.prefix + 'no_reply');
+				container.innerHTML = 'No More replies';
 			}
 		},
 
-		handleError : function($el) {
-			var errorHtml = $('<div>A timeout error occured.</div>');
+		handleError : function(el) {
+			var errorHtml = '<div>A timeout error occured.</div>';
 
-			if (this.isFirstComment($el[0])) {
-				popup = this.popup($el);
-				popup.find('.' + this.prefix + 'content').html(errorHtml);
+			if (this.isFirstComment(el)) {
+				this.popup(el).querySelector('.' + this.prefix + 'content').innerHTML = errorHtml;
 			} else {
-				$el.find('._rcomments_content, .children').first()
+				$(el).find('._rcomments_content, .children').first()
 					.prepend(errorHtml)
 					.find('.' + this.prefix + 'loading').remove();
 			}
@@ -462,12 +475,12 @@
 
 			var requestData = self.model.getRequestData(url, commentId);
 
-			self.view.loading($el);
+			self.view.loading(el);
 			request.abort();
 
 			if (requestData.cached && !isNextComment) {
 				content = requestData.cached.content;
-				self.view.loadContentHtml($el, content);
+				self.view.loadContentHtml(el, content);
 				self.model.setCurrentListing($(content).find('._rcomments_comment').attr('id'));
 				return;
 			}
@@ -493,7 +506,7 @@
 				self.updateCache(requestData.url, commentId);
 				self.disableRequest = false;
 			}, function() {
-				self.view.handleError($el);
+				self.view.handleError(el);
 				self.disableRequest = false;
 			});
 			this.request = request;
@@ -536,13 +549,14 @@
 			var VOTE_URL = '/api/vote/.json';
 
 			var $arrow = $(arrow),
-				id = 't1_' + $arrow.parents('.' + this.view.prefix + 'comment').first().attr('id'),
+				parentComment = getFirstParent('.' + this.view.prefix + 'comment')
+				id = parentComment && ('t1_' + parentComment.id);
 				url = this.model.currentListing.permalink + '.json',
-				commentId = $arrow.parents('comment').first().attr('id'),
+				commentId = getFirstParent(arrow, 'comment').id,
 				data, dir;
 
-			if ($arrow.hasClass('up')) dir = 1;
-			else if ($arrow.hasClass('down')) dir = -1;
+			if (arrow.classList.contains('up')) dir = 1;
+			else if (arrow.classList.contains('down')) dir = -1;
 			else dir = 0;
 
 			data = {
@@ -551,7 +565,7 @@
 				uh : this.modhash
 			};
 			$.post(VOTE_URL, data);
-			Comment.applyVote($arrow.parent()[0], dir);
+			Comment.applyVote(arrow.parentElement, dir);
 			this.updateCache(url, commentId);
 		}
 	};
