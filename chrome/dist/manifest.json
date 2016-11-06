@@ -1,7 +1,7 @@
 {
    "content_scripts": [ {
       "js": ["rComments.min.js"],
-      "css" : ["rComments.css"],
+      "css" : ["rComments.min.css"],
       "matches": [ "http://reddit.com/*", "https://reddit.com/*", "http://*.reddit.com/*", "https://*.reddit.com/*" ]
    } ],
    "description": "Quick, easy, and lazy way to go through Reddit comments.",

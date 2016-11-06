@@ -4,12 +4,15 @@
   "description": "Quick and hassle-free traversal of Reddit comments",
   "main": "rComments.js",
   "scripts": {
-    "build": "babel rComments.js -o ./dist/rComments.min.js --presets=babili"
+    "build-js": "babel rComments.js -o ./dist/rComments.min.js --presets=babili",
+    "build-css": "cleancss rComments.css -o ./dist/rComments.min.css",
+    "build": "npm run build-js && npm run build-css"
   },
   "author": "Ignacio Ampuero",
   "license": "ISC",
   "devDependencies": {
-    "babel-cli": "^5.8.38",
-    "babili": "0.0.8"
+    "babel-cli": "^6.18.0",
+    "babili": "0.0.8",
+    "clean-css": "^3.4.20"
   }
 }
