@@ -68,10 +68,9 @@
 		isLoggedIn : false,
 
 		getHtml : function(json) {
-			if (!json) return this.noReplyHtml();
+			if (!json || !json.id) return this.noReplyHtml();
 
 			this.data = json;
-
 			var d = this.data,
 				commentHtml = '<div>' + decodeHTML(d.body_html) + '</div>',
 				bodyHtml = '<div>' + commentHtml + '</div>',
@@ -435,38 +434,42 @@
 		disableRequest : false,
 
 		init : function() {
-			var self = this;
 			var popup = this.view.getPopup();
 
-			_request('/api/me.json').then(function(response) {
+			_request('/api/me.json').then((response) => {
 				if (!response.data) return;
-				self.modhash = response.data.modhash;
+				this.modhash = response.data.modhash;
 				Comment.isLoggedIn = true; // Sure... this works.
-			});
+			})
 
-			popup.addEventListener('click', function(e) {
+			var firstLink = document.querySelector('.sitetable .title.loggedin');
+			if (firstLink && firstLink.target === '_blank') {
+				Comment.openInNewWindow = true;
+			}
+
+			popup.addEventListener('click', (e) => {
 				if (e.target.className === '_rcomments_next_reply') {
-					self.renderComment(e.target.parentElement.parentElement);
+					this.renderComment(e.target.parentElement.parentElement);
 				} else if (e.target.className === '_rcomments_next_comment') {
-					self.renderComment(e.target.parentElement);
+					this.renderComment(e.target.parentElement);
 				} else if (e.target.classList && e.target.classList[0] === 'arrow') {
 					e.stopImmediatePropagation();
-					self.handleVote(e.target);
+					this.handleVote(e.target);
 				}
 				return false;
 			});
 
 			var active = false;
-			document.body.addEventListener('mousemove', function(e) {
+			document.body.addEventListener('mousemove', (e) => {
 				var commentAnchors = e.path.filter(function(n) {
 					return n && n.nodeName == 'A' && n.classList && n.classList.contains('comments');
 				});
 				if (commentAnchors.length === 1 && (!active || active.href !== commentAnchors[0].href)) {
 					// Hovering over anchor for the first tme
 					active = commentAnchors[0];
-					self.handleAnchorMouseEnter(active);
+					this.handleAnchorMouseEnter(active);
 				} else if (active && commentAnchors.length === 0) {
-					self.handleAnchorMouseLeave(e, active);
+					this.handleAnchorMouseLeave(e, active);
 					active = false;
 				}
 			});
