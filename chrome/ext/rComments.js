@@ -1,5 +1,11 @@
 (function() {
 
+	function decodeHTML(html) {
+		var txt = document.createElement("textarea");
+		txt.innerHTML = html;
+		return txt.value;
+	}
+
 	function getFirstParent(el, query) {
 		if (!el.parentElement) {
 			return;
@@ -32,7 +38,7 @@
 		}
 
 		var xhttp = new XMLHttpRequest();
-		var promise = new Promise(function(resolve, reject) {
+		var promise = new Promise((resolve, reject) => {
 			xhttp.onreadystatechange = function() {
 				if (xhttp.readyState === 4 && xhttp.status == 200) {
 					resolve(JSON.parse(xhttp.responseText));
@@ -40,7 +46,7 @@
 					reject();
 				}
 			}
-			xhttp.ontimeout = function() {
+			xhttp.ontimeout = () => {
 				reject();
 			}
 			xhttp.open(type, url, true);
@@ -67,7 +73,7 @@
 			this.data = json;
 
 			var d = this.data,
-				commentHtml = $('<div>' + d.body_html + '</div>').text(), // html entity weirdness
+				commentHtml = '<div>' + decodeHTML(d.body_html) + '</div>',
 				bodyHtml = '<div>' + commentHtml + '</div>',
 				tagline = this.buildTagline(),
 				arrows = this.arrows();
@@ -251,7 +257,10 @@
 				popup.querySelector('.' + this.prefix + 'content').innerHTML = loadingContent;
 				popup.style.display = 'block';
 			} else {
-				$(el).find('._rcomments_content, .children').first().prepend($(loadingContent));
+				var children = el.querySelector('._rcomments_content, .children');
+				if (children) {
+					children.innerHTML = loadingContent + children.innerHTML;
+				}
 			}
 		},
 
@@ -266,7 +275,13 @@
 		updateParentComment : function(el, isLastReply) {
 			if (!isLastReply) return;
 
-			var container = el.querySelector('> .entry > .' + this.prefix + 'next_reply');
+			var container;
+			for (var i = 0; i < el.children.length; i++) {
+				if (el.children[i].classList.contains('entry')) {
+					container = el.children[i].querySelector('.' + this.prefix + 'next_reply');
+					break;
+				}
+			}
 
 			if (!container) {
 				container = this._popup.querySelector('.' + this.prefix + 'next_comment');
@@ -289,9 +304,12 @@
 			if (this.isFirstComment(el)) {
 				this.popup(el).querySelector('.' + this.prefix + 'content').innerHTML = errorHtml;
 			} else {
-				$(el).find('._rcomments_content, .children').first()
-					.prepend(errorHtml)
-					.find('.' + this.prefix + 'loading').remove();
+				var node = el.querySelector('._rcomments_content, .children');
+				node.innerHTML = errorHtml + node.innerHTML;
+				var loading = node.querySelector('.' + this.prefix + 'loading');
+				if (loading) {
+					loading.remove();
+				}
 			}
 		}
 	};
@@ -454,27 +472,26 @@
 			});
 		},
 
-		findClosestThing: function(el) {
-			var node = el;
-			while (node.classList.indexOf('thing') < 0) {
+		findClosestThing: function(node) {
+			while (node) {
+				if (node.classList && node.classList.contains('thing')) {
+					return node;
+				}
 				node = node.parentNode;
 				if (node.tagName.toLowerCase() === 'body') {
-					throw new Error('rComments: Could not find .thing for ' + el.tagName);
+					break;
 				}
 			}
-			return node;
+			return false;
 		},
 
 		renderComment : function(el, init) {
-			if (el.find) debugger;
 			if (this.disableRequest) return;
-
 			var self = this,
-				$el = $(el),
 				request = self.request,
-				commentId = !init && $el.closest('.thing').attr('id'),
-				url = ($el.attr('href') || self.model.getUrl(commentId)) + '.json',
-				isNextComment = $el.is('#_rcomment_div'),
+				commentId = !init && this.findClosestThing(el).id,
+				url = (el.href || self.model.getUrl(commentId)) + '.json',
+				isNextComment = el.id === '_rcomment_div',
 				commentData, commentJson, isLastComment, content;
 
 			var requestData = self.model.getRequestData(url, commentId);
@@ -485,7 +502,8 @@
 			if (requestData.cached && !isNextComment) {
 				content = requestData.cached.content;
 				self.view.loadContentHtml(el, content);
-				self.model.setCurrentListing($(content).find('._rcomments_comment').attr('id'));
+				var id = self.view.getPopup().querySelector('._rcomments_comment').id;
+				self.model.setCurrentListing(id);
 				return;
 			}
 
@@ -537,8 +555,8 @@
 		},
 
 		handleAnchorMouseLeave : function(e, commentAnchor) {
-			var $commentAnchor = $(commentAnchor),
-				bottom = $commentAnchor.offset().top + $commentAnchor.outerHeight();
+			var bbox = commentAnchor.getBoundingClientRect(),
+				bottom = bbox.top + window.pageYOffset + bbox.height;
 
 			this.go = false;
 			// Do stuff only if exiting anchor not through comment.
@@ -552,11 +570,10 @@
 
 			var VOTE_URL = '/api/vote/.json';
 
-			var $arrow = $(arrow),
-				parentComment = getFirstParent('.' + this.view.prefix + 'comment')
-				id = parentComment && ('t1_' + parentComment.id);
+			var parentComment = getFirstParent(arrow, '.' + this.view.prefix + 'comment'),
+				id = parentComment && ('t1_' + parentComment.id),
 				url = this.model.currentListing.permalink + '.json',
-				commentId = getFirstParent(arrow, 'comment').id,
+				commentId = getFirstParent(arrow, '.comment').id,
 				data, dir;
 
 			if (arrow.classList.contains('up')) dir = 1;
@@ -568,7 +585,8 @@
 				dir : dir,
 				uh : this.modhash
 			};
-			$.post(VOTE_URL, data);
+
+			_request(VOTE_URL, {type: 'POST', data});
 			Comment.applyVote(arrow.parentElement, dir);
 			this.updateCache(url, commentId);
 		}

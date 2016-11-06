@@ -1,6 +1,6 @@
 {
    "content_scripts": [ {
-      "js": [ "jquery-1.11.1.min.js", "rComments.js"],
+      "js": ["rComments.js"],
       "css" : ["rComments.css"],
       "matches": [ "http://reddit.com/*", "https://reddit.com/*", "http://*.reddit.com/*", "https://*.reddit.com/*" ]
    } ],
