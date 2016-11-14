@@ -464,14 +464,22 @@
 
 			let active = false;
 			document.body.addEventListener('mousemove', (e) => {
-				let commentAnchors = e.path.filter(function(n) {
-					return n && n.nodeName == 'A' && n.classList && n.classList.contains('comments');
-				});
-				if (commentAnchors.length === 1 && (!active || active.href !== commentAnchors[0].href)) {
+				let a = e.target.nodeName === 'A' && e.target.classList.contains('comments') ? e.target : false;
+
+				if (!active && !a) {
+					// Exit early if non active and not an anchor
+					return;
+				}
+				if (active && a && a.href === active.href) {
+					// Exit early if on the same anchor
+					return;
+				}
+
+				if (!active && a) {
 					// Hovering over anchor for the first tme
-					active = commentAnchors[0];
-					this.handleAnchorMouseEnter(active);
-				} else if (active && commentAnchors.length === 0) {
+					active = e.target;
+					this.handleAnchorMouseEnter(a);
+				} else if (active) {
 					this.handleAnchorMouseLeave(e, active);
 					active = false;
 				}
