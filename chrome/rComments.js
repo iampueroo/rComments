@@ -1,7 +1,12 @@
 ((window) => {
 
+	const R_COMMENTS_ID = '_rcomment_div';
+	const R_COMMENTS_CLASS_PREFIX = '_rcomments_';
+	const NEXT_REPLY_TEXT = '&#8618 Next Reply';
+	const NEXT_COMMENT_TEXT = '&#8595 Next Comment';
+
 	function decodeHTML(html) {
-		let txt = document.createElement("textarea");
+		let txt = document.createElement('textarea');
 		txt.innerHTML = html;
 		return txt.value;
 	}
@@ -60,17 +65,12 @@
 		return promise;
 	}
 
-	const R_COMMENTS_ID = '_rcomment_div';
-	const R_COMMENTS_CLASS_PREFIX = '_rcomments_';
-
 	function classed(classes) {
 		return R_COMMENTS_CLASS_PREFIX + classes;
 	}
 
 	let Comment =  {
 
-		nextReplyText : '&#8618 Next Reply',
-		nextCommentText : '&#8595 Next Comment',
 		isLoggedIn : false,
 
 		getHtml : function(json) {
@@ -78,12 +78,12 @@
 
 			this.data = json;
 			let d = this.data,
-				commentHtml = '<div>' + decodeHTML(d.body_html) + '</div>',
-				bodyHtml = '<div>' + commentHtml + '</div>',
+				commentHtml = `<div>${decodeHTML(d.body_html)}</div>`,
+				bodyHtml = `<div>${commentHtml}</div>`,
 				tagline = this.buildTagline(),
 				arrows = this.arrows();
 
-			let wrapperOpen = '<div id="'+d.id+'"" class="'+ classed('comment comment thing') +'">';
+			let wrapperOpen = `<div id="${d.id}" class="${classed('comment comment thing')}">`;
 			let wrapperClose = '</div>';
 			let entry = '<div class="entry">'
 				+ 	tagline
@@ -96,30 +96,30 @@
 		},
 
 		noReplyHtml : function() {
-			return '<div class="'+ classed('comment comment thing') + '">Oops, no more replies.</div>';
+			return `<div class="${classed('comment comment thing')}">Oops, no more replies.</div>`;
 		},
 
 		buildTagline : function() {
-			return '<div class="tagline">' + this.authorTag() + this.voteTag() + '</div>';
+			return `<div class="tagline">${this.authorTag() + this.voteTag()}</div>`;
 		},
 
 		voteTag : function() {
 			let votes = this.data.ups - this.data.downs,
-				unvoted = '<span class="score unvoted">' + votes + ' points</span>',
-				likes = '<span class="score likes">' + (votes + 1)  + ' points</span>',
-				dislikes = '<span class="score dislikes">' + (votes - 1) + ' points</span>';
-			return '<span>' + dislikes + unvoted + likes + '</span>';
+				unvoted = `<span class="score unvoted">${votes} points</span>`,
+				likes = `<span class="score likes">${votes + 1} points</span>`,
+				dislikes = `<span class="score dislikes">${votes - 1} points</span>`;
+			return `<span>${dislikes + unvoted + likes}</span>`;
 		},
 
 		nextReply : function(hasChildren) {
 			let _class = classed(hasChildren ? 'next_reply' : 'no_reply'),
-				html = hasChildren ? this.nextReplyText : 'No Replies';
-			return '<div class="' + _class + '" style="padding-top:5px">' + html + '</div>';
+				html = hasChildren ? NEXT_REPLY_TEXT : 'No Replies';
+			return `<div class="${_class}" style="padding-top:5px">${html}</div>`;
 		},
 
 		authorTag : function() {
 			let author = this.data.author;
-			return '<a class="author" href="/user/' + author + '">' + author + '</a>';
+			return `<a class="author" href="/user/${author}">${author}</a>`;
 		},
 
 		arrows : function() {
@@ -175,8 +175,6 @@
 
 	let rCommentsView = {
 		popup : null,
-		nextReplyText : '&#8618 Next Reply',
-		nextCommentText : '&#8595 Next Comment',
 
 		show : function(el, json) {
 			let commentHtml = Comment.getHtml(json),
@@ -203,7 +201,7 @@
 				let nextCommentDiv = document.createElement('div');
 				let contentDiv = document.createElement('div');
 				nextCommentDiv.className = classed('next_comment');
-				nextCommentDiv.innerHTML = this.nextCommentText;
+				nextCommentDiv.innerHTML = NEXT_COMMENT_TEXT;
 				contentDiv.className = classed('content');
 				popup.id = R_COMMENTS_ID;
 				popup.style.display = 'none';
@@ -221,7 +219,7 @@
 			let nextCommentNone = popup.getElementsByClassName(classed('next_comment_none'))[0];
 
 			if (nextCommentNone) {
-				nextCommentNone.innerHTML = this.nextCommentText;
+				nextCommentNone.innerHTML = NEXT_COMMENT_TEXT;
 				nextCommentNone.classList = [classed('next_comment')];
 			}
 
@@ -232,7 +230,7 @@
 				let windowOffsetX = window.pageXOffset;
 				let nextComment = popup.getElementsByClassName(classed('next_comment'))[0];
 				if (nextComment) {
-					nextComment.innerHTML = this.nextCommentText;
+					nextComment.innerHTML = NEXT_COMMENT_TEXT;
 				}
 				popup.style.top = clientRect.top + clientRect.height + windowOffsetY + 'px';
 				popup.style.left = clientRect.left + windowOffsetX + 'px';
