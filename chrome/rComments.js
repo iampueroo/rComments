@@ -72,6 +72,7 @@
 	let Comment =  {
 
 		isLoggedIn : false,
+		openLinksInNewTab : false,
 
 		getHtml : function(json) {
 			if (!json || !json.id) return this.noReplyHtml();
@@ -82,6 +83,11 @@
 				bodyHtml = `<div>${commentHtml}</div>`,
 				tagline = this.buildTagline(),
 				arrows = this.arrows();
+
+			if (this.openLinksInNewTab) {
+				let regex = /(<a\s)(.*<\/a>)/;
+				bodyHtml = bodyHtml.replace(regex, '$1target="_blank" $2');
+			}
 
 			let wrapperOpen = `<div id="${d.id}" class="${classed('comment comment thing')}">`;
 			let wrapperClose = '</div>';
@@ -442,8 +448,9 @@
 			_request('/api/me.json').then((response) => {
 				if (!response || !response.data || !response.data.modhash) return;
 				this.modhash = response.data.modhash;
+				Comment.openLinksInNewTab = /('|")new_window('|")\s?:\s?true/.test(window.config.innerHTML);
 				Comment.isLoggedIn = true; // Sure... this works.
-			})
+			});
 
 			let firstLink = document.querySelector('.sitetable .title.loggedin');
 			if (firstLink && firstLink.target === '_blank') {
