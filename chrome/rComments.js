@@ -1,4 +1,4 @@
-(() => {
+((window) => {
 
 	function decodeHTML(html) {
 		let txt = document.createElement("textarea");
@@ -6,32 +6,32 @@
 		return txt.value;
 	}
 
-	function getFirstParent(el, query) {
+	function getFirstParent(el, selector) {
 		if (!el.parentElement) {
 			return;
-		} else if (el.parentElement.matches(query)) {
+		} else if (el.parentElement.matches(selector)) {
 			return el.parentElement;
 		}
-		return getFirstParent(el.parentElement, query)
+		return getFirstParent(el.parentElement, selector)
 	}
 
-	function _formEncode(data) {
+	function formEncode(data) {
 		let encodedString = '';
 		for (key in data) {
 			encodedString += key + '=' + data[key] + '&';
 		}
 		return encodedString.slice(0, -1);
 	}
+
 	// screw you jQuery
-	function _request(url, options) {
+	function _request(url, options = {}) {
 		if (typeof url === 'object') {
 			options = url;
 			url = options.url;
-		} else if (!options) {
-			options = {};
 		}
+
 		let type = options.type || 'GET';
-		let data = _formEncode(options.data || {});
+		let data = formEncode(options.data || {});
 		if (type === 'GET') {
 			url += '?' + data;
 			data = undefined;
@@ -60,9 +60,15 @@
 		return promise;
 	}
 
+	const R_COMMENTS_ID = '_rcomment_div';
+	const R_COMMENTS_CLASS_PREFIX = '_rcomments_';
+
+	function classed(classes) {
+		return R_COMMENTS_CLASS_PREFIX + classes;
+	}
+
 	let Comment =  {
 
-		prefix : '_rcomments_',
 		nextReplyText : '&#8618 Next Reply',
 		nextCommentText : '&#8595 Next Comment',
 		isLoggedIn : false,
@@ -77,19 +83,20 @@
 				tagline = this.buildTagline(),
 				arrows = this.arrows();
 
-			let wrapperOpen = '<div id="'+d.id+'"" class="'+this.prefix+'comment comment thing">';
-
+			let wrapperOpen = '<div id="'+d.id+'"" class="'+ classed('comment comment thing') +'">';
+			let wrapperClose = '</div>';
 			let entry = '<div class="entry">'
 				+ 	tagline
 				+ 	bodyHtml
 				+ 	this.nextReply(!!d.replies)
 				+ 	'<div class="children"></div>'
 				+ '</div>';
-			return wrapperOpen + arrows + entry + '</div>';
+
+			return wrapperOpen + arrows + entry + wrapperClose;
 		},
 
 		noReplyHtml : function() {
-			return '<div class="'+this.prefix+'comment comment thing">Oops, no more replies.</div>';
+			return '<div class="'+ classed('comment comment thing') + '">Oops, no more replies.</div>';
 		},
 
 		buildTagline : function() {
@@ -105,7 +112,7 @@
 		},
 
 		nextReply : function(hasChildren) {
-			let _class = hasChildren ?  this.prefix + 'next_reply' : this.prefix + 'no_reply',
+			let _class = classed(hasChildren ? 'next_reply' : 'no_reply'),
 				html = hasChildren ? this.nextReplyText : 'No Replies';
 			return '<div class="' + _class + '" style="padding-top:5px">' + html + '</div>';
 		},
@@ -121,7 +128,7 @@
 			let arrowDiv = document.createElement('div');
 			let arrowUp = document.createElement('div');
 			let arrowDown = document.createElement('div');
-			arrowDiv.className = this.prefix + 'arrows unvoted';
+			arrowDiv.className = classed('arrows unvoted');
 			arrowUp.className = 'arrow up';
 			arrowDown.className = 'arrow down';
 			arrowDiv.appendChild(arrowUp);
@@ -168,8 +175,6 @@
 
 	let rCommentsView = {
 		popup : null,
-		_id : '_rcomment_div',
-		prefix : '_rcomments_',
 		nextReplyText : '&#8618 Next Reply',
 		nextCommentText : '&#8595 Next Comment',
 
@@ -180,11 +185,11 @@
 
 			if (this.isFirstComment(el)) {
 				let popup = this.popup(el);
-				popup.querySelector('.' + this.prefix + 'content').innerHTML = commentHtml;
+				popup.querySelector('.' + classed('content')).innerHTML = commentHtml;
 				popup.style.display = 'block';
 			} else {
 				let content = el.querySelector('._rcomments_content, .children');
-				let loading = content.getElementsByClassName(this.prefix + 'loading')[0];
+				let loading = content.getElementsByClassName(classed('loading'))[0];
 				if (loading) {
 					loading.parentNode.removeChild(loading);
 				}
@@ -197,10 +202,10 @@
 				let popup = document.createElement('div');
 				let nextCommentDiv = document.createElement('div');
 				let contentDiv = document.createElement('div');
-				nextCommentDiv.className = this.prefix+'next_comment';
+				nextCommentDiv.className = classed('next_comment');
 				nextCommentDiv.innerHTML = this.nextCommentText;
-				contentDiv.className = this.prefix+'content';
-				popup.id = this._id;
+				contentDiv.className = classed('content');
+				popup.id = R_COMMENTS_ID;
 				popup.style.display = 'none';
 				popup.appendChild(nextCommentDiv);
 				popup.appendChild(contentDiv);
@@ -213,11 +218,11 @@
 
 		popup : function(el) {
 			let popup = this.getPopup();
-			let nextCommentNone = popup.getElementsByClassName(this.prefix + 'next_comment_none')[0];
+			let nextCommentNone = popup.getElementsByClassName(classed('next_comment_none'))[0];
 
 			if (nextCommentNone) {
 				nextCommentNone.innerHTML = this.nextCommentText;
-				nextCommentNone.classList = [this.prefix + 'next_comment'];
+				nextCommentNone.classList = [classed('next_comment')];
 			}
 
 			let clientRect = el.getBoundingClientRect();
@@ -225,7 +230,7 @@
 			if (this.isFirstComment(el)) {
 				let windowOffsetY = window.window.pageYOffset;
 				let windowOffsetX = window.pageXOffset;
-				let nextComment = popup.getElementsByClassName(this.prefix + 'next_comment')[0];
+				let nextComment = popup.getElementsByClassName(classed('next_comment'))[0];
 				if (nextComment) {
 					nextComment.innerHTML = this.nextCommentText;
 				}
@@ -246,14 +251,14 @@
 
 		loading : function(el) {
 			let isFirst = this.isFirstComment(el);
-			let loadingClasses = this.prefix + 'loading ' + this.prefix + 'comment comment thing';
+			let loadingClasses = classed('loading') + ' ' + classed('comment comment thing');
 			let loadingContent = '<div class="' + loadingClasses + '">' +
 				'<span>Fetching comment...</span>' +
 				'</div>';
 
 			if (isFirst) {
 				let popup = this.popup(el);
-				popup.querySelector('.' + this.prefix + 'content').innerHTML = loadingContent;
+				popup.querySelector('.' + classed('content')).innerHTML = loadingContent;
 				popup.style.display = 'block';
 			} else {
 				let children = el.querySelector('._rcomments_content, .children');
@@ -277,22 +282,22 @@
 			let container;
 			for (let i = 0; i < el.children.length; i++) {
 				if (el.children[i].classList.contains('entry')) {
-					container = el.children[i].querySelector('.' + this.prefix + 'next_reply');
+					container = el.children[i].querySelector('.' + classed('next_reply'));
 					break;
 				}
 			}
 
 			if (!container) {
-				container = this._popup.querySelector('.' + this.prefix + 'next_comment');
+				container = this._popup.querySelector('.' + classed('next_comment'));
 			}
 
-			if (container.classList.contains(this.prefix + 'next_comment')) {
-				container.classList.remove(this.prefix + 'next_comment');
-				container.classList.add(this.prefix + 'next_comment_none');
+			if (container.classList.contains(classed('next_comment'))) {
+				container.classList.remove(classed('next_comment'));
+				container.classList.add(classed('next_comment_none'));
 				container.innerHTML = 'No more Comments';
 			} else {
-				container.classList.remove(this.prefix + 'next_reply');
-				container.classList.add(this.prefix + 'no_reply');
+				container.classList.remove(classed('next_reply'));
+				container.classList.add(classed('no_reply'));
 				container.innerHTML = 'No More replies';
 			}
 		},
@@ -301,11 +306,11 @@
 			let errorHtml = '<div>A timeout error occured.</div>';
 
 			if (this.isFirstComment(el)) {
-				this.popup(el).querySelector('.' + this.prefix + 'content').innerHTML = errorHtml;
+				this.popup(el).querySelector('.' + classed('content')).innerHTML = errorHtml;
 			} else {
 				let node = el.querySelector('._rcomments_content, .children');
 				node.innerHTML = errorHtml + node.innerHTML;
-				let loading = node.querySelector('.' + this.prefix + 'loading');
+				let loading = node.querySelector('.' + classed('loading'));
 				if (loading) {
 					loading.remove();
 				}
@@ -592,4 +597,4 @@
 	};
 
 	rCommentsController.init();
-})();
+})(window);
