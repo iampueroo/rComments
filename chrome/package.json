@@ -6,7 +6,8 @@
   "scripts": {
     "build-js": "babel rComments.js -o ./dist/rComments.min.js",
     "build-css": "cleancss rComments.css -o ./dist/rComments.min.css",
-    "build": "npm run build-js && npm run build-css"
+    "build": "npm run build-js && npm run build-css",
+    "dev": "cp rComments.js ./dist/rComments.min.js && cp rComments.css ./dist/rComments.css.js"
   },
   "author": "Ignacio Ampuero",
   "license": "ISC",

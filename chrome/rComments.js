@@ -440,7 +440,7 @@
 			let popup = this.view.getPopup();
 
 			_request('/api/me.json').then((response) => {
-				if (!response.data) return;
+				if (!response || !response.data || !response.data.modhash) return;
 				this.modhash = response.data.modhash;
 				Comment.isLoggedIn = true; // Sure... this works.
 			})
@@ -572,7 +572,7 @@
 
 			const VOTE_URL = '/api/vote/.json';
 
-			let parentComment = getFirstParent(arrow, '.' + this.view.prefix + 'comment'),
+			let parentComment = getFirstParent(arrow, '.' + classed('comment')),
 				id = parentComment && ('t1_' + parentComment.id),
 				url = this.model.currentListing.permalink + '.json',
 				commentId = getFirstParent(arrow, '.comment').id,
