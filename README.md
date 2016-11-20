@@ -1,7 +1,7 @@
 rComments
 =========
 
-Quick, easy, and lazy way to go through Reddit comments. [Download here](http://iampueroo.github.io/rComments/
+Quick, easy, and lazy way to go through Reddit comments. [Download here](http://iampueroo.github.io/rComments/)
 
 ## Current Version
 1.0.0 woot woot
