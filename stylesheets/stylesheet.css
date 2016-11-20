@@ -252,3 +252,7 @@ a {
   background-color: #5f2c82;
   color: white;
 }
+
+.strike-through {
+  text-decoration: line-through;
+}
