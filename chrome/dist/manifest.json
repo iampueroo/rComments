@@ -10,5 +10,5 @@
    "minimum_chrome_version": "20.0",
    "name": "rComments",
    "permissions": [ "http://reddit.com/*", "https://reddit.com/*", "http://*.reddit.com/*", "https://*.reddit.com/*"],
-   "version": "0.9"
+   "version": "1.0.0"
 }
