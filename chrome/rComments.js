@@ -69,7 +69,7 @@
 		return R_COMMENTS_CLASS_PREFIX + classes;
 	}
 
-	let Comment =  {
+	let Comment = {
 
 		isLoggedIn : false,
 		openLinksInNewTab : false,
@@ -471,7 +471,11 @@
 
 			let active = false;
 			document.body.addEventListener('mousemove', (e) => {
-				let a = e.target.nodeName === 'A' && e.target.classList.contains('comments') ? e.target : false;
+				let a = e.target.nodeName === 'A' ? e.target : false;
+				if (a && !(a.classList.contains('comments') || a.classList.contains('search-comments'))) {
+					// Not a comment anchor.
+					a = false;
+				}
 
 				if (!active && !a) {
 					// Exit early if non active and not an anchor
@@ -510,11 +514,17 @@
 			if (this.disableRequest) return;
 			let request = this.request,
 				commentId = !init && this.findClosestThing(el).id,
-				url = (el.href || this.model.getUrl(commentId)) + '.json',
+				url = el.href || this.model.getUrl(commentId),
 				isNextComment = el.id === '_rcomment_div',
 				commentData, commentJson, isLastComment, content;
 
-			let requestData = this.model.getRequestData(url, commentId);
+			// Sometimes the URL contains query parameters we don't want.
+			// This removes them.
+			if (url === el.href && el.nodeName === 'A') {
+				url = url.slice(0, el.search ? url.indexOf(el.search) : url.length);
+			}
+
+			let requestData = this.model.getRequestData(url + '.json', commentId);
 
 			this.view.loading(el);
 			request.abort();
