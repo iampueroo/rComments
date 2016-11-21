@@ -565,7 +565,7 @@
 				if (commentData && commentData.kind === 'more') {
 					// Weird Reddit response
 					this.handleMoreThing(url, commentId, commentData);
-					this.view.handleError(el, 'Bad Reddit API response - please try again');
+					this.view.handleError(el, 'Inconsistent Reddit API response (missing comment) - please try again.');
 					this.disableRequest = false;
 					return;
 				}
