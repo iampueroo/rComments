@@ -64,3 +64,7 @@
 ._rcomments_next_comment_none, ._rcomments_no_reply {
 	color: lightgray;
 }
+
+._rcomments_error {
+	padding: 5px 5px 5px 10px;
+}

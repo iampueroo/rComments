@@ -74,10 +74,11 @@
 		isLoggedIn : false,
 		openLinksInNewTab : false,
 
-		getHtml : function(json) {
+		getHtml : function(json, listing) {
 			if (!json || !json.id) return this.noReplyHtml();
 
 			this.data = json;
+			this.listing = listing;
 			let d = this.data,
 				commentHtml = `<div>${decodeHTML(d.body_html)}</div>`,
 				bodyHtml = `<div>${commentHtml}</div>`,
@@ -125,7 +126,8 @@
 
 		authorTag : function() {
 			let author = this.data.author;
-			return `<a class="author" href="/user/${author}">${author}</a>`;
+			let op = this.listing && this.listing.author === author ? 'submitter' : '';
+			return `<a class="author ${op}" href="/user/${author}">${author}</a>`;
 		},
 
 		arrows : function() {
@@ -182,8 +184,8 @@
 	let rCommentsView = {
 		popup : null,
 
-		show : function(el, json) {
-			let commentHtml = Comment.getHtml(json),
+		show : function(el, json, listing) {
+			let commentHtml = Comment.getHtml(json, listing),
 				popup,
 				container;
 
@@ -307,7 +309,7 @@
 		},
 
 		handleError : function(el, error) {
-			let errorHtml = `<div>${error}</div>`;
+			let errorHtml = `<div class="${classed('error')}">${error}</div>`;
 
 			if (this.isFirstComment(el)) {
 				this.popup(el).querySelector('.' + classed('content')).innerHTML = errorHtml;
@@ -563,7 +565,7 @@
 				if (commentData && commentData.kind === 'more') {
 					// Weird Reddit response
 					this.handleMoreThing(url, commentId, commentData);
-					this.view.handleError(el, 'Bad response, try again');
+					this.view.handleError(el, 'Bad Reddit API response - please try again');
 					this.disableRequest = false;
 					return;
 				}
@@ -573,7 +575,7 @@
 					isLastReply = commentData.isLastReply;
 					newCommentId = commentData.json.id; // Different value.
 				}
-				this.view.show(el, commentJson);
+				this.view.show(el, commentJson, this.model.currentListing);
 				this.view.updateParentComment(el, isLastReply);
 				this.updateCache(requestData.url, newCommentId);
 				this.disableRequest = false;
