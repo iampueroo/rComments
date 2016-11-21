@@ -306,8 +306,8 @@
 			}
 		},
 
-		handleError : function(el) {
-			let errorHtml = '<div>A timeout error occured.</div>';
+		handleError : function(el, error) {
+			let errorHtml = `<div>${error}</div>`;
 
 			if (this.isFirstComment(el)) {
 				this.popup(el).querySelector('.' + classed('content')).innerHTML = errorHtml;
@@ -381,7 +381,7 @@
 
 		extractCommentData : function(data, params) {
 			let isCommentReply = params.depth == 2,
-				commentIndex = params.limit - 1,
+				commentIndex = params.commentIndex || params.limit - 1,
 				commentList = data[1]['data']['children'],
 				hasMoreReplies, commentData;
 
@@ -392,6 +392,10 @@
 				commentList = commentList['children'];
 			}
 
+			if (params.commentIndex) {
+				params.commentIndex++;
+			}
+
 			// Reddit had replied to parent comment saying there were
 			// more replies. They lied.
 			if (!commentList[commentIndex]) {
@@ -399,8 +403,8 @@
 			}
 
 			hasMoreReplies = !!commentList[commentIndex + 1]; // "More comments"
-
 			return {
+				kind: commentList[commentIndex].kind,
 				json: commentList[commentIndex].data,
 				isLastReply : !hasMoreReplies
 			};
@@ -510,21 +514,30 @@
 			return false;
 		},
 
+		handleMoreThing(url, commentId, responseData) {
+			let model = this.model;
+			let key = model.genKey(url, commentId);
+			let commentData = this.model.commentStatus[key];
+			commentData.commentIndex = commentData.limit - 1;
+			return;
+		},
+
 		renderComment : function(el, init) {
 			if (this.disableRequest) return;
 			let request = this.request,
 				commentId = !init && this.findClosestThing(el).id,
 				url = el.href || this.model.getUrl(commentId),
 				isNextComment = el.id === '_rcomment_div',
-				commentData, commentJson, isLastComment, content;
+				commentData, commentJson, isLastComment, content, newCommentId;
 
 			// Sometimes the URL contains query parameters we don't want.
 			// This removes them.
 			if (url === el.href && el.nodeName === 'A') {
 				url = url.slice(0, el.search ? url.indexOf(el.search) : url.length);
 			}
+			url += '.json';
 
-			let requestData = this.model.getRequestData(url + '.json', commentId);
+			let requestData = this.model.getRequestData(url, commentId);
 
 			this.view.loading(el);
 			request.abort();
@@ -547,18 +560,25 @@
 				commentData = this.model.registerComment(requestData.url, data, commentId);
 				isLastReply = true;
 
+				if (commentData && commentData.kind === 'more') {
+					// Weird Reddit response
+					this.handleMoreThing(url, commentId, commentData);
+					this.view.handleError(el, 'Bad response, try again');
+					this.disableRequest = false;
+					return;
+				}
+
 				if (commentData) {
 					commentJson = commentData.json;
 					isLastReply = commentData.isLastReply;
-					commentId = commentData.json.id; // Different value.
+					newCommentId = commentData.json.id; // Different value.
 				}
-
 				this.view.show(el, commentJson);
 				this.view.updateParentComment(el, isLastReply);
-				this.updateCache(requestData.url, commentId);
+				this.updateCache(requestData.url, newCommentId);
 				this.disableRequest = false;
 			}, () => {
-				this.view.handleError(el);
+				this.view.handleError(el, 'Error: Reddit did not respond.');
 				this.disableRequest = false;
 			});
 			this.request = request;
