@@ -344,11 +344,11 @@
 			return data;
 		},
 
-		requestParams : function(url, commentId) {
+		requestParams : function(url, commentId, flag) {
 			let key = this.genKey(url, commentId),
-				params = this.commentStatus[key];
+				params = Object.assign({}, this.commentStatus[key] || {});
 
-			if (!params) {
+			if (!params.sort) {
 				params = {
 					depth : (commentId ? 2 : 1),
 					limit : (commentId ? 1 : 0), // Incremented below
@@ -359,21 +359,21 @@
 			}
 
 			params.limit++;
-			this.commentStatus[key] = params;
 
 			return params;
 		},
 
 		registerComment : function(url, data, commentId) {
 			let key = this.genKey(url, commentId),
-				params = this.commentStatus[key],
+				params = this.requestParams(url, commentId),
 				listingJson = this.extractListingJson(data),
 				commentData = this.extractCommentData(data, params);
 
+
 			if (!commentData) return;
+			this.commentStatus[key] = params;
 			this.listingCache[commentData.json.id] = listingJson;
 			this.currentListing = listingJson;
-
 			return commentData;
 		},
 
@@ -465,9 +465,9 @@
 
 			popup.addEventListener('click', (e) => {
 				if (e.target.className === '_rcomments_next_reply') {
-					this.renderComment(e.target.parentElement.parentElement);
+					this.renderCommentFromElement(e.target.parentElement.parentElement);
 				} else if (e.target.className === '_rcomments_next_comment') {
-					this.renderComment(e.target.parentElement);
+					this.renderCommentFromElement(e.target.parentElement);
 				} else if (e.target.classList && e.target.classList[0] === 'arrow') {
 					e.stopImmediatePropagation();
 					this.handleVote(e.target);
@@ -524,7 +524,7 @@
 			return;
 		},
 
-		renderComment : function(el, init) {
+		renderCommentFromElement : function(el, init) {
 			if (this.disableRequest) return;
 			let request = this.request,
 				commentId = !init && this.findClosestThing(el).id,
@@ -599,7 +599,7 @@
 			if (commentAnchor.text.split(' ').length <= 1) return;
 			this.go = true;
 			setTimeout(() => {
-				if (this.go) this.renderComment(commentAnchor, true);
+				if (this.go) this.renderCommentFromElement(commentAnchor, true);
 			}, 250);
 		},
 
