@@ -563,24 +563,23 @@
 		getCommentData(el, url, commentId) {
 			return (data) => {
 				let commentData = this.model.registerComment(url, data, commentId);
+				let isLastReply;
 				if (commentData && commentData.kind === 'more') {
 					// Weird Reddit response
-					console.log("Handle more thing");
 					return this.handleMoreThing(el, url, commentId, commentData);
 				}
 
-				if (!commentData) {
-					// shit.
-					this.view.updateParentComment(el, true);
-					this.view.handleError(el, 'No more comments.');
-					console.log('well fuck');
-					return false;
+				if (commentData) {
+					isLastReply = commentData.isLastReply;
+				} else {
+					isLastReply = true;
+					commentData = {};
 				}
 				return {
 					el,
+					isLastReply,
 					commentJson: commentData.json,
-					isLastReply: commentData.isLastReply,
-					commentId: commentData.json.id,
+					commentId: commentData.json && commentData.json.id,
 					url: url
 				};
 			};
