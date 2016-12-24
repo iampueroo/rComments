@@ -552,38 +552,65 @@
 				return;
 			}
 
-			this.disableRequest = true;
-			request = _request({
+			this.executeCommentRequest(el, commentId, {
 				url : requestData.url,
 				data: requestData.params,
 				timeout: 4000
 			});
-			request.then(data => {
-				commentData = this.model.registerComment(requestData.url, data, commentId);
-				isLastReply = true;
+		},
+
+		executeCommentRequest(el, commentId, parameters) {
+			this.disableRequest = true;
+			this.request = _request(parameters);
+			this.request.then(
+					this.getCommentData(el, parameters.url, commentId).bind(this), // success
+					this.handleCommentFail(el).bind(this) // failure
+				)
+				.then(this.showComment.bind(this)); // then
+		},
+
+		getCommentData(el, url, commentId) {
+			return (data) => {
+				let commentData = this.model.registerComment(url, data, commentId);
 
 				if (commentData && commentData.kind === 'more') {
 					// Weird Reddit response
 					this.handleMoreThing(url, commentId, commentData);
 					this.view.handleError(el, 'Inconsistent Reddit API response (missing comment) - please try again.');
-					this.disableRequest = false;
-					return;
+					return false;
 				}
 
-				if (commentData) {
-					commentJson = commentData.json;
-					isLastReply = commentData.isLastReply;
-					newCommentId = commentData.json.id; // Different value.
+				if (!commentData) {
+					// shit.
+					return false;
 				}
-				this.view.show(el, commentJson, this.model.currentListing);
-				this.view.updateParentComment(el, isLastReply);
-				this.updateCache(requestData.url, newCommentId);
-				this.disableRequest = false;
-			}, () => {
+				return {
+					el,
+					commentJson: commentData.json,
+					isLastReply: commentData.isLastReply,
+					commentId: commentData.json.id,
+					url: url
+				};
+			};
+		},
+
+		showComment(data) {
+			this.disableRequest = false;
+			if (!data) {
+				// Something went wrong earlier
+				return;
+			}
+			let {commentJson, isLastReply, commentId, url, el} = data;
+			this.view.show(el, commentJson, this.model.currentListing);
+			this.view.updateParentComment(el, isLastReply);
+			this.updateCache(url, commentId);
+		},
+
+		handleCommentFail(el) {
+			return () => {
 				this.view.handleError(el, 'Error: Reddit did not respond.');
 				this.disableRequest = false;
-			});
-			this.request = request;
+			};
 		},
 
 		updateCache : function(url, commentId) {
