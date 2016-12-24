@@ -516,14 +516,6 @@
 			return false;
 		},
 
-		handleMoreThing(url, commentId, responseData) {
-			let model = this.model;
-			let key = model.genKey(url, commentId);
-			let commentData = this.model.commentStatus[key];
-			commentData.commentIndex = commentData.limit - 1;
-			return;
-		},
-
 		renderCommentFromElement : function(el, init) {
 			if (this.disableRequest) return;
 			let request = this.request,
@@ -556,32 +548,32 @@
 				url : requestData.url,
 				data: requestData.params,
 				timeout: 4000
-			});
+			}).then(this.showComment.bind(this));
 		},
 
 		executeCommentRequest(el, commentId, parameters) {
 			this.disableRequest = true;
 			this.request = _request(parameters);
-			this.request.then(
-					this.getCommentData(el, parameters.url, commentId).bind(this), // success
-					this.handleCommentFail(el).bind(this) // failure
-				)
-				.then(this.showComment.bind(this)); // then
+			return this.request.then(
+				this.getCommentData(el, parameters.url, commentId).bind(this), // success
+				this.handleCommentFail(el).bind(this) // failure
+			);
 		},
 
 		getCommentData(el, url, commentId) {
 			return (data) => {
 				let commentData = this.model.registerComment(url, data, commentId);
-
 				if (commentData && commentData.kind === 'more') {
 					// Weird Reddit response
-					this.handleMoreThing(url, commentId, commentData);
-					this.view.handleError(el, 'Inconsistent Reddit API response (missing comment) - please try again.');
-					return false;
+					console.log("Handle more thing");
+					return this.handleMoreThing(el, url, commentId, commentData);
 				}
 
 				if (!commentData) {
 					// shit.
+					this.view.updateParentComment(el, true);
+					this.view.handleError(el, 'No more comments.');
+					console.log('well fuck');
 					return false;
 				}
 				return {
@@ -592,6 +584,42 @@
 					url: url
 				};
 			};
+		},
+
+		handleMoreThing(el, url, commentId, responseData) {
+			let model = this.model;
+			let key = model.genKey(url, commentId);
+			let commentData = this.model.commentStatus[key];
+			this.request.abort();
+			if (responseData.json.children && responseData.json.children[0]) {
+				let newCommentId = responseData.json.children[0];
+				this.request = _request({
+					url : url,
+					data: {
+						limit: 1,
+						comment: newCommentId
+					},
+					timeout: 4000
+				});
+				return this.request.then(data => {
+					let params = this.model.requestParams(url, commentId);
+					params.limit = 1; // Specifies index 0
+					commentData = this.model.extractCommentData(data, params)
+					console.log('I\'M DOIN ITTTTTT', commentData, url);
+					return {
+						el,
+						commentJson: commentData.json,
+						isLastReply: commentData.isLastReply,
+						commentId: commentData.json.id,
+						url: url
+					};
+				});
+				return this.request;
+			}
+
+			commentData.commentIndex = commentData.limit - 1;
+			this.view.handleError(el, 'Inconsistent Reddit API response (missing comment) - please try again.');
+			return false;
 		},
 
 		showComment(data) {
