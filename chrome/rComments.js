@@ -393,7 +393,7 @@
 				commentList = commentList['children'];
 			}
 
-			if (params.commentIndex) {
+			if (params.commentIndex !== undefined) {
 				params.commentIndex++;
 			}
 
