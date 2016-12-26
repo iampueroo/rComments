@@ -344,7 +344,7 @@
 			return data;
 		},
 
-		requestParams : function(url, commentId, flag) {
+		requestParams : function(url, commentId) {
 			let key = this.genKey(url, commentId),
 				params = Object.assign({}, this.commentStatus[key] || {});
 
@@ -369,7 +369,6 @@
 				listingJson = this.extractListingJson(data),
 				commentData = this.extractCommentData(data, params);
 
-
 			if (!commentData) return;
 			this.commentStatus[key] = params;
 			this.listingCache[commentData.json.id] = listingJson;
@@ -383,7 +382,7 @@
 
 		extractCommentData : function(data, params) {
 			let isCommentReply = params.depth == 2,
-				commentIndex = params.commentIndex || params.limit - 1,
+				commentIndex = params.commentIndex !== undefined ? params.commentIndex : params.limit - 1,
 				commentList = data[1]['data']['children'],
 				hasMoreReplies, commentData;
 
@@ -565,7 +564,10 @@
 				let commentData = this.model.registerComment(url, data, commentId);
 				let isLastReply;
 				if (commentData && commentData.kind === 'more') {
-					// Weird Reddit response
+					// Sometimes, Reddit responds with a "more" thing rather than the
+					// actual comment. We'll handle it by upping the limit parameter
+					// on the request, which seems to force the "more" thing to expand
+					// to actual comments
 					return this.handleMoreThing(el, url, commentId, commentData);
 				}
 
@@ -586,39 +588,16 @@
 		},
 
 		handleMoreThing(el, url, commentId, responseData) {
-			let model = this.model;
-			let key = model.genKey(url, commentId);
-			let commentData = this.model.commentStatus[key];
 			this.request.abort();
-			if (responseData.json.children && responseData.json.children[0]) {
-				let newCommentId = responseData.json.children[0];
-				this.request = _request({
-					url : url,
-					data: {
-						limit: 1,
-						comment: newCommentId
-					},
-					timeout: 4000
-				});
-				return this.request.then(data => {
-					let params = this.model.requestParams(url, commentId);
-					params.limit = 1; // Specifies index 0
-					commentData = this.model.extractCommentData(data, params)
-					console.log('I\'M DOIN ITTTTTT', commentData, url);
-					return {
-						el,
-						commentJson: commentData.json,
-						isLastReply: commentData.isLastReply,
-						commentId: commentData.json.id,
-						url: url
-					};
-				});
-				return this.request;
-			}
-
-			commentData.commentIndex = commentData.limit - 1;
-			this.view.handleError(el, 'Inconsistent Reddit API response (missing comment) - please try again.');
-			return false;
+			let params = this.model.requestParams(url, commentId);
+			params.commentIndex = params.limit - 2;
+			params.limit++;
+			this.model.commentStatus[this.model.genKey(url, commentId)] = params;
+			return this.executeCommentRequest(el, commentId, {
+				url : url,
+				data: params,
+				timeout: 4000
+			}).then(this.showComment.bind(this));
 		},
 
 		showComment(data) {
