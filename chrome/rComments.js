@@ -124,7 +124,8 @@
 		authorTag() {
 			const author = this.data.author;
 			const op = this.listing && this.listing.author === author ? 'submitter' : '';
-			return `<a class="author ${op}" href="/user/${author}">${author}</a>`;
+			const admin = this.data.distinguished === 'admin' ? 'admin' : '';
+			return `<a class="author ${op} ${admin}" href="/user/${author}">${author}</a>`;
 		},
 
 		arrows() {
