@@ -17,15 +17,11 @@
 		} else if (el.parentElement.matches(selector)) {
 			return el.parentElement;
 		}
-		return getFirstParent(el.parentElement, selector)
+		return getFirstParent(el.parentElement, selector);
 	}
 
 	function formEncode(data) {
-		let encodedString = '';
-		for (key in data) {
-			encodedString += key + '=' + data[key] + '&';
-		}
-		return encodedString.slice(0, -1);
+		return Object.keys(data).map(key => `${key}=${data[key]}&`).join('').slice(0, -1);
 	}
 
 	// screw you jQuery
@@ -190,7 +186,7 @@
 				container;
 
 			if (this.isFirstComment(el)) {
-				let popup = this.popup(el);
+				popup = this.popup(el);
 				popup.querySelector('.' + classed('content')).innerHTML = commentHtml;
 				popup.style.display = 'block';
 			} else {
@@ -334,7 +330,7 @@
 		getRequestData : function(url, commentId) {
 			let params = this.requestParams(url, commentId);
 
-			data = {
+			let data = {
 				url : url,
 				params : params
 			};
@@ -371,8 +367,7 @@
 
 			if (!commentData) return;
 			this.commentStatus[key] = params;
-			this.listingCache[commentData.json.id] = listingJson;
-			this.currentListing = listingJson;
+			this.setCurrentListing(commentData.json.id, listingJson);
 			return commentData;
 		},
 
@@ -424,13 +419,17 @@
 		cache : function(url, args) {
 			url = this.cleanUrl(url);
 
-			if (args)
+			if (args) {
 				this.htmlCache[url] = args;
-			else
+			} else {
 				return this.htmlCache[url];
+			}
 		},
 
-		setCurrentListing : function(commentId) {
+		setCurrentListing : function(commentId, data) {
+			if (data) {
+				this.listingCache[commentId] = data;
+			}
 			this.currentListing = this.listingCache[commentId];
 		},
 
@@ -453,14 +452,13 @@
 			_request('/api/me.json').then((response) => {
 				if (!response || !response.data || !response.data.modhash) return;
 				this.modhash = response.data.modhash;
+
+				// Ummmmmmmm..... nothing to see here, move along
+				// This is super hacky.
+				// BUT WHATEVER WORKS YO
 				Comment.openLinksInNewTab = /('|")new_window('|")\s?:\s?true/.test(window.config.innerHTML);
 				Comment.isLoggedIn = true; // Sure... this works.
 			});
-
-			let firstLink = document.querySelector('.sitetable .title.loggedin');
-			if (firstLink && firstLink.target === '_blank') {
-				Comment.openInNewWindow = true;
-			}
 
 			popup.addEventListener('click', (e) => {
 				if (e.target.className === '_rcomments_next_reply') {
@@ -658,9 +656,13 @@
 				commentId = getFirstParent(arrow, '.comment').id,
 				data, dir;
 
-			if (arrow.classList.contains('up')) dir = 1;
-			else if (arrow.classList.contains('down')) dir = -1;
-			else dir = 0;
+			if (arrow.classList.contains('up')) {
+				dir = 1;
+			} else if (arrow.classList.contains('down')) {
+				dir = -1;
+			} else {
+				dir = 0;
+			}
 
 			data = {
 				id : id,
