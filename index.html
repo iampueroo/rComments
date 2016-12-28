@@ -83,8 +83,8 @@
 
     function onInstall(label) {
         return function() {
-            chrome.webstore.install();
             sendEvent('V1', 'Install', label);
+            chrome.webstore.install();
         }
     }
 
