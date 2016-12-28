@@ -244,6 +244,10 @@ a {
   .site-footer {
     font-size: 0.9rem; } }
 
+.download-btn {
+  cursor: pointer;
+}
+
 .download-btn-2 {
   border: solid 1px #5f2c82;
   color: #5f2c82;
