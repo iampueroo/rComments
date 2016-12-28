@@ -66,24 +66,17 @@
         </footer>
     </section>
     <script>
-
-    // Small lil wrapper around GA events
-    (function(ga) {
-        if (!ga) {
-            console.warn('No Google Analytics detected');
-            window.sendEvent = function() {
-                console.warn('Failed to send analytics event', arguments);
-            };
-            return;
-        }
-        window.sendEvent = function(category, action, label, value) {
-            ga('send', 'event', category, action, label, value);
-        };
-    })(window.ga)
-
     function onInstall(label) {
         return function() {
-            sendEvent('V1', 'Install', label);
+            try {
+                if (ga) {
+                    ga('send', 'event', 'V1', 'Install', label);
+                } else {
+                    throw Error('Failed to send analytics event');
+                }
+            } catch (e) {
+                console.error(e);
+            }
             chrome.webstore.install();
         }
     }
@@ -92,7 +85,6 @@
     var buttons = document.getElementsByClassName('download-btn');
     buttons[0].addEventListener('click', onInstall('Top'));
     buttons[1].addEventListener('click', onInstall('Bottom'));
-
     </script>
 </body>
 
