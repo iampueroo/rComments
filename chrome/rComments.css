@@ -1,4 +1,4 @@
-#_rcomment_div {
+._rcomment_div {
 	position: absolute;
 	background-color: #fff;
 	background-color: rgba(255,255,255,.9);
@@ -15,7 +15,6 @@
 	margin: 0 8px 8px 10px;
 	padding: 5px 5px 5px 8px;
 	background-color: white;
-	margin-bottom: 0;
 }
 
 ._rcomments_arrows {
@@ -35,14 +34,15 @@
 }
 
 ._rcomments_next_reply, ._rcomments_no_reply {
-	padding-bottom: 5px;
+	padding-top: 5px;
+	margin-bottom: 8px;
 }
 
 ._rcomments_next_reply:hover {
 	text-decoration: underline;
 }
 
-._rcomments_comment:nth-child(even) {
+._rcomments_comment_odd > ._rcomments_comment {
 	background-color: rgb(247, 247, 248);
 }
 
@@ -50,6 +50,36 @@
 	padding-top: 5px;
 	padding-bottom: 5px;
 }
+
+/**********************************/
+/* Begin RES Night Mode Overrides */
+/**********************************/
+.res-nightmode ._rcomment_div {
+	border-color: rgb(51, 51, 51);
+	background-color: rgb(55, 55, 55);
+}
+
+.res-nightmode ._rcomments_comment {
+	color: #DDDDDD;
+	border-color: rgb(51, 51, 51);
+	background-color: rgb(22, 22, 22);
+}
+
+.res-nightmode ._rcomments_comment_odd > ._rcomments_comment {
+	background-color: rgb(18, 18, 18);;
+}
+
+.res-nightmode ._rcomments_next_comment, .res-nightmode ._rcomments_next_comment_none {
+	background-image: linear-gradient(to bottom, rgba(0,0,0,.9), rgba(255, 255, 255, .2));
+}
+
+.res-nightmode ._rcomments_next_comment:hover {
+	background-image: linear-gradient(to bottom, rgba(0,0,0,.9), rgba(255, 255, 255, .3));
+}
+
+/**********************************/
+/* END RES Night Mode Overrides */
+/**********************************/
 
 ._rcomments_next_comment, ._rcomments_next_comment_none {
 	text-align: center;

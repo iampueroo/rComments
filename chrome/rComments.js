@@ -1,5 +1,5 @@
 ((window) => {
-	const R_COMMENTS_ID = '_rcomment_div';
+	const R_COMMENTS_MAIN_CLASS = '_rcomment_div';
 	const R_COMMENTS_CLASS_PREFIX = '_rcomments_';
 	const NEXT_REPLY_TEXT = '&#8618 Next Reply';
 	const NEXT_COMMENT_TEXT = '&#8595 Next Comment';
@@ -17,6 +17,17 @@
 			return el.parentElement;
 		}
 		return getFirstParent(el.parentElement, selector);
+	}
+
+	function getParents(el, selector) {
+		const parents = [];
+		while (el.parentElement && el.parentElement.matches) {
+			el = el.parentElement;
+			if (el.matches(selector)) {
+				parents.push(el);
+			}
+		}
+		return parents;
 	}
 
 	function formEncode(data) {
@@ -88,7 +99,7 @@
 
 			const wrapperOpen = `<div id="${d.id}" class="${classed('comment comment thing')}">`;
 			const wrapperClose = '</div>';
-			const entry = `<div class="entry">
+			const entry = `<div class="entry ${classed('entry')}">
 				${tagline}
 				${bodyHtml}
 				${this.nextReply(!!d.replies)}
@@ -182,7 +193,6 @@
 		show(el, json, listing) {
 			const commentHtml = Comment.getHtml(json, listing);
 			let popup;
-
 			if (this.isFirstComment(el)) {
 				popup = this.popup(el);
 				popup.querySelector(`.${classed('content')}`).innerHTML = commentHtml;
@@ -190,8 +200,12 @@
 			} else {
 				const content = el.querySelector('._rcomments_content, .children');
 				const loading = content.getElementsByClassName(classed('loading'))[0];
+				const nthCommentDeep = getParents(content, '._rcomments_entry').length;
 				if (loading) {
 					loading.parentNode.removeChild(loading);
+				}
+				if (nthCommentDeep % 2 !== 0) {
+					content.classList.add(classed('comment_odd'));
 				}
 				content.innerHTML = commentHtml + content.innerHTML;
 			}
@@ -205,7 +219,7 @@
 				nextCommentDiv.className = classed('next_comment');
 				nextCommentDiv.innerHTML = NEXT_COMMENT_TEXT;
 				contentDiv.className = classed('content');
-				popup.id = R_COMMENTS_ID;
+				popup.classList.add(R_COMMENTS_MAIN_CLASS);
 				popup.style.display = 'none';
 				popup.appendChild(nextCommentDiv);
 				popup.appendChild(contentDiv);
@@ -514,7 +528,7 @@
 			if (this.disableRequest) return;
 			const request = this.request;
 			const commentId = !init && this.findClosestThing(el).id;
-			const isNextComment = el.id === '_rcomment_div';
+			const isNextComment = el.classList.contains(R_COMMENTS_MAIN_CLASS);
 			let url = el.href || this.model.getUrl(commentId);
 
 			// Sometimes the URL contains query parameters we don't want.
