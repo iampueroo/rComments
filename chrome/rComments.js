@@ -358,6 +358,7 @@
 
 			if (!params.sort) {
 				params = {
+					commentIndex: -1,
 					depth: (commentId ? 2 : 1),
 					limit: (commentId ? 1 : 0), // Incremented below
 					sort: 'top',
@@ -367,6 +368,7 @@
 			}
 
 			params.limit += 1;
+			params.commentIndex += 1;
 
 			return params;
 		},
@@ -389,19 +391,13 @@
 
 		extractCommentData(data, params) {
 			const isCommentReply = params.depth === 2;
-			const hasCommentIndex = params.commentIndex !== undefined;
-			let commentIndex = hasCommentIndex ? params.commentIndex : params.limit - 1;
+			const commentIndex = params.commentIndex;
 			let commentList = data[1].data.children;
 
 			if (isCommentReply) {
-				commentIndex -= 1;
 				commentList = commentList[0].data.replies.data;
 				if (!commentList) return null; // Sometimes reddit lies to us. See below.
 				commentList = commentList.children;
-			}
-
-			if (params.commentIndex !== undefined) {
-				params.commentIndex += 1;
 			}
 
 			// Reddit had replied to parent comment saying there were
