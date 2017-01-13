@@ -3,8 +3,8 @@ rComments
 
 Quick, easy, and lazy way to go through Reddit comments. [Download here](http://iampueroo.github.io/rComments/)
 
-## Current Version
-1.0.0 woot woot
+## Version?
+See `chrome/manifest.json` for version details.
 
 ## Preview
 ![Preview of rComments Extension](http://iampueroo.github.io/rComments/img/rcomments.gif)
