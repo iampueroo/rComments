@@ -224,7 +224,13 @@
 				popup.appendChild(nextCommentDiv);
 				popup.appendChild(contentDiv);
 				window.document.body.appendChild(popup);
-				popup.addEventListener('mouseleave', this.hidePopup.bind(this));
+				popup.addEventListener('mouseleave', () => this.hidePopup());
+				popup.addEventListener('mousemove', () => {
+					if (this.hideTimeout) {
+						window.clearTimeout(this.hideTimeout);
+						delete this.hideTimeout;
+					}
+				});
 				this._popup = popup;
 			}
 			return this._popup;
@@ -259,6 +265,10 @@
 
 		hidePopup() {
 			if (this._popup) this._popup.style.display = 'none';
+		},
+
+		hidePopupSoon() {
+			this.hideTimeout = window.setTimeout(() => this.hidePopup(), 300);
 		},
 
 		isFirstComment(el) {
@@ -480,6 +490,7 @@
 			});
 
 			let active = false;
+			let yPos = false;
 			window.document.body.addEventListener('mousemove', (e) => {
 				let a = e.target.nodeName === 'A' ? e.target : false;
 				if (a && !(a.classList.contains('comments') || a.classList.contains('search-comments'))) {
@@ -492,6 +503,7 @@
 					return;
 				}
 				if (active && a && a.href === active.href) {
+					yPos = e.pageY;
 					// Exit early if on the same anchor
 					return;
 				}
@@ -499,9 +511,10 @@
 				if (!active && a) {
 					// Hovering over anchor for the first tme
 					active = e.target;
+					yPos = e.pageY;
 					this.handleAnchorMouseEnter(a);
 				} else if (active) {
-					this.handleAnchorMouseLeave(e, active);
+					this.handleAnchorMouseLeave(e, yPos);
 					active = false;
 				}
 			});
@@ -639,15 +652,19 @@
 			}, 250);
 		},
 
-		handleAnchorMouseLeave(e, commentAnchor) {
-			const bbox = commentAnchor.getBoundingClientRect();
-			const bottom = bbox.top + window.pageYOffset + bbox.height;
-
+		handleAnchorMouseLeave(e, prevPageY) {
 			this.go = false;
-			// Do stuff only if exiting anchor not through comment.
-			if (e.pageY >= bottom) return;
-			this.request.abort();
-			this.view.hidePopup();
+
+			if (prevPageY >= e.pageY) {
+				// If leaving through the side or top, cancel any request
+				// and hide the popup
+				this.request.abort();
+				this.view.hidePopup();
+			} else {
+				// Still try to hide the popup, but the timeout
+				// will be canceled if we hover over the popup
+				this.view.hidePopupSoon();
+			}
 		},
 
 		handleVote(arrow) {
