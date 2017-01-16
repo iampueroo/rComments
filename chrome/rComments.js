@@ -75,6 +75,28 @@
 		return R_COMMENTS_CLASS_PREFIX + classes;
 	}
 
+	const commentsInspector = {
+
+		findImportant(body) {
+			const urlRegex = /(((http|https):\/\/)|(\/)|(..\/))(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/gi;
+			if (!urlRegex.test(body)) {
+				return false;
+			}
+			return this.getCommentType(body);
+		},
+
+		getCommentType(body) {
+			const sourceRegex = /source|sauce|video/gi;
+			const mirrorRegex = /mirror/gi;
+			if (sourceRegex.test(body)) {
+				return 'Source';
+			} else if (mirrorRegex.test(body)) {
+				return 'Mirror';
+			}
+			return false;
+		}
+	};
+
 	const Comment = {
 
 		isLoggedIn: false,
@@ -564,7 +586,10 @@
 				url: requestData.url,
 				data: requestData.params,
 				timeout: 4000,
-			}).then(this.showComment.bind(this));
+			})
+				.then(this.showComment.bind(this))
+				.then(init ? this.findImportantComments(url, el) : () => {});
+
 		},
 
 		executeCommentRequest(el, commentId, parameters) {
@@ -573,6 +598,33 @@
 			const onSuccess = this.getCommentData(el, parameters.url, commentId).bind(this);
 			const onFail = this.handleCommentFail(el).bind(this);
 			return this.request.then(onSuccess, onFail);
+		},
+
+		findImportantComments(url, el) {
+			return () => {
+				_request(url, {
+					data: {
+						limit: 100,
+						depth: 1
+					}
+				}).then(data => {
+					const comments = data[1].data.children || [];
+					let comment = false;
+					for (let i = 0; i < comments.length; i++) {
+						if (comments[i].kind !== 'more' && comments[i].data.body) {
+							const type = commentsInspector.findImportant(comments[i].data.body);
+							if (type) {
+								comment = comments[i];
+								break;
+							}
+						}
+					}
+					if (comment) {
+						this.view.show(this.view.getPopup(), comment.data, this.model.currentListing);
+					} else {
+					}
+				})
+			}
 		},
 
 		getCommentData(el, url, commentId) {
