@@ -224,7 +224,22 @@
 				popup.appendChild(nextCommentDiv);
 				popup.appendChild(contentDiv);
 				window.document.body.appendChild(popup);
-				popup.addEventListener('mouseleave', () => this.hidePopup());
+
+				// Right click triggers mouseleave, so let's ignore
+				// the immediate mouseleave.
+				let leftClickMouseLeave = false;
+				popup.addEventListener('mousedown', (e) => {
+					if (e.which === 3) {
+						leftClickMouseLeave = true;
+					}
+				});
+				popup.addEventListener('mouseleave', () => {
+					if (leftClickMouseLeave) {
+						leftClickMouseLeave = false;
+						return;
+					}
+					this.hidePopup();
+				});
 				popup.addEventListener('mousemove', () => {
 					if (this.hideTimeout) {
 						window.clearTimeout(this.hideTimeout);
