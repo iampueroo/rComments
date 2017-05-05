@@ -115,7 +115,14 @@
 		},
 
 		buildTagline() {
-			return `<div class="tagline">${this.authorTag() + this.voteTag()}</div>`;
+			const content = this.authorTag() + this.voteTag() + this.gildedTag();
+			return `<div class="tagline">${content}</div>`;
+		},
+
+		gildedTag() {
+			const num = this.data.gilded;
+			if (!num) return '';
+			return `<span class="gilded-icon" data-count="${num}">x${num}</span>`;
 		},
 
 		voteTag() {
