@@ -6,7 +6,7 @@
   "scripts": {
     "build-js": "babel rComments.js -o ./dist/rComments.js",
     "build-css": "cleancss rComments.css -o ./dist/rComments.css",
-    "build": "npm run test && npm run build-js && npm run build-css && cp manifest.json dist",
+    "build": "mkdir -p dist && npm run test && npm run build-js && npm run build-css && cp manifest.json dist",
     "test": "eslint rComments.js"
   },
   "author": "Ignacio Ampuero",
