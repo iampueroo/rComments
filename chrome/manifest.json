@@ -8,7 +8,7 @@
    "homepage_url": "http://reddit.com",
    "manifest_version": 2,
    "minimum_chrome_version": "20.0",
-   "name": "rComments",
+   "name": "rComments for Reddit",
    "permissions": [ "http://reddit.com/*", "https://reddit.com/*", "http://*.reddit.com/*", "https://*.reddit.com/*"],
-   "version": "1.1.4"
+   "version": "1.1.5"
 }
