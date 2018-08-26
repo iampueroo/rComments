@@ -1,8 +1,55 @@
 ((window) => {
 	const R_COMMENTS_MAIN_CLASS = '_rcomment_div';
+	const R_COMMENTS_NEW_REDDIT_STYLE = '_rcomments_new_reddit_styles';
 	const R_COMMENTS_CLASS_PREFIX = '_rcomments_';
 	const NEXT_REPLY_TEXT = '&#8618 Next Reply';
 	const NEXT_COMMENT_TEXT = '&#8595 Next Comment';
+
+	let _pageHasNewRedditstyles;
+	function isNewStyle() {
+		if (typeof _pageHasNewRedditstyles === 'undefined') {
+			const header = document.querySelector('header');
+			_pageHasNewRedditstyles = header && header.getAttribute('data-redditstyle') === 'true';
+		}
+		return _pageHasNewRedditstyles;
+	}
+
+	let _reactRoot;
+	/**
+	 * Looks at the data-reactroot div, gets its background-color css property
+	 * and returns true if any of the rgb values is greater than 128.
+	 * If anything every goes wrong we return false.
+	 * @return {Boolean}
+	 */
+	function isNightMode() {
+		if (!isNewStyle()) {
+			return false;
+		}
+		if (typeof _reactRoot === 'undefined') {
+			_reactRoot = document.querySelector('[data-reactroot]');
+			if (!_reactRoot) {
+				return false;
+			}
+		}
+		const bkgColor = window.getComputedStyle(_reactRoot)['background-color'] || '';
+		const matches = bkgColor.replace(/\s/g, '').match(/\d+,\d+,\d+/);
+		if (!matches) {
+			return false;
+		}
+		const values = (matches[0] || '').split(',');
+		if (values.length !== 3) {
+			return false;
+		}
+		for (let i = 0; i < values.length; i++) {
+			if (Number.isNaN(Number.parseInt(values[i], 10))) {
+				return false;
+			}
+			if (+values[i] > 128) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 	function decodeHTML(html) {
 		const txt = window.document.createElement('textarea');
@@ -40,14 +87,18 @@
 			options = url;
 			url = options.url;
 		}
-
 		const type = options.type || 'GET';
 		let data = formEncode(options.data || {});
 		if (type === 'GET') {
 			url += `?${data}`;
 			data = undefined;
 		}
-
+		if (window.origin.match(/new\.reddit\.com/)) {
+			if (url[0] === '/') {
+				url = `https://www.reddit.com${url}`;
+			}
+			url = url.replace('new.reddit.com', 'reddit.com');
+		}
 		const xhttp = new window.XMLHttpRequest();
 		const promise = new Promise((resolve, reject) => {
 			xhttp.onreadystatechange = function onStateChange() {
@@ -63,7 +114,11 @@
 			xhttp.open(type, url, true);
 			if (options.timeout) xhttp.timeout = options.timeout;
 			xhttp.setRequestHeader('content-type', 'application/x-www-form-urlencoded; charset=UTF-8');
-			xhttp.send(data);
+			try {
+				xhttp.send(data);
+			} catch (error) {
+				reject();
+			}
 		});
 		promise.abort = function abort() {
 			xhttp.abort();
@@ -90,7 +145,7 @@
 			const tagline = this.buildTagline();
 			const arrows = this.arrows();
 
-			let bodyHtml = `<div>${commentHtml}</div>`;
+			let bodyHtml = `<div class="${classed('body_html')}">${commentHtml}</div>`;
 
 			if (this.openLinksInNewTab) {
 				const regex = /(<a\s)(.*<\/a>)/;
@@ -116,7 +171,7 @@
 
 		buildTagline() {
 			const content = this.authorTag() + this.voteTag() + this.gildedTag();
-			return `<div class="tagline">${content}</div>`;
+			return `<div class="tagline ${classed('tagline')}">${content}</div>`;
 		},
 
 		gildedTag() {
@@ -127,6 +182,9 @@
 
 		voteTag() {
 			const votes = this.data.ups - this.data.downs;
+			if (isNewStyle()) {
+				return `<span class="score unvoted ${classed('score')}">${this.data.score} points</span>`;
+			}
 			const unvoted = `<span class="score unvoted">${votes} points</span>`;
 			const likes = `<span class="score likes">${votes + 1} points</span>`;
 			const dislikes = `<span class="score dislikes">${votes - 1} points</span>`;
@@ -143,11 +201,11 @@
 			const author = this.data.author;
 			const op = this.listing && this.listing.author === author ? 'submitter' : '';
 			const admin = this.data.distinguished === 'admin' ? 'admin' : '';
-			return `<a class="author ${op} ${admin}" href="/user/${author}">${author}</a>`;
+			return `<a class="author ${op} ${admin} ${classed('author')}" href="/user/${author}">${author}</a>`;
 		},
 
 		arrows() {
-			if (!this.isLoggedIn) return '';
+			if (!this.isLoggedIn || isNewStyle()) return '';
 			const arrowDiv = window.document.createElement('div');
 			const arrowUp = window.document.createElement('div');
 			const arrowDown = window.document.createElement('div');
@@ -218,6 +276,10 @@
 			}
 		},
 
+		hasAlreadyBuiltPopup() {
+			return !!this._popup;
+		},
+
 		getPopup() {
 			if (!this._popup) {
 				const popup = window.document.createElement('div');
@@ -227,6 +289,9 @@
 				nextCommentDiv.innerHTML = NEXT_COMMENT_TEXT;
 				contentDiv.className = classed('content');
 				popup.classList.add(R_COMMENTS_MAIN_CLASS);
+				if (isNewStyle()) {
+					popup.classList.add(R_COMMENTS_NEW_REDDIT_STYLE);
+				}
 				popup.style.display = 'none';
 				popup.appendChild(nextCommentDiv);
 				popup.appendChild(contentDiv);
@@ -255,6 +320,7 @@
 				});
 				this._popup = popup;
 			}
+			this._popup.classList.toggle('res-nightmode', isNightMode());
 			return this._popup;
 		},
 
@@ -281,7 +347,6 @@
 				popup.style.top = `${top}px`;
 				popup.style.left = `${left}px`;
 			}
-
 			return popup;
 		},
 
@@ -486,8 +551,6 @@
 		disableRequest: false,
 
 		init() {
-			const popup = this.view.getPopup();
-
 			_request('/api/me.json').then((response) => {
 				if (!response || !response.data || !response.data.modhash) return;
 				this.modhash = response.data.modhash;
@@ -495,20 +558,11 @@
 				// Ummmmmmmm..... nothing to see here, move along
 				// This is super hacky.
 				// BUT WHATEVER WORKS YO
-				Comment.openLinksInNewTab = /('|")new_window('|")\s?:\s?true/.test(window.config.innerHTML);
-				Comment.isLoggedIn = true; // Sure... this works.
-			});
-
-			popup.addEventListener('click', (e) => {
-				if (e.target.className === '_rcomments_next_reply') {
-					this.renderCommentFromElement(e.target.parentElement.parentElement);
-				} else if (e.target.className === '_rcomments_next_comment') {
-					this.renderCommentFromElement(e.target.parentElement);
-				} else if (e.target.classList && e.target.classList[0] === 'arrow') {
-					e.stopImmediatePropagation();
-					this.handleVote(e.target);
+				// Edit: yup broke with the new reddit redesign
+				if (window.config) {
+					Comment.openLinksInNewTab = /('|")new_window('|")\s?:\s?true/.test(window.config.innerHTM);
 				}
-				return false;
+				Comment.isLoggedIn = true; // Sure... this works.
 			});
 
 			let active = false;
@@ -536,7 +590,6 @@
 			}
 
 			window.document.body.addEventListener('mousemove', (e) => {
-
 				let a = isValidCommentAnchor(e.target) ? e.target : null;
 				if (!a && e.target) {
 					a = isValidCommentAnchor(e.target.parentElement) ? e.target.parentElement : null;
@@ -550,8 +603,8 @@
 					// Exit early if on the same anchor
 					return;
 				}
-
 				if (!active && a) {
+					this.registerPopup(); // Lazily build and register popup
 					// Hovering over anchor for the first tme
 					active = e.target;
 					yPos = e.pageY;
@@ -560,6 +613,24 @@
 					this.handleAnchorMouseLeave(e, yPos);
 					active = false;
 				}
+			});
+		},
+
+		registerPopup() {
+			if (this.view.hasAlreadyBuiltPopup()) {
+				return;
+			}
+			const popup = this.view.getPopup();
+			popup.addEventListener('click', (e) => {
+				if (e.target.className === '_rcomments_next_reply') {
+					this.renderCommentFromElement(e.target.parentElement.parentElement);
+				} else if (e.target.className === '_rcomments_next_comment') {
+					this.renderCommentFromElement(e.target.parentElement);
+				} else if (e.target.classList && e.target.classList[0] === 'arrow') {
+					e.stopImmediatePropagation();
+					this.handleVote(e.target);
+				}
+				return false;
 			});
 		},
 
