@@ -513,13 +513,34 @@
 
 			let active = false;
 			let yPos = false;
-			window.document.body.addEventListener('mousemove', (e) => {
-				let a = e.target.nodeName === 'A' ? e.target : false;
-				if (a && !(a.classList.contains('comments') || a.classList.contains('search-comments'))) {
-					// Not a comment anchor.
-					a = false;
-				}
 
+			function isValidCommentAnchor(element = {}) {
+				const a = element.nodeName === 'A' ? element : false;
+				if (!a) {
+					return false;
+				}
+				const validAttributeMap = {
+					class: /((\s|^)comments(\s|$)|(\s|^)search-comments(\s|$))/,
+					'data-click-id': /(\s|^)comments(\s|$)/,
+				};
+				const keys = Object.keys(validAttributeMap);
+				for (let i = 0; i < keys.length; i++) {
+					const attributeName = keys[i];
+					const regex = validAttributeMap[attributeName];
+					const value = a.getAttribute(attributeName) || '';
+					if (value.match(regex)) {
+						return true;
+					}
+				}
+				return false;
+			}
+
+			window.document.body.addEventListener('mousemove', (e) => {
+
+				let a = isValidCommentAnchor(e.target) ? e.target : null;
+				if (!a && e.target) {
+					a = isValidCommentAnchor(e.target.parentElement) ? e.target.parentElement : null;
+				}
 				if (!active && !a) {
 					// Exit early if non active and not an anchor
 					return;
