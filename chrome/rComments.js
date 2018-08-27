@@ -7,6 +7,15 @@
 
 	let _pageHasNewRedditstyles;
 	function isNewStyle() {
+		if (window.origin.match(/new\.reddit\.com/)) {
+			return true;
+		}
+		if (window.origin.match(/old\.reddit\.com/)) {
+			return false;
+		}
+		if (document.querySelector('.redesign-beta-optin')) {
+			return false;
+		}
 		if (typeof _pageHasNewRedditstyles === 'undefined') {
 			const header = document.querySelector('header');
 			_pageHasNewRedditstyles = header && header.getAttribute('data-redditstyle') === 'true';
