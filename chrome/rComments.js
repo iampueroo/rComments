@@ -78,10 +78,10 @@
 			data = undefined;
 		}
 		if (window.origin.match(/new\.reddit\.com/)) {
-			if (url[0] === '/') {
-				url = `https://www.reddit.com${url}`;
-			}
 			url = url.replace('new.reddit.com', 'reddit.com');
+		}
+		if (url[0] === '/') {
+			url = `https://www.reddit.com${url}`;
 		}
 		const xhttp = new window.XMLHttpRequest();
 		const promise = new Promise((resolve, reject) => {
