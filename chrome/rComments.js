@@ -33,7 +33,7 @@
 	 * @return {Boolean}
 	 */
 	function isNightMode() {
-		return _isNightMode;
+		return isNewStyle() && _isNightMode;
 	}
 
 	function decodeHTML(html) {
