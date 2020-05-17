@@ -36,9 +36,9 @@
 		}
 		if (typeof _reactRoot === 'undefined') {
 			_reactRoot = document.querySelector('[data-reactroot]');
-			if (!_reactRoot) {
-				return false;
-			}
+		}
+		if (!_reactRoot) {
+			return false;
 		}
 		const bkgColor = window.getComputedStyle(_reactRoot)['background-color'] || '';
 		const matches = bkgColor.replace(/\s/g, '').match(/\d+,\d+,\d+/);
