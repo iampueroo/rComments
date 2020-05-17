@@ -5,6 +5,8 @@
 	const NEXT_REPLY_TEXT = '&#8618 Next Reply';
 	const NEXT_COMMENT_TEXT = '&#8595 Next Comment';
 
+	let _isNightMode = false;
+
 	let _pageHasNewRedditstyles;
 	function isNewStyle() {
 		if (window.origin.match(/new\.reddit\.com/)) {
@@ -31,33 +33,7 @@
 	 * @return {Boolean}
 	 */
 	function isNightMode() {
-		if (!isNewStyle()) {
-			return false;
-		}
-		if (typeof _reactRoot === 'undefined') {
-			_reactRoot = document.querySelector('[data-reactroot]');
-		}
-		if (!_reactRoot) {
-			return false;
-		}
-		const bkgColor = window.getComputedStyle(_reactRoot)['background-color'] || '';
-		const matches = bkgColor.replace(/\s/g, '').match(/\d+,\d+,\d+/);
-		if (!matches) {
-			return false;
-		}
-		const values = (matches[0] || '').split(',');
-		if (values.length !== 3) {
-			return false;
-		}
-		for (let i = 0; i < values.length; i++) {
-			if (Number.isNaN(Number.parseInt(values[i], 10))) {
-				return false;
-			}
-			if (+values[i] > 128) {
-				return false;
-			}
-		}
-		return true;
+		return _isNightMode;
 	}
 
 	function decodeHTML(html) {
@@ -563,6 +539,8 @@
 			_request('/api/me.json').then((response) => {
 				if (!response || !response.data || !response.data.modhash) return;
 				this.modhash = response.data.modhash;
+				_isNightMode = response.data.pref_nightmode || false;
+
 
 				// Ummmmmmmm..... nothing to see here, move along
 				// This is super hacky.
