@@ -25,7 +25,6 @@
 		return _pageHasNewRedditstyles;
 	}
 
-	let _reactRoot;
 	/**
 	 * Looks at the data-reactroot div, gets its background-color css property
 	 * and returns true if any of the rgb values is greater than 128.
@@ -746,7 +745,17 @@
 		},
 
 		handleAnchorMouseEnter(commentAnchor) {
-			if (commentAnchor.text.split(' ').length <= 1) return;
+			const commentAnchorWords = commentAnchor.text.split(' ');
+			if (commentAnchorWords.length === 0) {
+				return;
+			}
+			if (commentAnchorWords.length === 1) {
+				const numberOfComments = Number.parseInt(commentAnchorWords[0], 10);
+				if (Number.isNaN(numberOfComments) || numberOfComments === 0) {
+					// No idea what this element is or there are zero comments.
+					return;
+				}
+			}
 			this.go = true;
 			setTimeout(() => {
 				if (this.go) this.renderCommentFromElement(commentAnchor, true);
