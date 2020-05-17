@@ -749,12 +749,14 @@
 			if (commentAnchorWords.length === 0) {
 				return;
 			}
-			if (commentAnchorWords.length === 1) {
-				const numberOfComments = Number.parseInt(commentAnchorWords[0], 10);
-				if (Number.isNaN(numberOfComments) || numberOfComments === 0) {
-					// No idea what this element is or there are zero comments.
-					return;
-				}
+			const numberOfComments = Number.parseInt(commentAnchorWords[0], 10);
+			const firstWordIsNumber = !Number.isNaN(numberOfComments);
+			if (firstWordIsNumber && numberOfComments === 0) {
+				return;
+			}
+			if (!firstWordIsNumber && commentAnchorWords.length === 1) {
+				// Label on the button is "comments" (old reddit's no comments flag)
+				return;
 			}
 			this.go = true;
 			setTimeout(() => {
