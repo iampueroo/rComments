@@ -80,31 +80,36 @@
 		if (url[0] === '/') {
 			url = `${window.origin}${url}`;
 		}
-		const xhttp = new window.XMLHttpRequest();
-		const promise = new Promise((resolve, reject) => {
-			xhttp.onreadystatechange = function onStateChange() {
-				if (xhttp.readyState === 4 && xhttp.status === 200) {
-					resolve(JSON.parse(xhttp.responseText));
-				} else if (xhttp.readyState === 4) {
-					reject();
-				}
-			};
-			xhttp.ontimeout = () => {
-				reject();
-			};
-			xhttp.open(type, url, true);
-			if (options.timeout) xhttp.timeout = options.timeout;
-			xhttp.setRequestHeader('content-type', 'application/x-www-form-urlencoded; charset=UTF-8');
-			try {
-				xhttp.send(data);
-			} catch (error) {
-				reject();
-			}
+		const controller = new AbortController();
+		const { signal } = controller;
+		const promises = [];
+		let timeoutId;
+		if (options.timeout) {
+			const timeoutPromise = new Promise((_, reject) => {
+				timeoutId = setTimeout(() => reject(new Error('timeout')), options.timeout);
+			});
+			promises.push(timeoutPromise);
+		}
+
+		const requestPromise = new Promise((resolve, reject) => {
+			window.fetch(url, signal)
+				.then((response) => {
+					if (timeoutId) {
+						clearTimeout(timeoutId);
+					}
+					if (!response.ok) {
+						reject(`Request to ${url} failed`);
+					}
+					return response;
+				})
+				.then(response => resolve(response.json()));
 		});
-		promise.abort = function abort() {
-			xhttp.abort();
+		promises.push(requestPromise);
+		const masterPromise = Promise.race(promises);
+		masterPromise.abort = function abort() {
+			controller.abort();
 		};
-		return promise;
+		return masterPromise;
 	}
 
 	function classed(classes) {
