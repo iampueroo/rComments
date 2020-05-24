@@ -18,21 +18,24 @@ a {
 .btn {
   display: inline-block;
   margin-bottom: 1rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: white;
   background-color: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.2);
   border-style: solid;
   border-width: 1px;
   border-radius: 0.3rem;
+  background-color: #5f2c82;
   transition: color 0.2s, background-color 0.2s, border-color 0.2s; }
   .btn + .btn {
     margin-left: 1rem; }
 
 .btn:hover {
-  color: rgba(255, 255, 255, 0.8);
-  text-decoration: none;
-  background-color: rgba(255, 255, 255, 0.2);
+  opacity: 0.7;
   border-color: rgba(255, 255, 255, 0.3); }
+
+.btn:active {
+  opacity: 1;
+ }
 
 @media screen and (min-width: 64em) {
   .btn {
@@ -247,16 +250,6 @@ a {
 .download-btn {
   cursor: pointer;
 }
-
-.download-btn-2 {
-  border: solid 1px #5f2c82;
-  color: #5f2c82;
-}
-.download-btn-2:hover {
-  background-color: #5f2c82;
-  color: white;
-}
-
 .strike-through {
   text-decoration: line-through;
 }
