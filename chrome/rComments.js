@@ -41,15 +41,6 @@
 		return txt.value;
 	}
 
-	function getFirstParent(el, selector) {
-		if (!el.parentElement) {
-			return false;
-		} else if (el.parentElement.matches(selector)) {
-			return el.parentElement;
-		}
-		return getFirstParent(el.parentElement, selector);
-	}
-
 	function getParents(el, selector) {
 		const parents = [];
 		while (el.parentElement && el.parentElement.matches) {
@@ -80,7 +71,7 @@
 		if (url[0] === '/') {
 			url = `${window.origin}${url}`;
 		}
-		const controller = new AbortController();
+		const controller = new window.AbortController();
 		const { signal } = controller;
 		const promises = [];
 		let timeoutId;
@@ -728,7 +719,7 @@
 				this.view.hidePopupSoon();
 			}
 		},
-	}
+	};
 
 	rCommentsController.init();
 })(window);
