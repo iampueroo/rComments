@@ -129,7 +129,6 @@
 			const d = this.data;
 			const commentHtml = `<div>${decodeHTML(d.body_html)}</div>`;
 			const tagline = this.buildTagline();
-			const arrows = this.arrows();
 
 			let bodyHtml = `<div class="${classed('body_html')}">${commentHtml}</div>`;
 
@@ -148,7 +147,7 @@
 				</div>
 			`;
 
-			return wrapperOpen + arrows + entry + wrapperClose;
+			return wrapperOpen + entry + wrapperClose;
 		},
 
 		noReplyHtml() {
@@ -190,54 +189,6 @@
 			return `<a class="author ${op} ${admin} ${classed('author')}" href="/user/${author}">${author}</a>`;
 		},
 
-		arrows() {
-			if (!this.isLoggedIn || isNewStyle()) return '';
-			const arrowDiv = window.document.createElement('div');
-			const arrowUp = window.document.createElement('div');
-			const arrowDown = window.document.createElement('div');
-			arrowDiv.className = classed('arrows unvoted');
-			arrowUp.className = 'arrow up';
-			arrowDown.className = 'arrow down';
-			arrowDiv.appendChild(arrowUp);
-			arrowDiv.appendChild(arrowDown);
-			return this.applyVote(arrowDiv, this.data.likes).outerHTML;
-		},
-
-		applyVote(arrows, vote) {
-			const upArrow = arrows.querySelector('.arrow.up, .arrow.upmod');
-			const downArrow = arrows.querySelector('.arrow.down, .arrow.downmod');
-			// Reset - gross, could find a better way of doing this.
-			arrows.classList.remove('unvoted');
-			arrows.classList.remove('likes');
-			arrows.classList.remove('dislikes');
-			upArrow.classList.remove('upmod');
-			upArrow.classList.add('up');
-			downArrow.classList.remove('downmod');
-			downArrow.classList.add('down');
-
-			// Switch statement with boolean cases? #yolo(?)
-			switch (vote) {
-			case 1:
-			case true:
-				arrows.classList.add('likes');
-				upArrow.classList.remove('up');
-				upArrow.classList.add('upmod');
-				break;
-			case -1:
-			case false:
-				arrows.classList.add('dislikes');
-				downArrow.classList.remove('down');
-				downArrow.classList.add('downmod');
-				break;
-			default:
-				arrows.classList.add('unvoted');
-				if (arrows.querySelector('.score')) {
-					arrows.querySelector('.score').classList.add('unovoted');
-				}
-			}
-
-			return arrows;
-		},
 	};
 
 	const rCommentsView = {
@@ -614,9 +565,6 @@
 					this.renderCommentFromElement(e.target.parentElement.parentElement);
 				} else if (e.target.className === '_rcomments_next_comment') {
 					this.renderCommentFromElement(e.target.parentElement);
-				} else if (e.target.classList && e.target.classList[0] === 'arrow') {
-					e.stopImmediatePropagation();
-					this.handleVote(e.target);
 				}
 				return false;
 			});
@@ -780,37 +728,7 @@
 				this.view.hidePopupSoon();
 			}
 		},
-
-		handleVote(arrow) {
-			if (!this.modhash) return;
-
-			const VOTE_URL = '/api/vote/.json';
-
-			const parentComment = getFirstParent(arrow, `.${classed('comment')}`);
-			const id = parentComment && (`t1_${parentComment.id}`);
-			const url = `${this.model.currentListing.permalink}.json`;
-			const commentId = getFirstParent(arrow, '.comment').id;
-			let dir;
-
-			if (arrow.classList.contains('up')) {
-				dir = 1;
-			} else if (arrow.classList.contains('down')) {
-				dir = -1;
-			} else {
-				dir = 0;
-			}
-
-			const data = {
-				id,
-				dir,
-				uh: this.modhash,
-			};
-
-			_request(VOTE_URL, { type: 'POST', data });
-			Comment.applyVote(arrow.parentElement, dir);
-			this.updateCache(url, commentId);
-		},
-	};
+	}
 
 	rCommentsController.init();
 })(window);
