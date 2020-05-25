@@ -6,7 +6,7 @@
   "scripts": {
     "build-js": "cp rComments.js ./dist/rComments.js",
     "build-css": "cleancss rComments.css -o ./dist/rComments.css",
-    "build": "mkdir -p dist && npm run test && npm run build-js && npm run build-css && cp manifest.json dist && cp -R icons dist",
+    "build": "mkdir -p dist && yarn run test && yarn run build-js && yarn run build-css && cp manifest.json dist && cp -R icons dist",
     "test": "eslint rComments.js"
   },
   "author": "Ignacio Ampuero",
@@ -14,7 +14,7 @@
   "devDependencies": {
     "babel-cli": "^6.18.0",
     "babili": "0.0.8",
-    "clean-css": "^4.1.11",
+    "clean-css-cli": "^4.3.0",
     "eslint": "^4.18.2",
     "eslint-config-airbnb": "^13.0.0",
     "eslint-config-airbnb-base": "^11.0.0",
