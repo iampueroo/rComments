@@ -5,7 +5,7 @@
       "matches": [ "http://reddit.com/*", "https://reddit.com/*", "http://*.reddit.com/*", "https://*.reddit.com/*" ]
    } ],
    "description": "Hover over comments link to view all comments and their replies.",
-   "homepage_url": "http://iampueroo.github.io/rComments/",
+   "homepage_url": "https://iampueroo.github.io/rComments/",
    "manifest_version": 2,
    "minimum_chrome_version": "20.0",
    "name": "rComments - Reddit Hover Comments",
