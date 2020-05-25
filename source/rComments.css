@@ -62,11 +62,11 @@
 .res-nightmode ._rcomments_comment {
 	color: #DDDDDD;
 	border-color: rgb(51, 51, 51);
-	background-color: rgb(22, 22, 22) !important; // fml
+	background-color: rgb(22, 22, 22) !important;
 }
 
 .res-nightmode ._rcomments_comment_odd > ._rcomments_comment {
-	background-color: rgb(18, 18, 18) !important; // fml;
+	background-color: rgb(18, 18, 18) !important;
 }
 
 .res-nightmode ._rcomments_next_comment, .res-nightmode ._rcomments_next_comment_none {

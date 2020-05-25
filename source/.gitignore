@@ -1,4 +1,6 @@
 dist/
+.DS_STORE
+.DS_Store
 
 
 // Begin templated gitignore

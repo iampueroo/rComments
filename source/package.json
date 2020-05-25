@@ -6,7 +6,7 @@
   "scripts": {
     "build-js": "cp rComments.js ./dist/rComments.js",
     "build-css": "cleancss rComments.css -o ./dist/rComments.css",
-    "build": "mkdir -p dist && yarn run test && yarn run build-js && yarn run build-css && cp manifest.json dist && cp -R icons dist",
+    "build": "yarn run test && mkdir -p dist && cp -R static/* dist && yarn run build-js && yarn run build-css",
     "test": "eslint rComments.js"
   },
   "author": "Ignacio Ampuero",
