@@ -1,7 +1,7 @@
 rComments
 =========
 
-Quick, easy, and lazy way to go through Reddit comments. [Download here](http://iampueroo.github.io/rComments/)
+Quick, easy, and lazy way to go through Reddit comments. [Add to Chrome](https://chrome.google.com/webstore/detail/rcomments-for-reddit/njkilkdmdolbjonbfjhmknefhdccioig) | [Add to FireFox](https://addons.mozilla.org/en-US/firefox/addon/rcomments)
 
 ## Version?
 See `chrome/manifest.json` for version details.
