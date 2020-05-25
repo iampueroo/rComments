@@ -4,11 +4,11 @@
       "css" : ["rComments.css"],
       "matches": [ "http://reddit.com/*", "https://reddit.com/*", "http://*.reddit.com/*", "https://*.reddit.com/*" ]
    } ],
-   "description": "Quick, easy, and lazy way to go through Reddit comments.",
+   "description": "Hover over comments link to view all comments and their replies.",
    "homepage_url": "http://reddit.com",
    "manifest_version": 2,
    "minimum_chrome_version": "20.0",
-   "name": "rComments for Reddit",
+   "name": "rComments - Reddit Hover Comments",
    "permissions": [ "http://reddit.com/*", "https://reddit.com/*", "http://*.reddit.com/*", "https://*.reddit.com/*"],
-   "version": "1.1.6"
+   "version": "1.2.0"
 }
