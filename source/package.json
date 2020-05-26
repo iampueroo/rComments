@@ -1,5 +1,5 @@
 {
-  "name": "rcomments",
+  "name": "rComments - Reddit Hover Comments",
   "version": "1.0.0",
   "description": "Quick and hassle-free traversal of Reddit comments",
   "main": "rComments.js",
@@ -7,7 +7,8 @@
     "build-js": "cp rComments.js ./dist/rComments.js",
     "build-css": "cleancss rComments.css -o ./dist/rComments.css",
     "build": "yarn run test && mkdir -p dist && cp -R static/* dist && yarn run build-js && yarn run build-css",
-    "zip": "yarn run build && zip -r extension.zip dist",
+    "zip-chrome": "yarn run build && zip -r extension.zip dist",
+    "zip-firefox": "yarn run build && cd dist && zip -r -FS ../firefox-extension.zip *",
     "test": "eslint rComments.js"
   },
   "author": "Ignacio Ampuero",
