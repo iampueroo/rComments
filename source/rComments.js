@@ -41,6 +41,15 @@
 		return txt.value;
 	}
 
+	function getFirstParent(el, selector) {
+		if (!el.parentElement) {
+			return false;
+		} else if (el.parentElement.matches(selector)) {
+			return el.parentElement;
+		}
+		return getFirstParent(el.parentElement, selector);
+	}
+
 	function getParents(el, selector) {
 		const parents = [];
 		while (el.parentElement && el.parentElement.matches) {
@@ -63,16 +72,24 @@
 			url = options.url;
 		}
 		const type = options.type || 'GET';
+		const isPostRequest = type === 'POST';
 		let data = formEncode(options.data || {});
-		if (type === 'GET') {
+		if (type === 'GET' && data) {
 			url += `?${data}`;
 			data = undefined;
 		}
+		const controller = new AbortController();
+		const payload = {
+			method: type,
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+			},
+			body: isPostRequest ? data : null,
+			signal: controller.signal,
+		};
 		if (url[0] === '/') {
 			url = `${window.origin}${url}`;
 		}
-		const controller = new window.AbortController();
-		const { signal } = controller;
 		const promises = [];
 		let timeoutId;
 		if (options.timeout) {
@@ -83,7 +100,7 @@
 		}
 
 		const requestPromise = new Promise((resolve, reject) => {
-			window.fetch(url, signal)
+			window.fetch(url, payload)
 				.then((response) => {
 					if (timeoutId) {
 						clearTimeout(timeoutId);
@@ -120,6 +137,7 @@
 			const d = this.data;
 			const commentHtml = `<div>${decodeHTML(d.body_html)}</div>`;
 			const tagline = this.buildTagline();
+			const arrows = this.arrows();
 
 			let bodyHtml = `<div class="${classed('body_html')}">${commentHtml}</div>`;
 
@@ -138,7 +156,7 @@
 				</div>
 			`;
 
-			return wrapperOpen + entry + wrapperClose;
+			return wrapperOpen + arrows + entry + wrapperClose;
 		},
 
 		noReplyHtml() {
@@ -180,6 +198,54 @@
 			return `<a class="author ${op} ${admin} ${classed('author')}" href="/user/${author}">${author}</a>`;
 		},
 
+		arrows() {
+			if (!this.isLoggedIn || isNewStyle()) return '';
+			const arrowDiv = window.document.createElement('div');
+			const arrowUp = window.document.createElement('div');
+			const arrowDown = window.document.createElement('div');
+			arrowDiv.className = classed('arrows unvoted');
+			arrowUp.className = 'arrow up';
+			arrowDown.className = 'arrow down';
+			arrowDiv.appendChild(arrowUp);
+			arrowDiv.appendChild(arrowDown);
+			return this.applyVote(arrowDiv, this.data.likes).outerHTML;
+		},
+
+		applyVote(arrows, vote) {
+			const upArrow = arrows.querySelector('.arrow.up, .arrow.upmod');
+			const downArrow = arrows.querySelector('.arrow.down, .arrow.downmod');
+			// Reset - gross, could find a better way of doing this.
+			arrows.classList.remove('unvoted');
+			arrows.classList.remove('likes');
+			arrows.classList.remove('dislikes');
+			upArrow.classList.remove('upmod');
+			upArrow.classList.add('up');
+			downArrow.classList.remove('downmod');
+			downArrow.classList.add('down');
+
+			// Switch statement with boolean cases? #yolo(?)
+			switch (vote) {
+			case 1:
+			case true:
+				arrows.classList.add('likes');
+				upArrow.classList.remove('up');
+				upArrow.classList.add('upmod');
+				break;
+			case -1:
+			case false:
+				arrows.classList.add('dislikes');
+				downArrow.classList.remove('down');
+				downArrow.classList.add('downmod');
+				break;
+			default:
+				arrows.classList.add('unvoted');
+				if (arrows.querySelector('.score')) {
+					arrows.querySelector('.score').classList.add('unovoted');
+				}
+			}
+
+			return arrows;
+		},
 	};
 
 	const rCommentsView = {
@@ -556,6 +622,9 @@
 					this.renderCommentFromElement(e.target.parentElement.parentElement);
 				} else if (e.target.className === '_rcomments_next_comment') {
 					this.renderCommentFromElement(e.target.parentElement);
+				} else if (e.target.classList && e.target.classList[0] === 'arrow') {
+					e.stopImmediatePropagation();
+					this.handleVote(e.target);
 				}
 				return false;
 			});
@@ -718,6 +787,36 @@
 				// will be canceled if we hover over the popup
 				this.view.hidePopupSoon();
 			}
+		},
+
+		handleVote(arrow) {
+			if (!this.modhash) return;
+
+			const VOTE_URL = '/api/vote/.json';
+
+			const parentComment = getFirstParent(arrow, `.${classed('comment')}`);
+			const id = parentComment && (`t1_${parentComment.id}`);
+			const url = `${this.model.currentListing.permalink}.json`;
+			const commentId = getFirstParent(arrow, '.comment').id;
+			let dir;
+
+			if (arrow.classList.contains('up')) {
+				dir = 1;
+			} else if (arrow.classList.contains('down')) {
+				dir = -1;
+			} else {
+				dir = 0;
+			}
+
+			const data = {
+				id,
+				dir,
+				uh: this.modhash,
+			};
+
+			_request(VOTE_URL, { type: 'POST', data });
+			Comment.applyVote(arrow.parentElement, dir);
+			this.updateCache(url, commentId);
 		},
 	};
 

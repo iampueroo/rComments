@@ -1,5 +1,5 @@
 {
-  "name": "rComments - Reddit Hover Comments",
+  "name": "rComments",
   "version": "1.0.0",
   "description": "Quick and hassle-free traversal of Reddit comments",
   "main": "rComments.js",
