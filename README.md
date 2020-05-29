@@ -10,7 +10,7 @@ Quick, easy, and lazy way to go through Reddit comments just by hovering over th
 - Night mode support
 - Upvote and downvote functionality (currently not available in new.reddit.com)
 
-![Preview of rComments Extension](https://im6.ezgif.com/tmp/ezgif-6-62376915fbc0.gif)
+![Preview of rComments Extension](http://iampueroo.github.io/rComments/img/rcomments.gif)
 
 ## Summary
 rComments lets Redditors traverse through comments and their replies directly from the front pages of any subreddit. By hovering over the comments link, rComments creates a popup that then the user interacts with to see more comments and their replies, and upvote and downvote them as well! 
