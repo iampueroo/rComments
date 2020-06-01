@@ -110,7 +110,12 @@
 					}
 					return response;
 				})
-				.then(response => resolve(response.json()));
+				.then(response => resolve(response.json()))
+				.finally(() => {
+					if (timeoutId) {
+						clearTimeout(timeoutId)
+					}
+				});
 		});
 		promises.push(requestPromise);
 		const masterPromise = Promise.race(promises);
@@ -255,7 +260,6 @@
 			if (this.isFirstComment(el)) {
 				popup = this.popup(el);
 				popup.querySelector(`.${classed('content')}`).innerHTML = commentHtml;
-				popup.style.display = 'block';
 			} else {
 				const content = el.querySelector('._rcomments_content, .children');
 				const loading = content.getElementsByClassName(classed('loading'))[0];
@@ -345,7 +349,9 @@
 		},
 
 		hidePopup() {
-			if (this._popup) this._popup.style.display = 'none';
+			if (this._popup) {
+				this._popup.style.display = 'none';
+			}
 		},
 
 		hidePopupSoon() {
@@ -540,7 +546,6 @@
 
 		model: rCommentsModel,
 		view: rCommentsView,
-		request: new window.XMLHttpRequest(),
 		go: false,
 		disableRequest: false,
 
@@ -644,8 +649,8 @@
 		},
 
 		renderCommentFromElement(el, init) {
-			if (this.disableRequest) return;
-			const request = this.request;
+			if (this.request) return;
+
 			const commentId = !init && this.findClosestThing(el).id;
 			const isNextComment = el.classList.contains(R_COMMENTS_MAIN_CLASS);
 			let url = el.href || this.model.getUrl(commentId);
@@ -660,7 +665,6 @@
 			const requestData = this.model.getRequestData(url, commentId);
 
 			this.view.loading(el);
-			request.abort();
 
 			if (requestData.cached && !isNextComment) {
 				const content = requestData.cached.content;
@@ -678,11 +682,15 @@
 		},
 
 		executeCommentRequest(el, commentId, parameters) {
-			this.disableRequest = true;
 			this.request = _request(parameters);
 			const onSuccess = this.getCommentData(el, parameters.url, commentId).bind(this);
 			const onFail = this.handleCommentFail(el).bind(this);
-			return this.request.then(onSuccess, onFail);
+			return this.request
+				.then(onSuccess)
+				.catch(onFail)
+				.finally(() => {
+					delete this.request;
+				});
 		},
 
 		getCommentData(el, url, commentId) {
@@ -714,7 +722,6 @@
 		},
 
 		handleMoreThing(el, url, commentId) {
-			this.request.abort();
 			const params = this.model.requestParams(url, commentId);
 			params.commentIndex = params.limit - 2;
 			params.limit += 1;
@@ -727,7 +734,6 @@
 		},
 
 		showComment(data) {
-			this.disableRequest = false;
 			if (!data) {
 				// Something went wrong earlier
 				return;
@@ -780,12 +786,19 @@
 			if (prevPageY >= e.pageY) {
 				// If leaving through the side or top, cancel any request
 				// and hide the popup
-				this.request.abort();
+				this.abortOngoingRequest();
 				this.view.hidePopup();
 			} else {
 				// Still try to hide the popup, but the timeout
 				// will be canceled if we hover over the popup
 				this.view.hidePopupSoon();
+			}
+		},
+
+		abortOngoingRequest() {
+			if (this.request) {
+				this.request.abort();
+				delete this.request;
 			}
 		},
 
