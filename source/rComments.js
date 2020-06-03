@@ -1,29 +1,15 @@
+import { isNewStyle } from './Page.js';
+import { _request } from './Request.js';
+import * as DOM from './DOM.js';
+import { get } from './UserContext.js';
+
 ((window) => {
 	const R_COMMENTS_MAIN_CLASS = '_rcomment_div';
 	const R_COMMENTS_NEW_REDDIT_STYLE = '_rcomments_new_reddit_styles';
-	const R_COMMENTS_CLASS_PREFIX = '_rcomments_';
 	const NEXT_REPLY_TEXT = '&#8618 Next Reply';
 	const NEXT_COMMENT_TEXT = '&#8595 Next Comment';
 
 	let _isNightMode = false;
-
-	let _pageHasNewRedditstyles;
-	function isNewStyle() {
-		if (window.origin.match(/new\.reddit\.com/)) {
-			return true;
-		}
-		if (window.origin.match(/old\.reddit\.com/)) {
-			return false;
-		}
-		if (document.querySelector('.redesign-beta-optin')) {
-			return false;
-		}
-		if (typeof _pageHasNewRedditstyles === 'undefined') {
-			const header = document.querySelector('header');
-			_pageHasNewRedditstyles = header && header.getAttribute('data-redditstyle') === 'true';
-		}
-		return _pageHasNewRedditstyles;
-	}
 
 	/**
 	 * Looks at the data-reactroot div, gets its background-color css property
@@ -33,100 +19,6 @@
 	 */
 	function isNightMode() {
 		return isNewStyle() && _isNightMode;
-	}
-
-	function decodeHTML(html) {
-		const txt = window.document.createElement('textarea');
-		txt.innerHTML = html;
-		return txt.value;
-	}
-
-	function getFirstParent(el, selector) {
-		if (!el.parentElement) {
-			return false;
-		} else if (el.parentElement.matches(selector)) {
-			return el.parentElement;
-		}
-		return getFirstParent(el.parentElement, selector);
-	}
-
-	function getParents(el, selector) {
-		const parents = [];
-		while (el.parentElement && el.parentElement.matches) {
-			el = el.parentElement;
-			if (el.matches(selector)) {
-				parents.push(el);
-			}
-		}
-		return parents;
-	}
-
-	function formEncode(data) {
-		return Object.keys(data).map(key => `${key}=${data[key]}&`).join('').slice(0, -1);
-	}
-
-	// screw you jQuery
-	function _request(url, options = {}) {
-		if (typeof url === 'object') {
-			options = url;
-			url = options.url;
-		}
-		const type = options.type || 'GET';
-		const isPostRequest = type === 'POST';
-		let data = formEncode(options.data || {});
-		if (type === 'GET' && data) {
-			url += `?${data}`;
-			data = undefined;
-		}
-		const controller = new AbortController();
-		const payload = {
-			method: type,
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-			},
-			body: isPostRequest ? data : null,
-			signal: controller.signal,
-		};
-		if (url[0] === '/') {
-			url = `${window.origin}${url}`;
-		}
-		const promises = [];
-		let timeoutId;
-		if (options.timeout) {
-			const timeoutPromise = new Promise((_, reject) => {
-				timeoutId = setTimeout(() => reject(new Error('timeout')), options.timeout);
-			});
-			promises.push(timeoutPromise);
-		}
-
-		const requestPromise = new Promise((resolve, reject) => {
-			window.fetch(url, payload)
-				.then((response) => {
-					if (timeoutId) {
-						clearTimeout(timeoutId);
-					}
-					if (!response.ok) {
-						reject(`Request to ${url} failed`);
-					}
-					return response;
-				})
-				.then(response => resolve(response.json()))
-				.finally(() => {
-					if (timeoutId) {
-						clearTimeout(timeoutId);
-					}
-				});
-		});
-		promises.push(requestPromise);
-		const masterPromise = Promise.race(promises);
-		masterPromise.abort = function abort() {
-			controller.abort();
-		};
-		return masterPromise;
-	}
-
-	function classed(classes) {
-		return R_COMMENTS_CLASS_PREFIX + classes;
 	}
 
 	const Comment = {
@@ -140,20 +32,20 @@
 			this.data = json;
 			this.listing = listing;
 			const d = this.data;
-			const commentHtml = `<div>${decodeHTML(d.body_html)}</div>`;
+			const commentHtml = `<div>${DOM.decodeHTML(d.body_html)}</div>`;
 			const tagline = this.buildTagline();
 			const arrows = this.arrows();
 
-			let bodyHtml = `<div class="${classed('body_html')}">${commentHtml}</div>`;
+			let bodyHtml = `<div class="${DOM.classed('body_html')}">${commentHtml}</div>`;
 
 			if (this.openLinksInNewTab) {
 				const regex = /(<a\s)(.*<\/a>)/;
 				bodyHtml = bodyHtml.replace(regex, '$1target="_blank" $2');
 			}
 
-			const wrapperOpen = `<div id="${d.id}" class="${classed('comment comment thing')}">`;
+			const wrapperOpen = `<div id="${d.id}" class="${DOM.classed('comment comment thing')}">`;
 			const wrapperClose = '</div>';
-			const entry = `<div class="entry ${classed('entry')}">
+			const entry = `<div class="entry ${DOM.classed('entry')}">
 				${tagline}
 				${bodyHtml}
 				${this.nextReply(!!d.replies)}
@@ -165,12 +57,12 @@
 		},
 
 		noReplyHtml() {
-			return `<div class="${classed('comment comment thing')}">Oops, no more replies.</div>`;
+			return `<div class="${DOM.classed('comment comment thing')}">Oops, no more replies.</div>`;
 		},
 
 		buildTagline() {
 			const content = this.authorTag() + this.voteTag() + this.gildedTag();
-			return `<div class="tagline ${classed('tagline')}">${content}</div>`;
+			return `<div class="tagline ${DOM.classed('tagline')}">${content}</div>`;
 		},
 
 		gildedTag() {
@@ -182,7 +74,7 @@
 		voteTag() {
 			const votes = this.data.ups - this.data.downs;
 			if (isNewStyle()) {
-				return `<span class="score unvoted ${classed('score')}">${this.data.score} points</span>`;
+				return `<span class="score unvoted ${DOM.classed('score')}">${this.data.score} points</span>`;
 			}
 			const unvoted = `<span class="score unvoted">${votes} points</span>`;
 			const likes = `<span class="score likes">${votes + 1} points</span>`;
@@ -191,7 +83,7 @@
 		},
 
 		nextReply(hasChildren) {
-			const _class = classed(hasChildren ? 'next_reply' : 'no_reply');
+			const _class = DOM.classed(hasChildren ? 'next_reply' : 'no_reply');
 			const html = hasChildren ? NEXT_REPLY_TEXT : 'No Replies';
 			return `<div class="${_class}" style="padding-top:5px">${html}</div>`;
 		},
@@ -200,7 +92,7 @@
 			const author = this.data.author;
 			const op = this.listing && this.listing.author === author ? 'submitter' : '';
 			const admin = this.data.distinguished === 'admin' ? 'admin' : '';
-			return `<a class="author ${op} ${admin} ${classed('author')}" href="/user/${author}">${author}</a>`;
+			return `<a class="author ${op} ${admin} ${DOM.classed('author')}" href="/user/${author}">${author}</a>`;
 		},
 
 		arrows() {
@@ -208,7 +100,7 @@
 			const arrowDiv = window.document.createElement('div');
 			const arrowUp = window.document.createElement('div');
 			const arrowDown = window.document.createElement('div');
-			arrowDiv.className = classed('arrows unvoted');
+			arrowDiv.className = DOM.classed('arrows unvoted');
 			arrowUp.className = 'arrow up';
 			arrowDown.className = 'arrow down';
 			arrowDiv.appendChild(arrowUp);
@@ -259,16 +151,16 @@
 			let popup;
 			if (this.isFirstComment(el)) {
 				popup = this.popup(el);
-				popup.querySelector(`.${classed('content')}`).innerHTML = commentHtml;
+				popup.querySelector(`.${DOM.classed('content')}`).innerHTML = commentHtml;
 			} else {
 				const content = el.querySelector('._rcomments_content, .children');
-				const loading = content.getElementsByClassName(classed('loading'))[0];
-				const nthCommentDeep = getParents(content, '._rcomments_entry').length;
+				const loading = content.getElementsByClassName(DOM.classed('loading'))[0];
+				const nthCommentDeep = DOM.getParents(content, '._rcomments_entry').length;
 				if (loading) {
 					loading.parentNode.removeChild(loading);
 				}
 				if (nthCommentDeep % 2 !== 0) {
-					content.classList.add(classed('comment_odd'));
+					content.classList.add(DOM.classed('comment_odd'));
 				}
 				content.innerHTML = commentHtml + content.innerHTML;
 			}
@@ -283,9 +175,9 @@
 				const popup = window.document.createElement('div');
 				const nextCommentDiv = window.document.createElement('div');
 				const contentDiv = window.document.createElement('div');
-				nextCommentDiv.className = classed('next_comment');
+				nextCommentDiv.className = DOM.classed('next_comment');
 				nextCommentDiv.innerHTML = NEXT_COMMENT_TEXT;
-				contentDiv.className = classed('content');
+				contentDiv.className = DOM.classed('content');
 				popup.classList.add(R_COMMENTS_MAIN_CLASS);
 				if (isNewStyle()) {
 					popup.classList.add(R_COMMENTS_NEW_REDDIT_STYLE);
@@ -324,11 +216,11 @@
 
 		popup(el) {
 			const popup = this.getPopup();
-			const nextCommentNone = popup.getElementsByClassName(classed('next_comment_none'))[0];
+			const nextCommentNone = popup.getElementsByClassName(DOM.classed('next_comment_none'))[0];
 
 			if (nextCommentNone) {
 				nextCommentNone.innerHTML = NEXT_COMMENT_TEXT;
-				nextCommentNone.classList = [classed('next_comment')];
+				nextCommentNone.classList = [DOM.classed('next_comment')];
 			}
 
 			const clientRect = el.getBoundingClientRect();
@@ -338,7 +230,7 @@
 				const windowOffsetX = window.pageXOffset;
 				const top = Math.round(clientRect.top + clientRect.height + windowOffsetY);
 				const left = Math.round(clientRect.left + windowOffsetX);
-				const nextComment = popup.getElementsByClassName(classed('next_comment'))[0];
+				const nextComment = popup.getElementsByClassName(DOM.classed('next_comment'))[0];
 				if (nextComment) {
 					nextComment.innerHTML = NEXT_COMMENT_TEXT;
 				}
@@ -364,12 +256,12 @@
 
 		loading(el) {
 			const isFirst = this.isFirstComment(el);
-			const loadingClasses = `${classed('loading')} ${classed('comment comment thing')}`;
+			const loadingClasses = `${DOM.classed('loading')} ${DOM.classed('comment comment thing')}`;
 			const span = '<span>Fetching comment...</span>';
 			const loadingContent = `<div class="${loadingClasses}">${span}</div>`;
 			if (isFirst) {
 				const popup = this.popup(el);
-				popup.querySelector(`.${classed('content')}`).innerHTML = loadingContent;
+				popup.querySelector(`.${DOM.classed('content')}`).innerHTML = loadingContent;
 				popup.style.display = 'block';
 			} else {
 				const children = el.querySelector('._rcomments_content, .children');
@@ -393,35 +285,35 @@
 			let container;
 			for (let i = 0; i < el.children.length; i += 1) {
 				if (el.children[i].classList.contains('entry')) {
-					container = el.children[i].querySelector(`.${classed('next_reply')}`);
+					container = el.children[i].querySelector(`.${DOM.classed('next_reply')}`);
 					break;
 				}
 			}
 
 			if (!container) {
-				container = this._popup.querySelector(`.${classed('next_comment')}`);
+				container = this._popup.querySelector(`.${DOM.classed('next_comment')}`);
 			}
 
-			if (container.classList.contains(classed('next_comment'))) {
-				container.classList.remove(classed('next_comment'));
-				container.classList.add(classed('next_comment_none'));
+			if (container.classList.contains(DOM.classed('next_comment'))) {
+				container.classList.remove(DOM.classed('next_comment'));
+				container.classList.add(DOM.classed('next_comment_none'));
 				container.innerHTML = 'No more Comments';
 			} else {
-				container.classList.remove(classed('next_reply'));
-				container.classList.add(classed('no_reply'));
+				container.classList.remove(DOM.classed('next_reply'));
+				container.classList.add(DOM.classed('no_reply'));
 				container.innerHTML = 'No More replies';
 			}
 		},
 
 		handleError(el, error) {
-			const errorHtml = `<div class="${classed('error')}">${error}</div>`;
+			const errorHtml = `<div class="${DOM.classed('error')}">${error}</div>`;
 
 			if (this.isFirstComment(el)) {
-				this.popup(el).querySelector(`.${classed('content')}`).innerHTML = errorHtml;
+				this.popup(el).querySelector(`.${DOM.classed('content')}`).innerHTML = errorHtml;
 			} else {
 				const node = el.querySelector('._rcomments_content, .children');
 				node.innerHTML = errorHtml + node.innerHTML;
-				const loading = node.querySelector(`.${classed('loading')}`);
+				const loading = node.querySelector(`.${DOM.classed('loading')}`);
 				if (loading) {
 					loading.remove();
 				}
@@ -550,20 +442,11 @@
 		disableRequest: false,
 
 		init() {
-			_request('/api/me.json').then((response) => {
-				if (!response || !response.data || !response.data.modhash) return;
-				this.modhash = response.data.modhash;
-				_isNightMode = response.data.pref_nightmode || false;
-
-
-				// Ummmmmmmm..... nothing to see here, move along
-				// This is super hacky.
-				// BUT WHATEVER WORKS YO
-				// Edit: yup broke with the new reddit redesign
-				if (window.config) {
-					Comment.openLinksInNewTab = /('|")new_window('|")\s?:\s?true/.test(window.config.innerHTM);
-				}
-				Comment.isLoggedIn = true; // Sure... this works.
+			get().then(userContextData => {
+				Comment.isLoggedIn = userContextData.isLoggedIn
+				Comment.openLinksInNewTab = userContextData.preferNewTab;
+				this.modhash = userContextData.modhash;
+				_isNightMode = userContextData.prefersNightmode;
 			});
 
 			let active = false;
@@ -807,10 +690,10 @@
 
 			const VOTE_URL = '/api/vote/.json';
 
-			const parentComment = getFirstParent(arrow, `.${classed('comment')}`);
+			const parentComment = DOM.getFirstParent(arrow, `.${DOM.classed('comment')}`);
 			const id = parentComment && (`t1_${parentComment.id}`);
 			const url = `${this.model.currentListing.permalink}.json`;
-			const commentId = getFirstParent(arrow, '.comment').id;
+			const commentId = DOM.getFirstParent(arrow, '.comment').id;
 			let dir;
 
 			if (arrow.classList.contains('up')) {
