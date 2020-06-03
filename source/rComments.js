@@ -113,7 +113,7 @@
 				.then(response => resolve(response.json()))
 				.finally(() => {
 					if (timeoutId) {
-						clearTimeout(timeoutId)
+						clearTimeout(timeoutId);
 					}
 				});
 		});
