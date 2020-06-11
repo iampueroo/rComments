@@ -66,9 +66,13 @@ import { get } from './UserContext.js';
 		},
 
 		gildedTag() {
-			const num = this.data.gilded;
-			if (!num) return '';
-			return `<span class="gilded-icon" data-count="${num}">x${num}</span>`;
+			if (isNewStyle() || !(this.data.all_awardings) || this.data.all_awardings.length === 0) {
+				// New reddit doesn't expose a class to reuse
+				return '';
+			}
+			return this.data.all_awardings.map(award => {
+				return `<span class="awarding-icon-container"><img class="awarding-icon" src="${award.icon_url}"></span>`;
+			}).map('');
 		},
 
 		voteTag() {
