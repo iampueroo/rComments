@@ -66,13 +66,26 @@ import { get } from './UserContext.js';
 		},
 
 		gildedTag() {
-			if (isNewStyle() || !(this.data.all_awardings) || this.data.all_awardings.length === 0) {
+			if (!this.data.all_awardings || this.data.all_awardings.length === 0) {
 				// New reddit doesn't expose a class to reuse
 				return '';
 			}
 			return this.data.all_awardings.map(award => {
-				return `<span class="awarding-icon-container"><img class="awarding-icon" src="${award.icon_url}"></span>`;
-			}).map('');
+				let iconSrc;
+				if (isNewStyle()) {
+					const firstIcon = (award.resized_icons || [])[0];
+					iconSrc = firstIcon ? firstIcon.url : '';
+					if (!iconSrc) {
+						return '';
+					}
+				} else {
+					iconSrc = award.icon_url;
+				}
+				// preload
+				const img = new Image();
+				img.src = iconSrc;
+				return `<span class="awarding-icon-container"><img class="awarding-icon" src="${iconSrc}"></span>`;
+			}).join('');
 		},
 
 		voteTag() {
