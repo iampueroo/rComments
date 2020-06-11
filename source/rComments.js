@@ -67,7 +67,6 @@ import { get } from './UserContext.js';
 
 		gildedTag() {
 			if (!this.data.all_awardings || this.data.all_awardings.length === 0) {
-				// New reddit doesn't expose a class to reuse
 				return '';
 			}
 			return this.data.all_awardings.map(award => {
