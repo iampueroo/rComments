@@ -1,7 +1,7 @@
-import { isNewStyle } from './Page.js';
-import { _request } from './Request.js';
-import * as DOM from './DOM.js';
-import { get } from './UserContext.js';
+import { isNewStyle } from './Page';
+import { _request } from './Request';
+import * as DOM from './DOM';
+import { get } from './UserContext';
 
 ((window) => {
 	const R_COMMENTS_MAIN_CLASS = '_rcomment_div';
@@ -69,7 +69,7 @@ import { get } from './UserContext.js';
 			if (!this.data.all_awardings || this.data.all_awardings.length === 0) {
 				return '';
 			}
-			return this.data.all_awardings.map(award => {
+			return this.data.all_awardings.map((award) => {
 				let iconSrc;
 				if (isNewStyle()) {
 					const firstIcon = (award.resized_icons || [])[0];
@@ -458,8 +458,8 @@ import { get } from './UserContext.js';
 		disableRequest: false,
 
 		init() {
-			get().then(userContextData => {
-				Comment.isLoggedIn = userContextData.isLoggedIn
+			get().then((userContextData) => {
+				Comment.isLoggedIn = userContextData.isLoggedIn;
 				Comment.openLinksInNewTab = userContextData.preferNewTab;
 				this.modhash = userContextData.modhash;
 				_isNightMode = userContextData.prefersNightmode;
