@@ -69,7 +69,7 @@ import { get } from './UserContext';
 			if (!this.data.all_awardings || this.data.all_awardings.length === 0) {
 				return '';
 			}
-			return this.data.all_awardings.map((award) => {
+			const awards = this.data.all_awardings.map((award) => {
 				let iconSrc;
 				if (isNewStyle()) {
 					const firstIcon = (award.resized_icons || [])[0];
@@ -80,11 +80,19 @@ import { get } from './UserContext';
 				} else {
 					iconSrc = award.icon_url;
 				}
+				const c = isNewStyle() && award.count > 1 ? award.count : '';
 				// preload
 				const img = new Image();
 				img.src = iconSrc;
-				return `<span class="awarding-icon-container"><img class="awarding-icon" src="${iconSrc}"></span>`;
-			}).join('');
+				return `<span class="awarding-icon-container">
+					<img class="awarding-icon" src="${iconSrc}">
+					<span class="${DOM.classed('awarding-count')}">${c}</span>
+					</span>`;
+			})
+				.filter(e => e !== '')
+				.slice(0, 4)
+				.join('');
+			return `<span class="${DOM.classed('awards')}">${awards}</span>`;
 		},
 
 		voteTag() {

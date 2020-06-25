@@ -51,6 +51,17 @@
 	padding-bottom: 5px;
 }
 
+._rcomments_awards {
+	margin-left: 3px;
+}
+
+._rcomments_awarding-count {
+	color: grey;
+	position: relative;
+	bottom: 3px;
+	left: -2px;
+}
+
 /**********************************/
 /* Begin RES Night Mode Overrides */
 /**********************************/
