@@ -11,7 +11,8 @@
     "build": "yarn run test && mkdir -p dist && cp -R static/* dist && yarn run build-js && yarn run build-css",
     "zip-chrome": "yarn run build && zip -r ../chrome-extension.zip dist",
     "zip-firefox": "yarn run build && cd dist && zip -r -FS ../firefox-extension.zip *",
-    "test": "eslint rComments.js"
+    "test": "eslint rComments.js",
+    "fix": "eslint rComments.js --fix"
   },
   "author": "Ignacio Ampuero",
   "license": "ISC",

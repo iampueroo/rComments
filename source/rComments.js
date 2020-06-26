@@ -9,22 +9,11 @@ import { get } from './UserContext';
 	const NEXT_REPLY_TEXT = '&#8618 Next Reply';
 	const NEXT_COMMENT_TEXT = '&#8595 Next Comment';
 
-	let _isNightMode = false;
-
-	/**
-	 * Looks at the data-reactroot div, gets its background-color css property
-	 * and returns true if any of the rgb values is greater than 128.
-	 * If anything every goes wrong we return false.
-	 * @return {Boolean}
-	 */
-	function isNightMode() {
-		return isNewStyle() && _isNightMode;
-	}
-
 	const Comment = {
 
 		isLoggedIn: false,
 		openLinksInNewTab: false,
+		isNightMode: false,
 
 		getHtml(json, listing) {
 			if (!json || !json.id) return this.noReplyHtml();
@@ -234,7 +223,7 @@ import { get } from './UserContext';
 				});
 				this._popup = popup;
 			}
-			this._popup.classList.toggle('res-nightmode', isNightMode());
+			this._popup.classList.toggle('res-nightmode', isNewStyle() && Comment.isNightMode);
 			return this._popup;
 		},
 
@@ -469,8 +458,8 @@ import { get } from './UserContext';
 			get().then((userContextData) => {
 				Comment.isLoggedIn = userContextData.isLoggedIn;
 				Comment.openLinksInNewTab = userContextData.preferNewTab;
+				Comment.isNightMode = userContextData.prefersNightmode;
 				this.modhash = userContextData.modhash;
-				_isNightMode = userContextData.prefersNightmode;
 			});
 
 			let active = false;
