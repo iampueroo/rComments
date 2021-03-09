@@ -74,7 +74,7 @@ import { get } from './UserContext';
 				const img = new Image();
 				img.src = iconSrc;
 				return `<span class="awarding-icon-container">
-					<img class="awarding-icon" src="${iconSrc}">
+					<img class="awarding-icon" src="${iconSrc}" style="max-width:16px">
 					<span class="${DOM.classed('awarding-count')}">${c}</span>
 					</span>`;
 			})
