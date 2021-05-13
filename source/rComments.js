@@ -20,6 +20,7 @@ import { get } from './UserContext';
 
 			this.data = json;
 			this.listing = listing;
+			const isStickedModPost = isStickiedModeratorPost(json);
 			const d = this.data;
 			const commentHtml = `<div>${DOM.decodeHTML(d.body_html)}</div>`;
 			const tagline = this.buildTagline();
@@ -32,11 +33,17 @@ import { get } from './UserContext';
 				bodyHtml = bodyHtml.replace(regex, '$1target="_blank" $2');
 			}
 
-			const wrapperOpen = `<div id="${d.id}" class="${DOM.classed('comment comment thing')}">`;
+			const wrapperOpen = `<div id="${d.id}" class="${DOM.classed('comment comment thing')} ${isStickedModPost ? DOM.classed('automod-comment') : ''}">`;
 			const wrapperClose = '</div>';
+			let innerHTML = `${tagline}${bodyHtml}`;
+			if (isStickedModPost) {
+				innerHTML = `
+						<span class="${DOM.classed('automod-comment-txt')}">ℹ️ Stickied automod post from <span class="author ${DOM.classed('author')}">${json.author}</span> hidden by default. </span>
+						<span class="${DOM.classed('automod-comment-toggle')}">Click to view</span>
+						<span class="${DOM.classed('hidden')} ${DOM.classed('automod-real-txt')}">${innerHTML}</span>`;
+			}
 			const entry = `<div class="entry ${DOM.classed('entry')}">
-				${tagline}
-				${bodyHtml}
+				${innerHTML}
 				${this.nextReply(!!d.replies)}
 				<div class="children"></div>
 				</div>
@@ -529,6 +536,9 @@ import { get } from './UserContext';
 				} else if (e.target.classList && e.target.classList.contains('md-spoiler-text')) {
 					e.stopImmediatePropagation();
 					e.target.classList.add('revealed');
+				} else if (e.target.className === DOM.classed('automod-comment-toggle')) {
+					e.stopImmediatePropagation();
+					this.handleAutomodComment(e.target);
 				}
 				return false;
 			});
@@ -577,9 +587,30 @@ import { get } from './UserContext';
 				url: requestData.url,
 				data: requestData.params,
 				timeout: 4000,
-			}).then(this.showComment.bind(this));
+			}).then(this.showComment.bind(this))
+				.then((commentJSON) => {
+					if (isStickiedModeratorPost(commentJSON)) {
+					    const params = Object.assign({}, requestData.params);
+					    params.limit++;
+					    this.executeCommentRequest(this.view.getPopup(), commentId, {
+							url: requestData.url,
+							data: params,
+							timeout: 4000,
+						}).then(this.showComment.bind(this));
+					}
+				});
 		},
 
+		/**
+		 * Responsible for executing the Reddit API request, registering response
+		 * with the model, handling the "more" response, and handling the fail scenario
+		 * as well.
+		 *
+		 * @param el
+		 * @param commentId
+		 * @param parameters
+		 * @returns {Promise<unknown>}
+		 */
 		executeCommentRequest(el, commentId, parameters) {
 			this.request = _request(parameters);
 			const onSuccess = this.getCommentData(el, parameters.url, commentId).bind(this);
@@ -620,6 +651,15 @@ import { get } from './UserContext';
 			};
 		},
 
+		/**
+		 * Handles the weird "more" response that Reddit periodically returns
+		 * by skipping the response and upping our limit and updating our comment index.
+		 *
+		 * @param el
+		 * @param url
+		 * @param commentId
+		 * @returns {Promise<unknown>}
+		 */
 		handleMoreThing(el, url, commentId) {
 			const params = this.model.requestParams(url, commentId);
 			params.commentIndex = params.limit - 2;
@@ -635,12 +675,13 @@ import { get } from './UserContext';
 		showComment(data) {
 			if (!data) {
 				// Something went wrong earlier
-				return;
+				return null;
 			}
 			const { commentJson, isLastReply, commentId, url, el } = data;
 			this.view.show(el, commentJson, this.model.currentListing);
 			this.view.updateParentComment(el, isLastReply);
 			this.updateCache(url, commentId);
+			return commentJson;
 		},
 
 		handleCommentFail(el) {
@@ -730,7 +771,21 @@ import { get } from './UserContext';
 			Comment.applyVote(arrow.parentElement, dir);
 			this.updateCache(url, commentId);
 		},
+
+		handleAutomodComment(element) {
+			const parentComment = DOM.getFirstParent(element, `.${DOM.classed('comment')}`);
+			const automodRealCommentWrapper = parentComment.querySelector(`.${DOM.classed('automod-real-txt')}`);
+			const automodCommentTextWarning = parentComment.querySelector(`.${DOM.classed('automod-comment-txt')}`);
+			parentComment.classList.remove(DOM.classed('automod-comment'));
+			automodCommentTextWarning.remove();
+			element.remove();
+			automodRealCommentWrapper.classList.remove(DOM.classed('hidden'));
+		},
 	};
 
 	rCommentsController.init();
 })(window);
+
+function isStickiedModeratorPost(json = {}) {
+	return json.stickied === true && json.distinguished === 'moderator';
+}

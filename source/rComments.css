@@ -17,6 +17,14 @@
 	background-color: white;
 }
 
+._rcomments_comment._rcomments_automod-comment {
+	background-color: antiquewhite;
+}
+
+._rcomments_comment._rcomments_automod-comment ._rcomments_entry {
+    padding-top: 8px;
+}
+
 ._rcomments_arrows {
 	width: 20px;
 	float: left;
@@ -31,6 +39,12 @@
 
 ._rcomments_next_reply, ._rcomments_next_comment {
 	cursor: pointer;
+}
+
+._rcomments_automod-comment-toggle {
+	cursor: pointer;
+	font-weight: bold;
+	text-decoration: underline;
 }
 
 ._rcomments_next_reply, ._rcomments_no_reply {
@@ -60,6 +74,10 @@
 	position: relative;
 	bottom: 3px;
 	left: -2px;
+}
+
+._rcomments_hidden {
+	display: none;
 }
 
 /**********************************/
