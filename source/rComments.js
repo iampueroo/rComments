@@ -590,9 +590,11 @@ import { get } from './UserContext';
 			}).then(this.showComment.bind(this))
 				.then((commentJSON) => {
 					if (isStickiedModeratorPost(commentJSON)) {
-					    const params = Object.assign({}, requestData.params);
-					    params.limit++;
-					    this.executeCommentRequest(this.view.getPopup(), commentId, {
+						const parentElement = this.view.getPopup();
+						this.view.loading(parentElement);
+						const params = Object.assign({}, requestData.params);
+						params.limit++;
+						this.executeCommentRequest(parentElement, commentId, {
 							url: requestData.url,
 							data: params,
 							timeout: 4000,
