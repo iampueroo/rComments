@@ -152,6 +152,14 @@
 	color: rgb(124, 124, 124);
 }
 
+._rcomments_new_reddit_styles ._rcomments_body_html {
+    line-height: 19px;
+}
+
+._rcomments_new_reddit_styles ._rcomments_body_html p:not(:last-child) {
+    margin-bottom: .6em;
+}
+
 ._rcomments_new_reddit_styles ._rcomments_body_html a {
 	color: rgb(0, 115, 115)
 }
