@@ -207,6 +207,10 @@
     font-weight: bold;
 }
 
+._rcomments_new_reddit_styles ._rcomments_body_html em {
+    font-style: italic;
+}
+
 ._rcomments_new_reddit_styles ._rcomments_body_html ul {
 	list-style: disc inside;
 }
