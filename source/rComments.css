@@ -207,6 +207,20 @@
     font-weight: bold;
 }
 
+._rcomments_new_reddit_styles ._rcomments_body_html code {
+    font-family: monospace;
+	margin: 0 2px;
+	padding: 0 4px;
+	white-space: nowrap;
+	word-break: normal;
+	line-height: 1em;
+	font-style: normal;
+	font-weight: normal;
+	border: 1px solid #e6e6de;
+	background-color: #fcfcfb;
+	border-radius: 2px;
+}
+
 ._rcomments_new_reddit_styles ._rcomments_body_html sup {
 	position: relative;
 	font-size: .7em;
