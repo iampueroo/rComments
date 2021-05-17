@@ -526,6 +526,9 @@ import { get } from './UserContext';
 				} else if (e.target.classList && e.target.classList[0] === 'arrow') {
 					e.stopImmediatePropagation();
 					this.handleVote(e.target);
+				} else if (e.target.classList && e.target.classList.contains('md-spoiler-text')) {
+					e.stopImmediatePropagation();
+					e.target.classList.add('revealed');
 				}
 				return false;
 			});

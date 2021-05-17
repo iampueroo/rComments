@@ -179,6 +179,12 @@
 	top: -.4em;
 }
 
+._rcomments_new_reddit_styles ._rcomments_body_html .md-spoiler-text:not(.revealed) {
+	background: #4f4f4f;
+	cursor: pointer;
+	color: transparent;
+}
+
 /**********************************/
 /* END new reddit overrides
 /**********************************/
