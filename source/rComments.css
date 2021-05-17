@@ -250,6 +250,14 @@
 	color: transparent;
 }
 
+._rcomments_new_reddit_styles ._rcomments_body_html blockquote {
+	/* !important is added since RES messes the styles otherwise */
+	border-left: 4px solid rgba(215, 218, 220, 0.2) !important;
+	color: inherit !important;
+	margin: 4px 0 4px 8px;
+	padding-left: 8px;
+}
+
 /**********************************/
 /* END new reddit overrides
 /**********************************/
