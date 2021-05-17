@@ -213,6 +213,15 @@
 ._rcomments_new_reddit_styles ._rcomments_body_html ol {
 	list-style: decimal inside;
 }
+._rcomments_new_reddit_styles ._rcomments_body_html th {
+	font-weight: bold;
+}
+._rcomments_new_reddit_styles ._rcomments_body_html th,
+._rcomments_new_reddit_styles ._rcomments_body_html td {
+	padding: 4px 9px;
+	border: 1px solid #e5e3da;
+	text-align: left;
+}
 
 ._rcomments_new_reddit_styles ._rcomments_body_html code {
     font-family: monospace;
