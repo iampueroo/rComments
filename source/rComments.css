@@ -168,6 +168,17 @@
 	text-decoration: underline;
 }
 
+._rcomments_new_reddit_styles ._rcomments_body_html strong {
+    font-weight: bold;
+}
+
+._rcomments_new_reddit_styles ._rcomments_body_html sup {
+	position: relative;
+	font-size: .7em;
+	line-height: .7em;
+	top: -.4em;
+}
+
 /**********************************/
 /* END new reddit overrides
 /**********************************/
