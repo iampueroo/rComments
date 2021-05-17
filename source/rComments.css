@@ -44,6 +44,9 @@
 ._rcomments_automod-comment-toggle {
 	cursor: pointer;
 	font-weight: bold;
+}
+
+._rcomments_automod-comment-toggle:hover {
 	text-decoration: underline;
 }
 

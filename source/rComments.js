@@ -2,6 +2,7 @@ import { isNewStyle } from './Page';
 import { _request } from './Request';
 import * as DOM from './DOM';
 import { get } from './UserContext';
+import sanitize from "./sanitize";
 
 ((window) => {
 	const R_COMMENTS_MAIN_CLASS = '_rcomment_div';
@@ -37,8 +38,9 @@ import { get } from './UserContext';
 			const wrapperClose = '</div>';
 			let innerHTML = `${tagline}${bodyHtml}`;
 			if (isStickedModPost) {
+				const sanitizedAuthor = sanitize(json.author);
 				innerHTML = `
-						<span class="${DOM.classed('automod-comment-txt')}">ℹ️ Stickied automod post from <span class="author ${DOM.classed('author')}">${json.author}</span> hidden by default. </span>
+						<span class="${DOM.classed('automod-comment-txt')}">ℹ️ Stickied automod post from <span class="author ${DOM.classed('author')}">${sanitizedAuthor}</span> hidden by default. </span>
 						<span class="${DOM.classed('automod-comment-toggle')}">Click to view</span>
 						<span class="${DOM.classed('hidden')} ${DOM.classed('automod-real-txt')}">${innerHTML}</span>`;
 			}
