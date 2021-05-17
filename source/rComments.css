@@ -207,6 +207,13 @@
     font-weight: bold;
 }
 
+._rcomments_new_reddit_styles ._rcomments_body_html ul {
+	list-style: disc inside;
+}
+._rcomments_new_reddit_styles ._rcomments_body_html ol {
+	list-style: decimal inside;
+}
+
 ._rcomments_new_reddit_styles ._rcomments_body_html code {
     font-family: monospace;
 	margin: 0 2px;
