@@ -252,18 +252,39 @@
 	text-align: left;
 }
 
+._rcomments_new_reddit_styles ._rcomments_body_html pre,
 ._rcomments_new_reddit_styles ._rcomments_body_html code {
-    font-family: monospace;
-	margin: 0 2px;
-	padding: 0 4px;
-	white-space: nowrap;
-	word-break: normal;
-	line-height: 1em;
-	font-style: normal;
-	font-weight: normal;
+	background-color: #f6f7f8;
+}
+._rcomments_new_reddit_styles.res-nightmode ._rcomments_body_html code {
+	background-color: #272729;
+	color: #5291f8;
+}
+
+._rcomments_new_reddit_styles.res-nightmode ._rcomments_body_html pre > code {
+	color: inherit;
+}
+
+._rcomments_new_reddit_styles ._rcomments_body_html pre {
+	overflow: auto;
+	padding: 4px 9px;
 	border: 1px solid #e6e6de;
-	background-color: #fcfcfb;
 	border-radius: 2px;
+}
+
+.res-nightmode._rcomments_new_reddit_styles ._rcomments_body_html pre {
+	background-color: #272729;
+	border-color: rgb(88, 105, 123);
+}
+
+._rcomments_new_reddit_styles ._rcomments_body_html code {
+	font-family: monospace;
+	white-space: pre;
+	word-break: normal;
+}
+._rcomments_new_reddit_styles ._rcomments_body_html pre code {
+	display: block;
+	line-height: 20px;
 }
 
 ._rcomments_new_reddit_styles ._rcomments_body_html sup {
