@@ -363,11 +363,21 @@ import sanitize from "./sanitize";
 			return data;
 		},
 
+		/**
+		 * Generates the next request parameters for the given url and/or comment Id.
+		 * The parameters will target the next reply based on what is stored in the
+		 * cache.
+		 *
+		 * @param url
+		 * @param commentId
+		 * @returns {*}
+		 */
 		requestParams(url, commentId) {
 			const key = this.genKey(url, commentId);
 			let params = Object.assign({}, this.commentStatus[key] || {});
 
 			if (!params.sort) {
+				// Initial request parameters
 				params = {
 					commentIndex: -1,
 					depth: (commentId ? 2 : 1),
@@ -562,8 +572,12 @@ import sanitize from "./sanitize";
 		renderCommentFromElement(el, init) {
 			if (this.request) return;
 
+			// If not first comment, find first parent "thing" div
+			// which represents is a comment div with id attribute
 			const commentId = !init && this.findClosestThing(el).id;
 			const isNextComment = el.classList.contains(R_COMMENTS_MAIN_CLASS);
+			// Target URL for request is comment page or comment's permalink
+			// Initial request will not have a comment ID, so will use overall comment page
 			let url = el.href || this.model.getUrl(commentId);
 
 			// Sometimes the URL contains query parameters we don't want.
