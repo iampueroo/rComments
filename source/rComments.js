@@ -1,175 +1,26 @@
-import { isNewStyle } from './Page';
 import { _request } from './Request';
 import * as DOM from './DOM';
-import { get } from './UserContext';
-import sanitize from "./sanitize";
+import { UserContext } from './UserContext.ts';
+import {
+	generateCommentHtml,
+} from './html-generators/html_generator.ts';
+import {applyVote} from "./html-generators/html_generator";
+
+
+function isStickiedModeratorPost(json = {}) {
+	return json.stickied === true && json.distinguished === 'moderator';
+}
+
+UserContext.init();
 
 ((window) => {
 	const R_COMMENTS_MAIN_CLASS = '_rcomment_div';
 	const R_COMMENTS_NEW_REDDIT_STYLE = '_rcomments_new_reddit_styles';
-	const NEXT_REPLY_TEXT = '&#8618 Next Reply';
 	const NEXT_COMMENT_TEXT = '&#8595 Next Comment';
-
-	const Comment = {
-
-		isLoggedIn: false,
-		openLinksInNewTab: false,
-		isNightMode: false,
-
-		getHtml(json, listing) {
-			if (!json || !json.id) return this.noReplyHtml();
-
-			this.data = json;
-			this.listing = listing;
-			const isStickedModPost = isStickiedModeratorPost(json);
-			const d = this.data;
-			const commentHtml = `<div>${DOM.decodeHTML(d.body_html)}</div>`;
-			const tagline = this.buildTagline();
-			const arrows = this.arrows();
-
-			let bodyHtml = `<div class="${DOM.classed('body_html')}">${commentHtml}</div>`;
-
-			if (this.openLinksInNewTab) {
-				const regex = /(<a\s)(.*<\/a>)/;
-				bodyHtml = bodyHtml.replace(regex, '$1target="_blank" $2');
-			}
-
-			const wrapperOpen = `<div id="${d.id}" class="${DOM.classed('comment comment thing')} ${isStickedModPost ? DOM.classed('automod-comment') : ''}">`;
-			const wrapperClose = '</div>';
-			let innerHTML = `${tagline}${bodyHtml}`;
-			if (isStickedModPost) {
-				const sanitizedAuthor = sanitize(json.author);
-				innerHTML = `
-						<span class="${DOM.classed('automod-comment-txt')}">ℹ️ Stickied automod post from <span class="author ${DOM.classed('author')}">${sanitizedAuthor}</span> hidden by default. </span>
-						<span class="${DOM.classed('automod-comment-toggle')}">Click to view</span>
-						<span class="${DOM.classed('hidden')} ${DOM.classed('automod-real-txt')}">${innerHTML}</span>`;
-			}
-			const entry = `<div class="entry ${DOM.classed('entry')}">
-				${innerHTML}
-				${this.nextReply(!!d.replies)}
-				<div class="children"></div>
-				</div>
-			`;
-
-			return wrapperOpen + arrows + entry + wrapperClose;
-		},
-
-		noReplyHtml() {
-			return `<div class="${DOM.classed('comment comment thing')}">Oops, no more replies.</div>`;
-		},
-
-		buildTagline() {
-			const content = this.authorTag() + this.voteTag() + this.gildedTag();
-			return `<div class="tagline ${DOM.classed('tagline')}">${content}</div>`;
-		},
-
-		gildedTag() {
-			if (!this.data.all_awardings || this.data.all_awardings.length === 0) {
-				return '';
-			}
-			const awards = this.data.all_awardings.map((award) => {
-				let iconSrc;
-				if (isNewStyle()) {
-					const firstIcon = (award.resized_icons || [])[0];
-					iconSrc = firstIcon ? firstIcon.url : '';
-					if (!iconSrc) {
-						return '';
-					}
-				} else {
-					iconSrc = award.icon_url;
-				}
-				const c = isNewStyle() && award.count > 1 ? award.count : '';
-				// preload
-				const img = new Image();
-				img.src = iconSrc;
-				return `<span class="awarding-icon-container">
-					<img class="awarding-icon" src="${iconSrc}" style="max-width:16px">
-					<span class="${DOM.classed('awarding-count')}">${c}</span>
-					</span>`;
-			})
-				.filter(e => e !== '')
-				.slice(0, 4)
-				.join('');
-			return `<span class="${DOM.classed('awards')}">${awards}</span>`;
-		},
-
-		voteTag() {
-			const votes = this.data.ups - this.data.downs;
-			if (isNewStyle()) {
-				return `<span class="score unvoted ${DOM.classed('score')}">${this.data.score} points</span>`;
-			}
-			const unvoted = `<span class="score unvoted">${votes} points</span>`;
-			const likes = `<span class="score likes">${votes + 1} points</span>`;
-			const dislikes = `<span class="score dislikes">${votes - 1} points</span>`;
-			return `<span>${dislikes + unvoted + likes}</span>`;
-		},
-
-		nextReply(hasChildren) {
-			const _class = DOM.classed(hasChildren ? 'next_reply' : 'no_reply');
-			const html = hasChildren ? NEXT_REPLY_TEXT : 'No Replies';
-			return `<div class="${_class}" style="padding-top:5px">${html}</div>`;
-		},
-
-		authorTag() {
-			const author = this.data.author;
-			const op = this.listing && this.listing.author === author ? 'submitter' : '';
-			const admin = this.data.distinguished === 'admin' ? 'admin' : '';
-			return `<a class="author ${op} ${admin} ${DOM.classed('author')}" href="/user/${author}">${author}</a>`;
-		},
-
-		arrows() {
-			if (!this.isLoggedIn || isNewStyle()) return '';
-			const arrowDiv = window.document.createElement('div');
-			const arrowUp = window.document.createElement('div');
-			const arrowDown = window.document.createElement('div');
-			arrowDiv.className = DOM.classed('arrows unvoted');
-			arrowUp.className = 'arrow up';
-			arrowDown.className = 'arrow down';
-			arrowDiv.appendChild(arrowUp);
-			arrowDiv.appendChild(arrowDown);
-			return this.applyVote(arrowDiv, this.data.likes).outerHTML;
-		},
-
-		applyVote(arrows, vote) {
-			const upArrow = arrows.querySelector('.arrow.up, .arrow.upmod');
-			const downArrow = arrows.querySelector('.arrow.down, .arrow.downmod');
-			// Reset - gross, could find a better way of doing this.
-			arrows.classList.remove('unvoted');
-			arrows.classList.remove('likes');
-			arrows.classList.remove('dislikes');
-			upArrow.classList.remove('upmod');
-			upArrow.classList.add('up');
-			downArrow.classList.remove('downmod');
-			downArrow.classList.add('down');
-
-			// Switch statement with boolean cases? #yolo(?)
-			switch (vote) {
-			case 1:
-			case true:
-				arrows.classList.add('likes');
-				upArrow.classList.remove('up');
-				upArrow.classList.add('upmod');
-				break;
-			case -1:
-			case false:
-				arrows.classList.add('dislikes');
-				downArrow.classList.remove('down');
-				downArrow.classList.add('downmod');
-				break;
-			default:
-				arrows.classList.add('unvoted');
-				if (arrows.querySelector('.score')) {
-					arrows.querySelector('.score').classList.add('unovoted');
-				}
-			}
-
-			return arrows;
-		},
-	};
 
 	const rCommentsView = {
 		show(el, json, listing) {
-			const commentHtml = Comment.getHtml(json, listing);
+			const commentHtml = generateCommentHtml(UserContext.get(), json, listing);
 			let popup;
 			if (this.isFirstComment(el)) {
 				popup = this.popup(el);
@@ -201,7 +52,7 @@ import sanitize from "./sanitize";
 				nextCommentDiv.innerHTML = NEXT_COMMENT_TEXT;
 				contentDiv.className = DOM.classed('content');
 				popup.classList.add(R_COMMENTS_MAIN_CLASS);
-				if (isNewStyle()) {
+				if (UserContext.get().usesNewStyles()) {
 					popup.classList.add(R_COMMENTS_NEW_REDDIT_STYLE);
 				}
 				popup.style.display = 'none';
@@ -232,7 +83,7 @@ import sanitize from "./sanitize";
 				});
 				this._popup = popup;
 			}
-			this._popup.classList.toggle('res-nightmode', isNewStyle() && Comment.isNightMode);
+			this._popup.classList.toggle('res-nightmode', UserContext.get().usesNewStyles() && UserContext.get().isNightMode());
 			return this._popup;
 		},
 
@@ -264,7 +115,7 @@ import sanitize from "./sanitize";
 
 		hidePopup() {
 			if (this._popup) {
-				this._popup.style.display = 'none';
+				// this._popup.style.display = 'none';
 			}
 		},
 
@@ -474,13 +325,6 @@ import sanitize from "./sanitize";
 		disableRequest: false,
 
 		init() {
-			get().then((userContextData) => {
-				Comment.isLoggedIn = userContextData.isLoggedIn;
-				Comment.openLinksInNewTab = userContextData.preferNewTab;
-				Comment.isNightMode = userContextData.prefersNightmode;
-				this.modhash = userContextData.modhash;
-			});
-
 			let active = false;
 			let yPos = false;
 
@@ -761,7 +605,7 @@ import sanitize from "./sanitize";
 		},
 
 		handleVote(arrow) {
-			if (!this.modhash) return;
+			if (!UserContext.get().modhash) return;
 
 			const VOTE_URL = '/api/vote/.json';
 
@@ -782,11 +626,11 @@ import sanitize from "./sanitize";
 			const data = {
 				id,
 				dir,
-				uh: this.modhash,
+				uh: UserContext.get().modhash,
 			};
 
 			_request(VOTE_URL, { type: 'POST', data });
-			Comment.applyVote(arrow.parentElement, dir);
+			applyVote(arrow.parentElement, dir);
 			this.updateCache(url, commentId);
 		},
 
@@ -804,6 +648,3 @@ import sanitize from "./sanitize";
 	rCommentsController.init();
 })(window);
 
-function isStickiedModeratorPost(json = {}) {
-	return json.stickied === true && json.distinguished === 'moderator';
-}
