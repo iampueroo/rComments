@@ -3,6 +3,7 @@ import {
   nextReplyPromptHtml,
   voteTagHtml,
 } from "./html_generator";
+import {UserContext} from "../UserContext";
 
 test("author tag renders succesfully for admin and OP", () => {
   const author = "iampueroo";
@@ -39,7 +40,8 @@ test("next reply rendered succesfully when no replies are left", () => {
  * @jest-
  */
 test("Vote tag renders succesfully", () => {
-  const voteHtml = voteTagHtml(201, 201);
+  const userContext = new UserContext('', false, false, false);
+  const voteHtml = voteTagHtml(userContext, 201, 201);
   const expectedHTML =
     '<span><span class="score dislikes">200 points</span><span class="score unvoted">201 points</span><span class="score likes">202 points</span></span>';
   expect(voteHtml).toBe(expectedHTML);
