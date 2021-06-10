@@ -1,56 +1,50 @@
 export type CommentData = {
+  id: string;
 
-  id: string,
+  author: string;
 
-  author: string,
-
-  stickied: boolean,
+  stickied: boolean;
 
   // admin or moderator
-  distinguished: string,
+  distinguished: string;
 
-  body_html: string,
+  body_html: string;
 
-  ups: number,
-  downs: number,
-  score: number,
+  ups: number;
+  downs: number;
+  score: number;
 
   // User-determined vote (1, 0, -1)
-  likes: number,
+  likes: number;
 
   all_awardings: Award[];
-  replies: [],
-}
+  replies: [];
+};
 
 export type Award = {
-  resized_icons: AwardIcon[],
-  count: number,
+  resized_icons: AwardIcon[];
+  count: number;
   icon_url: string;
-}
+};
 
 type AwardIcon = {
-  url: string,
-}
+  url: string;
+};
 
 export type ListingData = {
-
-  author: string,
-
-}
+  author: string;
+};
 
 export type Context = {
-
-  isLoggedIn: boolean,
-  isNewStyle: boolean,
-  doesOpenLinksInNewTab: boolean,
-
-}
+  isLoggedIn: boolean;
+  isNewStyle: boolean;
+  doesOpenLinksInNewTab: boolean;
+};
 
 export type OldUserContext = {
- isLoggedIn: boolean,
- isNewStyle: boolean,
- modhash: string,
- prefersNightmode: boolean,
- preferNewTab: boolean,
-}
-
+  isLoggedIn: boolean;
+  isNewStyle: boolean;
+  modhash: string;
+  prefersNightmode: boolean;
+  preferNewTab: boolean;
+};

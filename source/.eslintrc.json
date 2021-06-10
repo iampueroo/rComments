@@ -1,17 +1,21 @@
 {
-    "rules": {
-        "no-tabs": 0,
-        "indent": ["error", "tab"],
-        "no-underscore-dangle": 0,
-        "no-param-reassign": 0,
-        "space-before-function-paren": 0,
-        "no-plusplus": 0
-    },
-    "env": {
-        "browser": true
-    },
-    "extends": "airbnb-base",
-    "plugins": [
-        "import"
-    ]
+  "rules": {
+    "no-underscore-dangle": 0,
+    "no-param-reassign": 0,
+    "space-before-function-paren": 0,
+    "no-plusplus": 0,
+    "no-use-before-define": ["error", { "functions": false}]
+},
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".ts"]
+      }
+    }
+  },
+  "env": {
+    "browser": true
+  },
+  "extends": ["airbnb-base", "prettier"],
+  "plugins": ["import"]
 }
