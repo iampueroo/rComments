@@ -1,12 +1,12 @@
 const R_COMMENTS_CLASS_PREFIX = "_rcomments_";
 
-export function decodeHTML(html) {
+export function decodeHTML(html: string) : string {
   const txt = window.document.createElement("textarea");
   txt.innerHTML = html;
   return txt.value;
 }
 
-export function getFirstParent(el, selector) {
+export function getFirstParent(el: HTMLElement, selector: string) : HTMLElement|boolean {
   if (!el.parentElement) {
     return false;
   }
@@ -16,7 +16,7 @@ export function getFirstParent(el, selector) {
   return getFirstParent(el.parentElement, selector);
 }
 
-export function getParents(el, selector) {
+export function getParents(el: HTMLElement, selector: string) : HTMLElement[] {
   const parents = [];
   while (el.parentElement && el.parentElement.matches) {
     el = el.parentElement;
@@ -27,6 +27,6 @@ export function getParents(el, selector) {
   return parents;
 }
 
-export function classed(classes) {
+export function classed(classes: string) : string {
   return R_COMMENTS_CLASS_PREFIX + classes;
 }
