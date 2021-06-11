@@ -1,4 +1,4 @@
-import * as DOM from "../DOM";
+import * as DOM from "../dom/DOM";
 import { Award, CommentData, ListingData } from "../types/types";
 import { UserContext } from "../UserContext";
 

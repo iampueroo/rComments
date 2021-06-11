@@ -6,6 +6,12 @@ export function decodeHTML(html: string) : string {
   return txt.value;
 }
 
+/**
+ * Returns the first parent element of el that satisfies given selector
+ *
+ * @param el
+ * @param selector
+ */
 export function getFirstParent(el: HTMLElement, selector: string) : HTMLElement|boolean {
   if (!el.parentElement) {
     return false;
