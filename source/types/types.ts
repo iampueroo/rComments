@@ -40,4 +40,3 @@ export type Context = {
   isNewStyle: boolean;
   doesOpenLinksInNewTab: boolean;
 };
-

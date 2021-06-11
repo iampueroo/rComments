@@ -1,6 +1,10 @@
 import * as DOM from "./dom/DOM";
 import { UserContext } from "./UserContext.ts";
-import {applyVote, isStickiedModeratorPost, generateCommentHtml} from "./html-generators/html_generator.ts";
+import {
+  applyVote,
+  isStickiedModeratorPost,
+  generateCommentHtml,
+} from "./html-generators/html_generator.ts";
 import _request from "./Request";
 
 UserContext.init();

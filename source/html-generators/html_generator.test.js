@@ -1,14 +1,15 @@
 import {
-  authorTagHtml, generateCommentHtml,
+  authorTagHtml,
+  generateCommentHtml,
   nextReplyPromptHtml,
   voteTagHtml,
 } from "./html_generator";
-import {UserContext} from "../UserContext";
+import { UserContext } from "../UserContext";
 
 test("comment html should be empty for no comment json", () => {
   const userContext = defaultUserContext();
-  expect(generateCommentHtml(userContext)).toContain('Oops');
-  expect(generateCommentHtml(userContext, {})).toContain('Oops');
+  expect(generateCommentHtml(userContext)).toContain("Oops");
+  expect(generateCommentHtml(userContext, {})).toContain("Oops");
 });
 
 test("should render comment HTML with like on old reddit styles", () => {
@@ -23,16 +24,16 @@ test("should render comment HTML with like on old reddit styles", () => {
     score: 0,
     likes: 1, // We are testing for this too
     all_awardings: [],
-    replies: []
+    replies: [],
   };
   const listingData = {
-   author: "Someone else",
+    author: "Someone else",
   };
   const html = generateCommentHtml(userContext, commentJSON, listingData);
-  expect(html).toContain('THIS IS MY HTML');
-  expect(html).toContain('iampueroo');
-  expect(html).toContain('_rcomments_arrows likes'); // Indicates it was liked
-  expect(html).not.toContain(' submitter '); // Indicates not OP
+  expect(html).toContain("THIS IS MY HTML");
+  expect(html).toContain("iampueroo");
+  expect(html).toContain("_rcomments_arrows likes"); // Indicates it was liked
+  expect(html).not.toContain(" submitter "); // Indicates not OP
   expect(html).not.toContain('<a target="_blank" '); // Indicates not to open in new tabs
 });
 
@@ -48,14 +49,14 @@ test("should render unvoted comment HTML on old reddit styles", () => {
     score: 0,
     likes: 0,
     all_awardings: [],
-    replies: []
+    replies: [],
   };
   const listingData = {
     author: "Someone else",
   };
   const html = generateCommentHtml(userContext, commentJSON, listingData);
-  expect(html).not.toContain('_rcomments_arrows dislikes');
-  expect(html).not.toContain('_rcomments_arrows likes');
+  expect(html).not.toContain("_rcomments_arrows dislikes");
+  expect(html).not.toContain("_rcomments_arrows likes");
 });
 
 test("should render unliked comment HTML on old reddit styles", () => {
@@ -70,13 +71,13 @@ test("should render unliked comment HTML on old reddit styles", () => {
     score: 0,
     likes: -1,
     all_awardings: [],
-    replies: []
+    replies: [],
   };
   const listingData = {
     author: "Someone else",
   };
   const html = generateCommentHtml(userContext, commentJSON, listingData);
-  expect(html).toContain('_rcomments_arrows dislikes'); // Indicates it was disliked
+  expect(html).toContain("_rcomments_arrows dislikes"); // Indicates it was disliked
 });
 
 test("should not render arrows for new styles, even if logged in", () => {
@@ -91,13 +92,13 @@ test("should not render arrows for new styles, even if logged in", () => {
     score: 0,
     likes: 1, // We are testing for this too
     all_awardings: [],
-    replies: []
+    replies: [],
   };
   const listingData = {
     author: "iampueroo", // Same as commenter
   };
   const html = generateCommentHtml(userContext, commentJSON, listingData);
-  expect(html).not.toContain('_rcomments_arrows'); // Indicates it was liked
+  expect(html).not.toContain("_rcomments_arrows"); // Indicates it was liked
 });
 
 test("should render OP stylings", () => {
@@ -112,17 +113,17 @@ test("should render OP stylings", () => {
     score: 0,
     likes: 0,
     all_awardings: [],
-    replies: []
+    replies: [],
   };
   const listingData = {
     author: "iampueroo", // Same as commenter
   };
   const html = generateCommentHtml(userContext, commentJSON, listingData);
-  expect(html).toContain(' submitter '); // Indicates OP
+  expect(html).toContain(" submitter "); // Indicates OP
 });
 
 test("adds new tab target to anchor elements when desired", () => {
-  const userContext = new UserContext('loggedin', false, false, true);
+  const userContext = new UserContext("loggedin", false, false, true);
   const commentJSON = {
     id: "IDENTIFIER",
     author: "iampueroo",
@@ -133,13 +134,15 @@ test("adds new tab target to anchor elements when desired", () => {
     score: 0,
     likes: 0,
     all_awardings: [],
-    replies: []
+    replies: [],
   };
   const listingData = {
     author: "iampueroo", // Same as commenter
   };
   const html = generateCommentHtml(userContext, commentJSON, listingData);
-  expect(html).toContain('<a target="_blank" href=\'/target.html\'>Go here</a>'); // Indicates OP
+  expect(html).toContain(
+    "<a target=\"_blank\" href='/target.html'>Go here</a>"
+  ); // Indicates OP
 });
 
 test("author tag renders succesfully for admin and OP", () => {
@@ -174,7 +177,7 @@ test("next reply rendered succesfully when no replies are left", () => {
 });
 
 test("Vote tag renders succesfully", () => {
-  const userContext = new UserContext('', false, false, false);
+  const userContext = new UserContext("", false, false, false);
   const voteHtml = voteTagHtml(userContext, 201, 201);
   const expectedHTML =
     '<span><span class="score dislikes">200 points</span><span class="score unvoted">201 points</span><span class="score likes">202 points</span></span>';
@@ -182,7 +185,7 @@ test("Vote tag renders succesfully", () => {
 });
 
 test("should render old reddit styles awards", () => {
-  const userContext = new UserContext('loggedin', false, false, true);
+  const userContext = new UserContext("loggedin", false, false, true);
   const commentJSON = {
     id: "IDENTIFIER",
     author: "iampueroo",
@@ -190,22 +193,24 @@ test("should render old reddit styles awards", () => {
     all_awardings: [
       {
         icon_url: "http://example.com",
-      }
+      },
     ],
-    replies: []
+    replies: [],
   };
   const listingData = {
     author: "Someone else", // Same as commenter
   };
   const html = generateCommentHtml(userContext, commentJSON, listingData);
   // This test is to ensure that the example url is included
-  expect(html).toContain('<img alt="award" class="awarding-icon" src="http://example.com" style="max-width:16px" />');
+  expect(html).toContain(
+    '<img alt="award" class="awarding-icon" src="http://example.com" style="max-width:16px" />'
+  );
   // This test is to ensure the final count is hidden
   expect(html).toContain('<span class="_rcomments_awarding-count"></span>');
 });
 
 test("should render new reddit styles awards", () => {
-  const userContext = new UserContext('loggedin', true, false, true);
+  const userContext = new UserContext("loggedin", true, false, true);
   const commentJSON = {
     id: "IDENTIFIER",
     author: "iampueroo",
@@ -213,47 +218,50 @@ test("should render new reddit styles awards", () => {
     all_awardings: [
       {
         resized_icons: [
-            {
-              url: "http://example.com"
-            },
           {
-            url: "http://do-not-use-this-one.com"
+            url: "http://example.com",
+          },
+          {
+            url: "http://do-not-use-this-one.com",
           },
         ],
         count: 40,
-      }
+      },
     ],
-    replies: []
+    replies: [],
   };
   const listingData = {
     author: "Someone else", // Same as commenter
   };
   const html = generateCommentHtml(userContext, commentJSON, listingData);
   // This test is to ensure that the example url is included
-  expect(html).toContain('<img alt="award" class="awarding-icon" src="http://example.com" style="max-width:16px" />');
+  expect(html).toContain(
+    '<img alt="award" class="awarding-icon" src="http://example.com" style="max-width:16px" />'
+  );
   // This test is to ensure the final count is included
   expect(html).toContain('<span class="_rcomments_awarding-count">40</span>');
 });
 
 test("should render without error when no awardings passed in on new styles", () => {
-  const userContext = new UserContext('loggedin', true, false, true);
+  const userContext = new UserContext("loggedin", true, false, true);
   const commentJSON = {
     id: "IDENTIFIER",
     author: "iampueroo",
     body_html: "<a href='/target.html'>Go here</a>",
-    replies: []
+    replies: [],
   };
   const listingData = {
     author: "Someone else", // Same as commenter
   };
   const html = generateCommentHtml(userContext, commentJSON, listingData);
   // This test is to ensure that the example url is included
-  expect(html).not.toContain('awarding-icon');
+  expect(html).not.toContain("awarding-icon");
   commentJSON.all_awardings = [{}];
-  expect(generateCommentHtml(userContext, commentJSON, listingData)).not.toContain('awarding-icon');
-
+  expect(
+    generateCommentHtml(userContext, commentJSON, listingData)
+  ).not.toContain("awarding-icon");
 });
 
 function defaultUserContext(newStyle) {
-  return new UserContext('loggedin', newStyle, false, false);
+  return new UserContext("loggedin", newStyle, false, false);
 }
