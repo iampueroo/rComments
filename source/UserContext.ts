@@ -1,24 +1,4 @@
-import { OldUserContext } from "./types/types";
 import _request from "./Request";
-
-export async function get(): Promise<OldUserContext> {
-  const response = await getData();
-  const isLoggedIn = Boolean(
-    response && response.data && response.data.modhash
-  );
-  const modhash = isLoggedIn ? response.data.modhash : "";
-  const prefersNightmode = isLoggedIn
-    ? response.data.pref_nightmode
-    : extractNightModeFromStyles();
-  const preferNewTab = prefersOpenLinksInNewTab();
-  return {
-    isLoggedIn,
-    modhash,
-    prefersNightmode,
-    preferNewTab,
-    isNewStyle: UserContext.get().usesNewStyles(),
-  };
-}
 
 export class UserContext {
   static singleton: UserContext | undefined;
@@ -43,12 +23,11 @@ export class UserContext {
       extractNightModeFromStyles(),
       prefersOpenLinksInNewTab()
     );
-    console.log(`rComments: User initiated`, this.singleton);
     getData().then((response) => {
       const modhash = response?.data?.modhash;
       if (modhash) {
         this.singleton.modhash = modhash;
-        const dataPrefersNightMode = response.data.prefersNightmode;
+        const dataPrefersNightMode = response.data.pref_nightmode || false;
         this.singleton._prefersNightmode =
           dataPrefersNightMode || this.singleton._prefersNightmode;
         console.log(

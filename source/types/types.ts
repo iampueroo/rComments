@@ -41,10 +41,3 @@ export type Context = {
   doesOpenLinksInNewTab: boolean;
 };
 
-export type OldUserContext = {
-  isLoggedIn: boolean;
-  isNewStyle: boolean;
-  modhash: string;
-  prefersNightmode: boolean;
-  preferNewTab: boolean;
-};
