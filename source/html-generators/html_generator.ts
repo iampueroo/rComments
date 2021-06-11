@@ -151,7 +151,7 @@ export function voteTagHtml(
 
 export function awardsHtml(
   userContext: UserContext,
-  allAwardings: Award[]
+  allAwardings: Award[] = []
 ): string {
   const isNew = userContext.usesNewStyles();
   const awards = allAwardings
@@ -171,7 +171,7 @@ export function awardsHtml(
       const img = new Image();
       img.src = iconSrc;
       return `<span class="awarding-icon-container">
-				<img alt="award" class="awarding-icon" src="${iconSrc}" style="max-width:16px">
+				<img alt="award" class="awarding-icon" src="${iconSrc}" style="max-width:16px" />
 				<span class="${DOM.classed("awarding-count")}">${c}</span>
 				</span>`;
     })
