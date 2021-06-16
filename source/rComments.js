@@ -468,8 +468,9 @@ UserContext.init();
         timeout: 4000,
       })
         .then(this.showComment.bind(this))
-        .then((commentJSON) => {
-          if (isStickiedModeratorPost(commentJSON)) {
+        .then(({commentJson, isLastReply} = {}) => {
+          // CAREFUL: commentJson may be undefined!!!
+          if (commentJson && commentJson.id && !isLastReply && isStickiedModeratorPost(commentJson)) {
             const parentElement = this.view.getPopup();
             this.view.loading(parentElement);
             const params = Object.assign({}, requestData.params);
@@ -562,10 +563,12 @@ UserContext.init();
         return null;
       }
       const { commentJson, isLastReply, commentId, url, el } = data;
+      // Careful, commentJSON and id may be null here
+      // TODO: add types here to identify possible bugs.
       this.view.show(el, commentJson, this.model.currentListing);
       this.view.updateParentComment(el, isLastReply);
       this.updateCache(url, commentId);
-      return commentJson;
+      return { commentJson, isLastReply };
     },
 
     handleCommentFail(el) {
