@@ -137,11 +137,11 @@ export function authorTagHtml(
   isOp: boolean,
   isAdmin: boolean,
   isStickied = false,
-  isMod: boolean = false,
+  isMod: boolean = false
 ): string {
   const op = isOp ? "submitter" : "";
   const admin = isAdmin ? "admin" : "";
-  const mod = isMod ? "moderator " : '';
+  const mod = isMod ? "moderator " : "";
   let stickied = isStickied
     ? `<span class="stickied-tagline ${DOM.classed(
         "stickied"
@@ -150,18 +150,18 @@ export function authorTagHtml(
   if (stickied && userContext.usesNewStyles()) {
     stickied = `<span>&nbsp·&nbsp</span>` + stickied;
   }
-  const modTag = isMod ? getModeratorTagHtml(userContext) : '';
+  const modTag = isMod ? getModeratorTagHtml(userContext) : "";
   return `<a class="author ${op} ${admin} ${mod}${DOM.classed(
     "author"
   )}" href="/user/${author}">${author}</a>${modTag}${stickied}`;
 }
 
-function getModeratorTagHtml(userContext: UserContext) : string {
+function getModeratorTagHtml(userContext: UserContext): string {
   if (!userContext.usesNewStyles()) {
     // TODO: add link to subreddit's moderator page
     return "[M]&nbsp";
   }
-  return `&nbsp<span class="${DOM.classed('mod')}">MOD</span>`;
+  return `&nbsp<span class="${DOM.classed("mod")}">MOD</span>`;
 }
 
 export function nextReplyPromptHtml(hasMoreReplies: boolean) {

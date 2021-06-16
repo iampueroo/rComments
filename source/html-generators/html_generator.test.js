@@ -130,14 +130,14 @@ test("should render moderator tag html for old reddit", () => {
   const isSticked = false;
   const isModerator = true;
   const html =
-      '<a class="author   moderator _rcomments_author" href="/user/iampueroo">iampueroo</a>[M]&nbsp';
+    '<a class="author   moderator _rcomments_author" href="/user/iampueroo">iampueroo</a>[M]&nbsp';
   const testHtml = authorTagHtml(
-      defaultUserContext(false),
-      author,
-      isOp,
-      isAdmin,
-      isSticked,
-      isModerator
+    defaultUserContext(false),
+    author,
+    isOp,
+    isAdmin,
+    isSticked,
+    isModerator
   );
   expect(testHtml).toBe(html);
 });
@@ -149,14 +149,14 @@ test("should render moderator tag html for new reddit", () => {
   const isSticked = false;
   const isModerator = true;
   const html =
-      '<a class="author   moderator _rcomments_author" href="/user/iampueroo">iampueroo</a>&nbsp<span class="_rcomments_mod">MOD</span>';
+    '<a class="author   moderator _rcomments_author" href="/user/iampueroo">iampueroo</a>&nbsp<span class="_rcomments_mod">MOD</span>';
   const testHtml = authorTagHtml(
-      defaultUserContext(true),
-      author,
-      isOp,
-      isAdmin,
-      isSticked,
-      isModerator
+    defaultUserContext(true),
+    author,
+    isOp,
+    isAdmin,
+    isSticked,
+    isModerator
   );
   expect(testHtml).toBe(html);
 });
