@@ -11,24 +11,42 @@ export function generateCommentHtml(
     return noReplyHtml();
   }
   const isStickiedModPost = isStickiedModeratorPost(comment);
-  const tagline = taglineHtml(context, comment, listing);
-  const arrows =
-    context.isLoggedIn() && !context.usesNewStyles()
-      ? getArrowHtml(comment)
-      : "";
   return `
 		<div id="${comment.id}" class="${DOM.classed("comment comment thing")} ${
     isStickiedModPost ? DOM.classed("automod-comment") : ""
   }">
-			${arrows}
+		  ${getArrowHtml(context, comment)}	
 			<div class="entry ${DOM.classed("entry")}">	
-				${tagline}
-				${generateBodyHtml(context, comment.body_html)}
+			  ${commentContentHtml(context, comment, listing)}
 				${nextReplyPromptHtml(!!comment.replies)}
 				<div class="children"></div>
-				</div>
+			</div>
 		</div>
 	`;
+}
+
+function commentContentHtml(
+  userContext: UserContext,
+  comment: CommentData,
+  listing: ListingData
+): string {
+  const innerHTML = `
+  ${taglineHtml(userContext, comment, listing)}
+  ${generateBodyHtml(userContext, comment.body_html)}
+  `;
+  if (isStickiedModeratorPost(comment)) {
+    return `
+						<span class="${DOM.classed(
+              "automod-comment-txt"
+            )}">ℹ️ Stickied automod post by <span class="author ${DOM.classed(
+      "author"
+    )}">${comment.author}</span> hidden by default. </span>
+						<span class="${DOM.classed("automod-comment-toggle")}">Click here to view</span>
+						<span class="${DOM.classed("hidden")} ${DOM.classed(
+      "automod-real-txt"
+    )}">${innerHTML}</span>`;
+  }
+  return innerHTML;
 }
 
 export function applyVote(
@@ -69,7 +87,14 @@ export function applyVote(
   return arrows;
 }
 
-function getArrowHtml(commentData: CommentData): string {
+function getArrowHtml(
+  userContext: UserContext,
+  commentData: CommentData
+): string {
+  if (!userContext.isLoggedIn() || userContext.usesNewStyles()) {
+    // Only show arrows when logged in on old Reddit styles
+    return "";
+  }
   const arrowDiv = window.document.createElement("div");
   const arrowUp = window.document.createElement("div");
   const arrowDown = window.document.createElement("div");
