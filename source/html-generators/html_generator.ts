@@ -175,8 +175,6 @@ export function voteTagHtml(
   userContext: UserContext,
   commentData: CommentData
 ) {
-  const votes = commentData.ups - commentData.downs;
-  const score = commentData.score;
   if (isStickied(commentData)) {
     // Stickied comments' vote totals are only visible to moderators
     return "";
@@ -184,8 +182,9 @@ export function voteTagHtml(
   if (userContext.usesNewStyles()) {
     return `<span class="score unvoted ${DOM.classed(
       "score"
-    )}">${score} points</span>`;
+    )}">${commentData.score} points</span>`;
   }
+  const votes = commentData.ups - commentData.downs;
   const unvoted = `<span class="score unvoted">${votes} points</span>`;
   const likes = `<span class="score likes">${votes + 1} points</span>`;
   const dislikes = `<span class="score dislikes">${votes - 1} points</span>`;
