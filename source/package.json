@@ -8,28 +8,37 @@
     "dev": "webpack --config webpack.config.js --watch --mode development",
     "build-js": "webpack --mode production",
     "build-css": "cleancss rComments.css -o ./dist/rComments.css",
-    "build": "yarn run test && mkdir -p dist && cp -R static/* dist && yarn run build-js && yarn run build-css",
+    "build": "yarn run lint && mkdir -p dist && cp -R static/* dist && yarn run build-js && yarn run build-css",
     "zip-chrome": "yarn run build && zip -r ../chrome-extension.zip dist",
     "zip-firefox": "yarn run build && cd dist && zip -r -FS ../firefox-extension.zip *",
-    "test": "eslint rComments.js",
-    "fix": "eslint rComments.js --fix"
+    "test": "jest",
+    "lint": "eslint rComments.js",
+    "fix": "eslint rComments.js --fix",
+    "prettier-fix": "yarn prettier --write ."
   },
   "author": "Ignacio Ampuero",
   "license": "ISC",
   "devDependencies": {
-    "babel-cli": "^6.18.0",
-    "babili": "0.0.8",
+    "@babel/core": "^7.14.3",
+    "@babel/polyfill": "^7.12.1",
+    "@babel/preset-env": "^7.14.4",
+    "@babel/preset-es2015": "^7.0.0-beta.53",
+    "@babel/preset-typescript": "^7.14.5",
+    "babel-loader": "^8.2.2",
     "clean-css-cli": "^4.3.0",
     "eslint": "^4.18.2",
     "eslint-config-airbnb": "^13.0.0",
     "eslint-config-airbnb-base": "^11.0.0",
+    "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-jsx-a11y": "^2.2.3",
     "eslint-plugin-react": "^6.8.0",
+    "jest": "^27.0.4",
+    "prettier": "2.3.1",
+    "ts-loader": "^9.2.3",
+    "typescript": "^4.3.2",
+    "webpack": "^5.38.1",
     "webpack-cli": "^3.3.11"
   },
-  "dependencies": {
-    "jest": "^26.0.1",
-    "webpack": "^4.43.0"
-  }
+  "dependencies": {}
 }
