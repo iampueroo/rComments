@@ -133,7 +133,8 @@ function taglineHtml(
     json.author,
     isOP(json, listing),
     isAdmin(json),
-    isStickied(json)
+    isStickied(json),
+    isMod(json)
   );
   const voteHtml = voteTagHtml(userContext, json);
   const gildedHtml = awardsHtml(userContext, json.all_awardings);
@@ -153,10 +154,12 @@ export function authorTagHtml(
   author: string,
   isOp: boolean,
   isAdmin: boolean,
-  isStickied = false
+  isStickied = false,
+  isMod: boolean = false,
 ): string {
   const op = isOp ? "submitter" : "";
   const admin = isAdmin ? "admin" : "";
+  const mod = isMod ? "moderator " : '';
   let stickied = isStickied
     ? `<span class="stickied-tagline ${DOM.classed(
         "stickied"
@@ -165,9 +168,18 @@ export function authorTagHtml(
   if (stickied && userContext.usesNewStyles()) {
     stickied = `<span>&nbsp·&nbsp</span>` + stickied;
   }
-  return `<a class="author ${op} ${admin} ${DOM.classed(
+  const modTag = isMod ? getModeratorTagHtml(userContext) : '';
+  return `<a class="author ${op} ${admin} ${mod}${DOM.classed(
     "author"
-  )}" href="/user/${author}">${author}</a>${stickied}`;
+  )}" href="/user/${author}">${author}</a>${modTag}${stickied}`;
+}
+
+function getModeratorTagHtml(userContext: UserContext) : string {
+  if (!userContext.usesNewStyles()) {
+    // TODO: add link to subreddit's moderator page
+    return "[M]&nbsp";
+  }
+  return `&nbsp<span class="${DOM.classed('mod')}">MOD</span>`;
 }
 
 export function nextReplyPromptHtml(hasMoreReplies: boolean) {
@@ -235,11 +247,15 @@ export function awardsHtml(
  * @param json
  */
 export function isStickiedModeratorPost(json: CommentData): boolean {
-  return json.distinguished === "moderator" && isStickied(json);
+  return isMod(json) && isStickied(json);
 }
 
 export function isStickied(json: CommentData): boolean {
   return json.stickied === true;
+}
+
+export function isMod(json: CommentData): boolean {
+  return json.distinguished === "moderator";
 }
 
 function isOP(commentData: CommentData, listingData: ListingData): boolean {

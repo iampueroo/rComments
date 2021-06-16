@@ -203,6 +203,11 @@
   color: rgb(7, 115, 102);
 }
 
+._rcomments_new_reddit_styles ._rcomments_mod {
+  color: #46D160;
+  font-weight: bold;
+}
+
 ._rcomments_new_reddit_styles ._rcomments_stickied {
   color: #75d377;
 }

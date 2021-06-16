@@ -123,6 +123,44 @@ test("stickied comments should not render arrows or vote totals", () => {
   expect(html).not.toContain("arrows");
 });
 
+test("should render moderator tag html for old reddit", () => {
+  const author = "iampueroo";
+  const isOp = false;
+  const isAdmin = false;
+  const isSticked = false;
+  const isModerator = true;
+  const html =
+      '<a class="author   moderator _rcomments_author" href="/user/iampueroo">iampueroo</a>[M]&nbsp';
+  const testHtml = authorTagHtml(
+      defaultUserContext(false),
+      author,
+      isOp,
+      isAdmin,
+      isSticked,
+      isModerator
+  );
+  expect(testHtml).toBe(html);
+});
+
+test("should render moderator tag html for new reddit", () => {
+  const author = "iampueroo";
+  const isOp = false;
+  const isAdmin = false;
+  const isSticked = false;
+  const isModerator = true;
+  const html =
+      '<a class="author   moderator _rcomments_author" href="/user/iampueroo">iampueroo</a>&nbsp<span class="_rcomments_mod">MOD</span>';
+  const testHtml = authorTagHtml(
+      defaultUserContext(true),
+      author,
+      isOp,
+      isAdmin,
+      isSticked,
+      isModerator
+  );
+  expect(testHtml).toBe(html);
+});
+
 test("should render OP stylings", () => {
   const userContext = defaultUserContext();
   const commentJSON = {
