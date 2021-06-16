@@ -126,7 +126,7 @@ UserContext.init();
 
     hidePopup() {
       if (this._popup) {
-        // this._popup.style.display = 'none';
+        this._popup.style.display = "none";
       }
     },
 
