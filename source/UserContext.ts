@@ -30,11 +30,6 @@ export class UserContext {
         const dataPrefersNightMode = response.data.pref_nightmode || false;
         this.singleton._prefersNightmode =
           dataPrefersNightMode || this.singleton._prefersNightmode;
-        console.log(
-          `rComments: User signed in with modhash ${modhash} and nightmode ${dataPrefersNightMode}`
-        );
-      } else {
-        console.log(`rComments: User not signed in`);
       }
     });
   }
