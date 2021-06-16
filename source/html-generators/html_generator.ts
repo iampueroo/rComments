@@ -38,12 +38,12 @@ function commentContentHtml(
     return `
     <span class="${DOM.classed(
       "automod-comment-txt"
-    )}">ℹ️ Stickied automod post by <span class="author ${DOM.classed(
+    )}">ℹ️&nbsp&nbspStickied automod post by <span class="author ${DOM.classed(
       "author"
-    )}">${comment.author}</span> hidden by default. </span>
+    )}">${comment.author}</span> hidden by default.&nbsp</span>
     <span class="${DOM.classed(
       "automod-comment-toggle"
-    )}">Click here to view</span>
+    )}">Click here to view.</span>
     <span class="${DOM.classed("hidden")} ${DOM.classed(
       "automod-real-txt"
     )}">${innerHTML}</span>`;
