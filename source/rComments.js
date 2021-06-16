@@ -1,4 +1,4 @@
-import * as DOM from "./dom/DOM";
+import * as DOM from "./dom/DOM.ts";
 import { UserContext } from "./UserContext.ts";
 import {
   applyVote,
