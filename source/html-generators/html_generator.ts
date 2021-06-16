@@ -36,13 +36,15 @@ function commentContentHtml(
   `;
   if (isStickiedModeratorPost(comment)) {
     return `
-						<span class="${DOM.classed(
-              "automod-comment-txt"
-            )}">ℹ️ Stickied automod post by <span class="author ${DOM.classed(
+    <span class="${DOM.classed(
+      "automod-comment-txt"
+    )}">ℹ️ Stickied automod post by <span class="author ${DOM.classed(
       "author"
     )}">${comment.author}</span> hidden by default. </span>
-						<span class="${DOM.classed("automod-comment-toggle")}">Click here to view</span>
-						<span class="${DOM.classed("hidden")} ${DOM.classed(
+    <span class="${DOM.classed(
+      "automod-comment-toggle"
+    )}">Click here to view</span>
+    <span class="${DOM.classed("hidden")} ${DOM.classed(
       "automod-real-txt"
     )}">${innerHTML}</span>`;
   }
