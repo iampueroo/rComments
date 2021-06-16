@@ -10,11 +10,8 @@ export function generateCommentHtml(
   if (!comment || !comment.id) {
     return noReplyHtml();
   }
-  const isStickiedModPost = isStickiedModeratorPost(comment);
   return `
-		<div id="${comment.id}" class="${DOM.classed("comment comment thing")} ${
-    isStickiedModPost ? DOM.classed("automod-comment") : ""
-  }">
+		<div id="${comment.id}" class="${DOM.classed("comment comment thing")}">
 		  ${getArrowHtml(context, comment)}	
 			<div class="entry ${DOM.classed("entry")}">	
 			  ${commentContentHtml(context, comment, listing)}
@@ -30,25 +27,10 @@ function commentContentHtml(
   comment: CommentData,
   listing: ListingData
 ): string {
-  const innerHTML = `
+  return `
   ${taglineHtml(userContext, comment, listing)}
   ${generateBodyHtml(userContext, comment.body_html)}
   `;
-  if (isStickiedModeratorPost(comment)) {
-    return `
-    <span class="${DOM.classed(
-      "automod-comment-txt"
-    )}">ℹ️&nbsp&nbspStickied automod post by <span class="author ${DOM.classed(
-      "author"
-    )}">${comment.author}</span> hidden by default.&nbsp</span>
-    <span class="${DOM.classed(
-      "automod-comment-toggle"
-    )}">Click here to view.</span>
-    <span class="${DOM.classed("hidden")} ${DOM.classed(
-      "automod-real-txt"
-    )}">${innerHTML}</span>`;
-  }
-  return innerHTML;
 }
 
 export function applyVote(

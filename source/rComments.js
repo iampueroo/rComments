@@ -414,11 +414,6 @@ UserContext.init();
         ) {
           e.stopImmediatePropagation();
           e.target.classList.add("revealed");
-        } else if (
-          e.target.className === DOM.classed("automod-comment-toggle")
-        ) {
-          e.stopImmediatePropagation();
-          this.handleAutomodComment(e.target);
         }
         return false;
       });
@@ -662,23 +657,6 @@ UserContext.init();
       _request(VOTE_URL, { type: "POST", data });
       applyVote(arrow.parentElement, dir);
       this.updateCache(url, commentId);
-    },
-
-    handleAutomodComment(element) {
-      const parentComment = DOM.getFirstParent(
-        element,
-        `.${DOM.classed("comment")}`
-      );
-      const automodRealCommentWrapper = parentComment.querySelector(
-        `.${DOM.classed("automod-real-txt")}`
-      );
-      const automodCommentTextWarning = parentComment.querySelector(
-        `.${DOM.classed("automod-comment-txt")}`
-      );
-      parentComment.classList.remove(DOM.classed("automod-comment"));
-      automodCommentTextWarning.remove();
-      element.remove();
-      automodRealCommentWrapper.classList.remove(DOM.classed("hidden"));
     },
   };
 
