@@ -93,8 +93,13 @@ function getArrowHtml(
   userContext: UserContext,
   commentData: CommentData
 ): string {
-  if (!userContext.isLoggedIn() || userContext.usesNewStyles()) {
-    // Only show arrows when logged in on old Reddit styles
+  if (
+    !userContext.isLoggedIn() ||
+    userContext.usesNewStyles() ||
+    isStickied(commentData)
+  ) {
+    // Only show arrows when logged in on old Reddit styles.
+    // Stickied comments do not show arrows - they are only viewable by admins
     return "";
   }
   const arrowDiv = window.document.createElement("div");
@@ -124,11 +129,13 @@ function taglineHtml(
   listing: ListingData
 ) {
   const authorHtml = authorTagHtml(
+    userContext,
     json.author,
     isOP(json, listing),
-    isAdmin(json)
+    isAdmin(json),
+    isStickied(json)
   );
-  const voteHtml = voteTagHtml(userContext, json.ups - json.downs, json.score);
+  const voteHtml = voteTagHtml(userContext, json);
   const gildedHtml = awardsHtml(userContext, json.all_awardings);
   return `<div class="tagline ${DOM.classed(
     "tagline"
@@ -142,15 +149,25 @@ export function noReplyHtml() {
 }
 
 export function authorTagHtml(
+  userContext: UserContext,
   author: string,
   isOp: boolean,
-  isAdmin: boolean
+  isAdmin: boolean,
+  isStickied = false
 ): string {
   const op = isOp ? "submitter" : "";
   const admin = isAdmin ? "admin" : "";
+  let stickied = isStickied
+    ? `<span class="stickied-tagline ${DOM.classed(
+        "stickied"
+      )}">stickied comment</span>`
+    : "";
+  if (stickied && userContext.usesNewStyles()) {
+    stickied = `<span>&nbsp·&nbsp</span>` + stickied;
+  }
   return `<a class="author ${op} ${admin} ${DOM.classed(
     "author"
-  )}" href="/user/${author}">${author}</a>`;
+  )}" href="/user/${author}">${author}</a>${stickied}`;
 }
 
 export function nextReplyPromptHtml(hasMoreReplies: boolean) {
@@ -162,9 +179,14 @@ export function nextReplyPromptHtml(hasMoreReplies: boolean) {
 
 export function voteTagHtml(
   userContext: UserContext,
-  votes: number,
-  score: number
+  commentData: CommentData
 ) {
+  const votes = commentData.ups - commentData.downs;
+  const score = commentData.score;
+  if (isStickied(commentData)) {
+    // Stickied comments' vote totals are only visible to moderators
+    return "";
+  }
   if (userContext.usesNewStyles()) {
     return `<span class="score unvoted ${DOM.classed(
       "score"
@@ -213,7 +235,11 @@ export function awardsHtml(
  * @param json
  */
 export function isStickiedModeratorPost(json: CommentData): boolean {
-  return json.stickied === true && json.distinguished === "moderator";
+  return json.distinguished === "moderator" && isStickied(json);
+}
+
+export function isStickied(json: CommentData): boolean {
+  return json.stickied === true;
 }
 
 function isOP(commentData: CommentData, listingData: ListingData): boolean {

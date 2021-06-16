@@ -203,6 +203,10 @@
   color: rgb(7, 115, 102);
 }
 
+._rcomments_new_reddit_styles ._rcomments_stickied {
+  color: #75d377;
+}
+
 ._rcomments_new_reddit_styles ._rcomments_score {
   color: rgb(124, 124, 124);
   padding-left: 8px;

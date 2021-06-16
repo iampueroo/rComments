@@ -101,6 +101,28 @@ test("should not render arrows for new styles, even if logged in", () => {
   expect(html).not.toContain("_rcomments_arrows"); // Indicates it was liked
 });
 
+test("stickied comments should not render arrows or vote totals", () => {
+  const userContext = defaultUserContext(false);
+  const commentJSON = {
+    id: "IDENTIFIER",
+    author: "iampueroo",
+    stickied: true,
+    body_html: "THIS IS MY HTML",
+    ups: 100,
+    downs: 50,
+    score: 0,
+    likes: 1,
+    all_awardings: [],
+    replies: [],
+  };
+  const listingData = {
+    author: "AutoModerator",
+  };
+  const html = generateCommentHtml(userContext, commentJSON, listingData);
+  expect(html).not.toContain("score");
+  expect(html).not.toContain("arrows");
+});
+
 test("should render OP stylings", () => {
   const userContext = defaultUserContext();
   const commentJSON = {
@@ -151,7 +173,44 @@ test("author tag renders succesfully for admin and OP", () => {
   const isAdmin = true;
   const html =
     '<a class="author submitter admin _rcomments_author" href="/user/iampueroo">iampueroo</a>';
-  expect(authorTagHtml(author, isOp, isAdmin)).toBe(html);
+  expect(authorTagHtml(defaultUserContext(false), author, isOp, isAdmin)).toBe(
+    html
+  );
+});
+
+test("stickied author tag renders with 'sticked comment' span", () => {
+  const author = "iampueroo";
+  const isOp = false;
+  const isAdmin = false;
+  const isSticked = true;
+  const html =
+    '<a class="author   _rcomments_author" href="/user/iampueroo">iampueroo</a><span class="stickied-tagline _rcomments_stickied">stickied comment</span>';
+  const testHtml = authorTagHtml(
+    defaultUserContext(false),
+    author,
+    isOp,
+    isAdmin,
+    isSticked
+  );
+  expect(testHtml).toBe(html);
+  expect(testHtml).not.toContain("·"); // The · divider is only on new Reddit
+});
+
+test("stickied author tag renders with 'sticked comment' span and divider on new reddit", () => {
+  const author = "iampueroo";
+  const isOp = false;
+  const isAdmin = false;
+  const isSticked = true;
+  const html =
+    '<a class="author   _rcomments_author" href="/user/iampueroo">iampueroo</a><span>&nbsp·&nbsp</span><span class="stickied-tagline _rcomments_stickied">stickied comment</span>';
+  const testHtml = authorTagHtml(
+    defaultUserContext(true),
+    author,
+    isOp,
+    isAdmin,
+    isSticked
+  );
+  expect(testHtml).toBe(html);
 });
 
 test("author tag renders sucessfully", () => {
@@ -161,7 +220,9 @@ test("author tag renders sucessfully", () => {
   // double space whatever
   const html =
     '<a class="author   _rcomments_author" href="/user/iampueroo">iampueroo</a>';
-  expect(authorTagHtml(author, isOp, isAdmin)).toBe(html);
+  expect(authorTagHtml(defaultUserContext(false), author, isOp, isAdmin)).toBe(
+    html
+  );
 });
 
 test("next reply rendered succesfully when no replies are left", () => {
@@ -178,7 +239,12 @@ test("next reply rendered succesfully when no replies are left", () => {
 
 test("Vote tag renders succesfully", () => {
   const userContext = new UserContext("", false, false, false);
-  const voteHtml = voteTagHtml(userContext, 201, 201);
+  const commentData = {
+    ups: 400,
+    downs: 199,
+    score: 201,
+  };
+  const voteHtml = voteTagHtml(userContext, commentData);
   const expectedHTML =
     '<span><span class="score dislikes">200 points</span><span class="score unvoted">201 points</span><span class="score likes">202 points</span></span>';
   expect(voteHtml).toBe(expectedHTML);
