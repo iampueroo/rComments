@@ -338,7 +338,6 @@ UserContext.init();
   const rCommentsController = {
     model: rCommentsModel,
     view: rCommentsView,
-    go: false,
     disableRequest: false,
 
     init() {
@@ -601,14 +600,15 @@ UserContext.init();
         // Label on the button is "comments" (old reddit's no comments flag)
         return;
       }
-      this.go = true;
-      setTimeout(() => {
-        if (this.go) this.renderCommentFromElement(commentAnchor, true);
+      clearTimeout(this.timeoutId);
+      const timeoutId = setTimeout(() => {
+        this.renderCommentFromElement(commentAnchor, true);
       }, 250);
+      this.timeoutId = timeoutId;
     },
 
     handleAnchorMouseLeave(e, prevPageY) {
-      this.go = false;
+      clearTimeout(this.timeoutId);
 
       if (prevPageY >= e.pageY) {
         // If leaving through the side or top, cancel any request
