@@ -4,7 +4,8 @@
     "no-param-reassign": 0,
     "space-before-function-paren": 0,
     "no-plusplus": 0,
-    "no-use-before-define": ["error", { "functions": false }]
+    "no-use-before-define": ["error", { "functions": false }],
+    "import/extensions": 0
   },
   "settings": {
     "import/resolver": {
@@ -17,5 +18,6 @@
     "browser": true
   },
   "extends": ["airbnb-base", "prettier"],
-  "plugins": ["import"]
+  "plugins": ["import"],
+  "parser": "@typescript-eslint/parser"
 }

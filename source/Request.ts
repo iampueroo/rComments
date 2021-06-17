@@ -1,8 +1,24 @@
+export type RequestOptions<T> = {
+  url: string;
+  type?: string;
+  data: T;
+  timeout?: number;
+}
+
 // screw you jQuery
-export default function _request(url, options = {}) {
-  if (typeof url === "object") {
-    options = url;
+export default function _request<T>(_url: string|RequestOptions<T>, _options: RequestOptions<T>|null = null) {
+  let url: string;
+  let options: RequestOptions<T>;
+  if (typeof _url === "object") {
+    options = _url;
     url = options.url;
+  } else {
+    url = _url;
+    options = _options || {
+     url,
+     type: 'GET',
+     data: null,
+    };
   }
   const type = options.type || "GET";
   const isPostRequest = type === "POST";
@@ -56,6 +72,7 @@ export default function _request(url, options = {}) {
   });
   promises.push(requestPromise);
   const masterPromise = Promise.race(promises);
+  // @ts-ignore TODO
   masterPromise.abort = function abort() {
     controller.abort();
   };

@@ -1,11 +1,8 @@
-import * as DOM from "./dom/DOM.ts";
-import { UserContext } from "./UserContext.ts";
-import {
-  applyVote,
-  isStickiedModeratorPost,
-  generateCommentHtml,
-} from "./html-generators/html_generator.ts";
-import _request from "./Request";
+import * as DOM from "./dom/DOM";
+import {UserContext} from "./UserContext";
+import {applyVote, generateCommentHtml, isStickiedModeratorPost,} from "./html-generators/html_generator";
+import _request, {RequestOptions, RequestType} from "./Request";
+import {CommentData, CommentResponseData, ExtractedCommentData, Obj, RequestData, RequestParams} from "./types/types";
 
 UserContext.init();
 
@@ -219,10 +216,10 @@ UserContext.init();
     commentStatus: {},
     currentListing: {},
 
-    getRequestData(url, commentId) {
+    getRequestData(url: string, commentId: string) : RequestData {
       const params = this.requestParams(url, commentId);
 
-      const data = {
+      const data : RequestData = {
         url,
         params,
       };
@@ -241,9 +238,9 @@ UserContext.init();
      * @param commentId
      * @returns {*}
      */
-    requestParams(url, commentId) {
+    requestParams(url: string, commentId: string|null) : RequestParams {
       const key = this.genKey(url, commentId);
-      let params = Object.assign({}, this.commentStatus[key] || {});
+      let params : RequestParams = Object.assign({}, this.commentStatus[key] || {});
 
       if (!params.sort) {
         // Initial request parameters
@@ -253,7 +250,6 @@ UserContext.init();
           limit: commentId ? 1 : 0, // Incremented below
           sort: "top",
         };
-
         if (commentId) params.comment = commentId;
       }
 
@@ -263,7 +259,7 @@ UserContext.init();
       return params;
     },
 
-    registerComment(url, data, commentId) {
+    registerComment(url: string, data, commentId: string|null) : ExtractedCommentData|false {
       const key = this.genKey(url, commentId);
       const params = this.requestParams(url, commentId);
       const listingJson = this.extractListingJson(data);
@@ -279,7 +275,7 @@ UserContext.init();
       return data[0].data.children[0].data;
     },
 
-    extractCommentData(data, params) {
+    extractCommentData(data: Obj, params: RequestParams) : ExtractedCommentData|null {
       const isCommentReply = params.depth === 2;
       const commentIndex = params.commentIndex;
       let commentList = data[1].data.children;
@@ -303,7 +299,7 @@ UserContext.init();
       };
     },
 
-    genKey(url, commentId) {
+    genKey(url: string, commentId: string|null) {
       url = this.cleanUrl(url);
       return commentId ? url + commentId : url;
     },
@@ -313,7 +309,7 @@ UserContext.init();
       return listing ? listing.permalink : this.currentListing.permalink;
     },
 
-    cache(url, args) {
+    cache(url: string, args: CachedContent = null) : CachedContent {
       url = this.cleanUrl(url);
 
       if (args) {
@@ -323,14 +319,14 @@ UserContext.init();
       return this.htmlCache[url];
     },
 
-    setCurrentListing(commentId, data) {
+    setCurrentListing(commentId, data = null) {
       if (data) {
         this.listingCache[commentId] = data;
       }
       this.currentListing = this.listingCache[commentId];
     },
 
-    cleanUrl(url) {
+    cleanUrl(url: string) {
       return url.slice(url.indexOf("/r/")); // Ok now I'm getting sloppy.
     },
   };
@@ -341,14 +337,15 @@ UserContext.init();
     disableRequest: false,
 
     init() {
-      let active = false;
-      let yPos = false;
+      let active : HTMLAnchorElement|false = false;
+      let yPos : number|false = false;
 
-      function isValidCommentAnchor(element = {}) {
-        const a = element.nodeName === "A" ? element : false;
-        if (!a) {
+      function isValidCommentAnchor(element: Node) : boolean {
+        const isAnchor = element.nodeName === "A";
+        if (!isAnchor) {
           return false;
         }
+        const a = element as HTMLAnchorElement;
         const validAttributeMap = {
           class: /((\s|^)comments(\s|$)|(\s|^)search-comments(\s|$))/,
           "data-click-id": /(\s|^)comments(\s|$)/,
@@ -365,11 +362,13 @@ UserContext.init();
         return false;
       }
 
-      window.document.body.addEventListener("mousemove", (e) => {
-        let a = isValidCommentAnchor(e.target) ? e.target : null;
-        if (!a && e.target) {
-          a = isValidCommentAnchor(e.target.parentElement)
-            ? e.target.parentElement
+      window.document.body.addEventListener("mousemove", (e: MouseEvent) => {
+        const target = e.target as HTMLElement;
+        const isCommentAnchor = isValidCommentAnchor(target);
+        let a = (isCommentAnchor ? target : null) as HTMLAnchorElement;
+        if (!a && target) {
+          a = isValidCommentAnchor(target.parentElement as HTMLElement)
+            ? target.parentElement as HTMLAnchorElement
             : null;
         }
         if (!active && !a) {
@@ -384,7 +383,7 @@ UserContext.init();
         if (!active && a) {
           this.registerPopup(); // Lazily build and register popup
           // Hovering over anchor for the first tme
-          active = e.target;
+          active = a;
           yPos = e.pageY;
           this.handleAnchorMouseEnter(a);
         } else if (active) {
@@ -431,7 +430,7 @@ UserContext.init();
       return false;
     },
 
-    renderCommentFromElement(el, init) {
+    renderCommentFromElement(el, init = false) {
       if (this.request) return;
 
       // If not first comment, find first parent "thing" div
@@ -467,9 +466,16 @@ UserContext.init();
         timeout: 4000,
       })
         .then(this.showComment.bind(this))
-        .then(({commentJson, isLastReply} = {}) => {
+        .then((data: CommentResponseData|null) : void => {
+          // @ts-ignore TODO
+          if (!data || !data.commentJson?.id) {
+            return;
+          }
+          const commentJson = data.commentJson as CommentData;
+          const isLastReply = data.isLastReply;
+          if (commentJson.id)
           // CAREFUL: commentJson may be undefined!!!
-          if (commentJson && commentJson.id && !isLastReply && isStickiedModeratorPost(commentJson)) {
+          if (commentJson.id && !isLastReply && isStickiedModeratorPost(commentJson)) {
             const parentElement = this.view.getPopup();
             this.view.loading(parentElement);
             const params = Object.assign({}, requestData.params);
@@ -493,7 +499,7 @@ UserContext.init();
      * @param parameters
      * @returns {Promise<unknown>}
      */
-    executeCommentRequest(el, commentId, parameters) {
+    executeCommentRequest(el: HTMLElement, commentId: string, parameters: RequestOptions<RequestParams>) : Promise<CommentResponseData> {
       this.request = _request(parameters);
       const onSuccess = this.getCommentData(el, parameters.url, commentId).bind(
         this
@@ -507,10 +513,10 @@ UserContext.init();
         });
     },
 
-    getCommentData(el, url, commentId) {
-      return (data) => {
+    // eslint-disable-next-line no-unused-vars
+    getCommentData(el: HTMLElement, url: string, commentId: string) : (data: any) => CommentResponseData {
+      return (data: any) : CommentResponseData => {
         let commentData = this.model.registerComment(url, data, commentId);
-        let isLastReply;
         if (commentData && commentData.kind === "more") {
           // Sometimes, Reddit responds with a "more" thing rather than the
           // actual comment. We'll handle it by upping the limit parameter
@@ -518,7 +524,7 @@ UserContext.init();
           // to actual comments
           return this.handleMoreThing(el, url, commentId);
         }
-
+        let isLastReply;
         if (commentData) {
           isLastReply = commentData.isLastReply;
         } else {
@@ -544,7 +550,7 @@ UserContext.init();
      * @param commentId
      * @returns {Promise<unknown>}
      */
-    handleMoreThing(el, url, commentId) {
+    handleMoreThing(el: HTMLElement, url: string, commentId: string|null) : Promise<CommentResponseData|null> {
       const params = this.model.requestParams(url, commentId);
       params.commentIndex = params.limit - 2;
       params.limit += 1;
@@ -553,10 +559,10 @@ UserContext.init();
         url,
         data: params,
         timeout: 4000,
-      }).then(this.showComment.bind(this));
+      }).then(this.showComment.bind(this));// Shouldn't be necessary
     },
 
-    showComment(data) {
+    showComment(data: CommentResponseData|null) : CommentResponseData|null {
       if (!data) {
         // Something went wrong earlier
         return null;
@@ -567,7 +573,7 @@ UserContext.init();
       this.view.show(el, commentJson, this.model.currentListing);
       this.view.updateParentComment(el, isLastReply);
       this.updateCache(url, commentId);
-      return { commentJson, isLastReply };
+      return data;
     },
 
     handleCommentFail(el) {
@@ -637,10 +643,10 @@ UserContext.init();
       const parentComment = DOM.getFirstParent(
         arrow,
         `.${DOM.classed("comment")}`
-      );
+      ) as HTMLElement;
       const id = parentComment && `t1_${parentComment.id}`;
       const url = `${this.model.currentListing.permalink}.json`;
-      const commentId = DOM.getFirstParent(arrow, ".comment").id;
+      const commentId = (DOM.getFirstParent(arrow, ".comment") as HTMLElement).id;
       let dir;
 
       if (arrow.classList.contains("up")) {
@@ -657,7 +663,7 @@ UserContext.init();
         uh: UserContext.get().modhash,
       };
 
-      _request(VOTE_URL, { type: "POST", data });
+      _request({url: VOTE_URL, type: 'POST', data });
       applyVote(arrow.parentElement, dir);
       this.updateCache(url, commentId);
     },

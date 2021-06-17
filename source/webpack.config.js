@@ -2,7 +2,7 @@ const path = require("path");
 
 module.exports = {
   mode: "development",
-  entry: "./rComments.js",
+  entry: "./rComments.ts",
   module: {
     rules: [
       {

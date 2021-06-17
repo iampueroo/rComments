@@ -40,3 +40,43 @@ export type Context = {
   isNewStyle: boolean;
   doesOpenLinksInNewTab: boolean;
 };
+
+export type RequestParams = {
+  commentIndex: number;
+  depth: number;
+  limit: number;
+  sort: string;
+  comment?: string; // This is actually commentId
+}
+
+export type CachedContent = {
+  content: string,
+  commentId: string,
+}
+
+export type RequestData = {
+  url: string;
+  params: RequestParams;
+  cached?: CachedContent;
+}
+
+export type Obj = {
+  [key: string]: any;
+}
+export type EmptyObject = {
+}
+
+export type CommentResponseData = {
+  el: HTMLElement,
+  isLastReply: boolean,
+  url: string,
+  commentJson: CommentData|EmptyObject,
+  commentId: string|false
+}
+
+export type ExtractedCommentData = {
+  kind: string,
+  json: CommentData|EmptyObject,
+  isLastReply: boolean,
+}
+
