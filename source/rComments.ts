@@ -1,8 +1,17 @@
 import * as DOM from "./dom/DOM";
 import {UserContext} from "./UserContext";
 import {applyVote, generateCommentHtml, isStickiedModeratorPost,} from "./html-generators/html_generator";
-import _request, {RequestOptions, RequestType} from "./Request";
-import {CommentData, CommentResponseData, ExtractedCommentData, Obj, RequestData, RequestParams} from "./types/types";
+import _request, {RequestOptions} from "./Request";
+import {
+  CachedContent,
+  CommentData,
+  CommentResponseData,
+  ExtractedCommentData,
+  Obj,
+  RequestData,
+  RequestParams
+} from "./types/types";
+import Store from "./Store";
 
 UserContext.init();
 
@@ -213,11 +222,11 @@ UserContext.init();
   const rCommentsModel = {
     listingCache: {},
     htmlCache: {},
-    commentStatus: {},
+    commentStatus: new Store(),
     currentListing: {},
 
     getRequestData(url: string, commentId: string) : RequestData {
-      const params = this.requestParams(url, commentId);
+      const params = this.commentStatus.getNextCommentRequestParameters(url, commentId);
 
       const data : RequestData = {
         url,
@@ -229,44 +238,13 @@ UserContext.init();
       return data;
     },
 
-    /**
-     * Generates the next request parameters for the given url and/or comment Id.
-     * The parameters will target the next reply based on what is stored in the
-     * cache.
-     *
-     * @param url
-     * @param commentId
-     * @returns {*}
-     */
-    requestParams(url: string, commentId: string|null) : RequestParams {
-      const key = this.genKey(url, commentId);
-      let params : RequestParams = Object.assign({}, this.commentStatus[key] || {});
-
-      if (!params.sort) {
-        // Initial request parameters
-        params = {
-          commentIndex: -1,
-          depth: commentId ? 2 : 1,
-          limit: commentId ? 1 : 0, // Incremented below
-          sort: "top",
-        };
-        if (commentId) params.comment = commentId;
-      }
-
-      params.limit += 1;
-      params.commentIndex += 1;
-
-      return params;
-    },
-
     registerComment(url: string, data, commentId: string|null) : ExtractedCommentData|false {
-      const key = this.genKey(url, commentId);
-      const params = this.requestParams(url, commentId);
+      const params = this.commentStatus.getNextCommentRequestParameters(url, commentId);
       const listingJson = this.extractListingJson(data);
       const commentData = this.extractCommentData(data, params);
 
       if (!commentData) return false;
-      this.commentStatus[key] = params;
+      this.commentStatus.updateRequestParameters(url, commentId, params);
       this.setCurrentListing(commentData.json.id, listingJson);
       return commentData;
     },
@@ -551,10 +529,10 @@ UserContext.init();
      * @returns {Promise<unknown>}
      */
     handleMoreThing(el: HTMLElement, url: string, commentId: string|null) : Promise<CommentResponseData|null> {
-      const params = this.model.requestParams(url, commentId);
+      const params = this.model.commentStatus.getNextCommentRequestParameters(url, commentId);
       params.commentIndex = params.limit - 2;
       params.limit += 1;
-      this.model.commentStatus[this.model.genKey(url, commentId)] = params;
+      this.model.commentStatus.updateRequestParameters(url, commentId, params);
       return this.executeCommentRequest(el, commentId, {
         url,
         data: params,
