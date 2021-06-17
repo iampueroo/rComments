@@ -66,17 +66,26 @@ export type Obj = {
 export type EmptyObject = {
 }
 
-export type CommentResponseData = {
+export type FailedCommentResponseData = {
+  success: false,
   el: HTMLElement,
   isLastReply: boolean,
   url: string,
-  commentJson: CommentData|EmptyObject,
-  commentId: string|false
 }
+export type SuccessfulCommentResponseData = {
+  success: true,
+  el: HTMLElement,
+  isLastReply: boolean,
+  url: string,
+  commentJson: CommentData,
+  commentId: string,
+}
+
+export type CommentResponseData = SuccessfulCommentResponseData | FailedCommentResponseData;
 
 export type ExtractedCommentData = {
   kind: string,
-  json: CommentData|EmptyObject,
+  json: CommentData,
   isLastReply: boolean,
 }
 

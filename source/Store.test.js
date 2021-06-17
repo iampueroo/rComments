@@ -14,6 +14,11 @@ test('simple Store test', () => {
     expect(store.getRequestParameters('url', 'commentId').depth).toBe(1);
     // Ensure genkey is working propertly
     expect(store.getRequestParameters('url')).toBeNull();
+    expect(store.getCachedHtml('url')).toBe(null);
+    store.setCachedHtml('url', 'my-html');
+    expect(store.getCachedHtml('url')).toBe('my-html');
+    store.setCachedHtml('url', 'different-html');
+    expect(store.getCachedHtml('url')).toBe('different-html');
 });
 
 test('simple initial params test', () => {

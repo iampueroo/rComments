@@ -64,7 +64,7 @@ export class UserContext {
 }
 
 async function getData() {
-  return _request<null>("/api/me.json");
+  return _request<null, any>("/api/me.json");
 }
 
 function prefersOpenLinksInNewTab(): boolean {

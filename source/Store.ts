@@ -2,7 +2,8 @@ import {RequestParams} from "./types/types";
 
 export default class Store {
 
-  cache: Map<String, RequestParams>
+  requestCache: Map<string, RequestParams>;
+  htmlCache: Map<string, string>;
 
   static getInitialRequestParameters(commentId: string|null) : RequestParams {
     const params : RequestParams = {
@@ -16,7 +17,16 @@ export default class Store {
   }
 
   constructor() {
-    this.cache = new Map<String, RequestParams>();
+    this.requestCache = new Map<string, RequestParams>();
+    this.htmlCache = new Map<string, string>();
+  }
+
+  getCachedHtml(url: string) : string|null {
+    return this.htmlCache.get(cleanUrl(url)) || null;
+  }
+
+  setCachedHtml(url: string, html: string) : void {
+    this.htmlCache.set(cleanUrl(url), html);
   }
 
   /**
@@ -35,12 +45,12 @@ export default class Store {
   }
 
   getRequestParameters(postUrl: string, commentId: string|null) : RequestParams|null {
-    const cachedParams = this.cache.get(genKey(postUrl, commentId));
+    const cachedParams = this.requestCache.get(genKey(postUrl, commentId));
     return cachedParams ? Object.assign({}, cachedParams) : null;
   }
 
   updateRequestParameters(postUrl: string, commentId: string|null, params: RequestParams) : void {
-    this.cache.set(genKey(postUrl, commentId), params);
+    this.requestCache.set(genKey(postUrl, commentId), params);
   }
 
 }

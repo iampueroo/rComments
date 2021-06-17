@@ -6,7 +6,7 @@ export type RequestOptions<T> = {
 }
 
 // screw you jQuery
-export default function _request<T>(_url: string|RequestOptions<T>, _options: RequestOptions<T>|null = null) {
+export default function _request<T, R>(_url: string|RequestOptions<T>, _options: RequestOptions<T>|null = null) : Promise<R> {
   let url: string;
   let options: RequestOptions<T>;
   if (typeof _url === "object") {

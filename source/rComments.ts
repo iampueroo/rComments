@@ -9,7 +9,7 @@ import {
   ExtractedCommentData,
   Obj,
   RequestData,
-  RequestParams
+  RequestParams, SuccessfulCommentResponseData
 } from "./types/types";
 import Store from "./Store";
 
@@ -221,7 +221,6 @@ UserContext.init();
 
   const rCommentsModel = {
     listingCache: {},
-    htmlCache: {},
     commentStatus: new Store(),
     currentListing: {},
 
@@ -233,17 +232,14 @@ UserContext.init();
         params,
       };
 
-      if (!commentId) data.cached = this.cache(url);
-
       return data;
     },
 
-    registerComment(url: string, data, commentId: string|null) : ExtractedCommentData|false {
+    registerComment(url: string, data, commentId: string|null) : ExtractedCommentData|null {
       const params = this.commentStatus.getNextCommentRequestParameters(url, commentId);
       const listingJson = this.extractListingJson(data);
       const commentData = this.extractCommentData(data, params);
-
-      if (!commentData) return false;
+      if (commentData === null) return null;
       this.commentStatus.updateRequestParameters(url, commentId, params);
       this.setCurrentListing(commentData.json.id, listingJson);
       return commentData;
@@ -285,16 +281,6 @@ UserContext.init();
     getUrl(commentId) {
       const listing = this.listingCache[commentId];
       return listing ? listing.permalink : this.currentListing.permalink;
-    },
-
-    cache(url: string, args: CachedContent = null) : CachedContent {
-      url = this.cleanUrl(url);
-
-      if (args) {
-        this.htmlCache[url] = args;
-      }
-
-      return this.htmlCache[url];
     },
 
     setCurrentListing(commentId, data = null) {
@@ -408,8 +394,10 @@ UserContext.init();
       return false;
     },
 
-    renderCommentFromElement(el, init = false) {
+    async renderCommentFromElement(el, init = false) : Promise<void> {
       if (this.request) return;
+
+      this.view.loading(el);
 
       // If not first comment, find first parent "thing" div
       // which represents is a comment div with id attribute
@@ -426,45 +414,25 @@ UserContext.init();
       }
       url += ".json";
 
-      const requestData = this.model.getRequestData(url, commentId);
-
-      this.view.loading(el);
-
-      if (requestData.cached && !isNextComment) {
-        const content = requestData.cached.content;
-        this.view.loadContentHtml(el, content);
+      const cachedHtml = !isNextComment && !commentId ? this.model.commentStatus.getCachedHtml(url) : null;
+      if (cachedHtml) {
+        this.view.loadContentHtml(el, cachedHtml);
         const id = this.view.getPopup().querySelector("._rcomments_comment").id;
         this.model.setCurrentListing(id);
         return;
       }
 
-      this.executeCommentRequest(el, commentId, {
+      const requestData = this.model.getRequestData(url, commentId);
+      const commentResponseData = await this.executeCommentRequest(el, commentId, {
         url: requestData.url,
         data: requestData.params,
         timeout: 4000,
-      })
-        .then(this.showComment.bind(this))
-        .then((data: CommentResponseData|null) : void => {
-          // @ts-ignore TODO
-          if (!data || !data.commentJson?.id) {
-            return;
-          }
-          const commentJson = data.commentJson as CommentData;
-          const isLastReply = data.isLastReply;
-          if (commentJson.id)
-          // CAREFUL: commentJson may be undefined!!!
-          if (commentJson.id && !isLastReply && isStickiedModeratorPost(commentJson)) {
-            const parentElement = this.view.getPopup();
-            this.view.loading(parentElement);
-            const params = Object.assign({}, requestData.params);
-            params.limit++;
-            this.executeCommentRequest(parentElement, commentId, {
-              url: requestData.url,
-              data: params,
-              timeout: 4000,
-            }).then(this.showComment.bind(this));
-          }
-        });
+      });
+      if (!commentResponseData.success) {
+        return;
+      }
+      this.showComment(commentResponseData);
+      this.showNextCommentIfApplicable(commentResponseData, requestData);
     },
 
     /**
@@ -475,47 +443,44 @@ UserContext.init();
      * @param el
      * @param commentId
      * @param parameters
-     * @returns {Promise<unknown>}
      */
-    executeCommentRequest(el: HTMLElement, commentId: string, parameters: RequestOptions<RequestParams>) : Promise<CommentResponseData> {
-      this.request = _request(parameters);
-      const onSuccess = this.getCommentData(el, parameters.url, commentId).bind(
-        this
-      );
-      const onFail = this.handleCommentFail(el).bind(this);
-      return this.request
-        .then(onSuccess)
-        .catch(onFail)
-        .finally(() => {
-          delete this.request;
-        });
+    async executeCommentRequest(el: HTMLElement, commentId: string, parameters: RequestOptions<RequestParams>) : Promise<CommentResponseData> {
+      try {
+        this.request = _request<RequestParams, any>(parameters);
+        const responseData = await this.request;
+        return this.getCommentData(responseData, el, parameters.url, commentId);
+      } catch (error) {
+        return this.handleCommentFail(el);
+      } finally {
+        delete this.request;
+      }
     },
 
-    // eslint-disable-next-line no-unused-vars
-    getCommentData(el: HTMLElement, url: string, commentId: string) : (data: any) => CommentResponseData {
-      return (data: any) : CommentResponseData => {
-        let commentData = this.model.registerComment(url, data, commentId);
-        if (commentData && commentData.kind === "more") {
-          // Sometimes, Reddit responds with a "more" thing rather than the
-          // actual comment. We'll handle it by upping the limit parameter
-          // on the request, which seems to force the "more" thing to expand
-          // to actual comments
-          return this.handleMoreThing(el, url, commentId);
-        }
-        let isLastReply;
-        if (commentData) {
-          isLastReply = commentData.isLastReply;
-        } else {
-          isLastReply = true;
-          commentData = {};
-        }
+    getCommentData(data: any, el: HTMLElement, url: string, commentId: string) : CommentResponseData {
+      const commentData = this.model.registerComment(url, data, commentId);
+      if (commentData === null) {
+        // // Failed
         return {
+          success: false,
           el,
-          isLastReply,
           url,
-          commentJson: commentData.json,
-          commentId: commentData.json && commentData.json.id,
+          isLastReply: false,
         };
+      }
+      if (commentData.kind === "more") {
+        // Sometimes, Reddit responds with a "more" thing rather than the
+        // actual comment. We'll handle it by upping the limit parameter
+        // on the request, which seems to force the "more" thing to expand
+        // to actual comments
+        return this.handleMoreThing(el, url, commentId);
+      }
+      return {
+        success: true,
+        el,
+        url,
+        isLastReply: commentData.isLastReply,
+        commentJson: commentData.json,
+        commentId: commentData.json.id,
       };
     },
 
@@ -526,9 +491,10 @@ UserContext.init();
      * @param el
      * @param url
      * @param commentId
-     * @returns {Promise<unknown>}
+     * @returns {Promise<CommentResponseData>}
      */
-    handleMoreThing(el: HTMLElement, url: string, commentId: string|null) : Promise<CommentResponseData|null> {
+    async handleMoreThing(el: HTMLElement, url: string, commentId: string|null) : Promise<CommentResponseData> {
+      console.log('HANDLE MORE THING SIREN SIREN');
       const params = this.model.commentStatus.getNextCommentRequestParameters(url, commentId);
       params.commentIndex = params.limit - 2;
       params.limit += 1;
@@ -537,37 +503,41 @@ UserContext.init();
         url,
         data: params,
         timeout: 4000,
-      }).then(this.showComment.bind(this));// Shouldn't be necessary
+      });
     },
 
-    showComment(data: CommentResponseData|null) : CommentResponseData|null {
-      if (!data) {
-        // Something went wrong earlier
-        return null;
-      }
-      const { commentJson, isLastReply, commentId, url, el } = data;
-      // Careful, commentJSON and id may be null here
-      // TODO: add types here to identify possible bugs.
+    showComment(data: SuccessfulCommentResponseData) : void {
+      const { commentJson, isLastReply, url, el } = data;
       this.view.show(el, commentJson, this.model.currentListing);
       this.view.updateParentComment(el, isLastReply);
-      this.updateCache(url, commentId);
-      return data;
+      // Do we need comment id?
+      this.model.commentStatus.setCachedHtml(url, this.view.contentHtml());
+    },
+
+    async showNextCommentIfApplicable(commentResponseData: SuccessfulCommentResponseData, requestData: RequestData) : Promise<null> {
+      const commentJson = commentResponseData.commentJson as CommentData;
+      const isLastReply = commentResponseData.isLastReply;
+      if (isLastReply || !isStickiedModeratorPost(commentJson)) {
+        return null;
+      }
+      const parentElement = this.view.getPopup();
+      this.view.loading(parentElement);
+      const params = Object.assign({}, requestData.params);
+      params.limit++;
+      const data = await this.executeCommentRequest(parentElement, null, {
+        url: requestData.url,
+        data: params,
+        timeout: 4000,
+      });
+      if (data.success) {
+        this.showComment(data);
+      }
+      return null;
     },
 
     handleCommentFail(el) {
-      return () => {
-        this.view.handleError(el, "Error: Reddit did not respond.");
-        this.disableRequest = false;
-      };
-    },
-
-    updateCache(url, commentId) {
-      if (!commentId) return;
-
-      this.model.cache(url, {
-        content: this.view.contentHtml(),
-        commentId,
-      });
+      this.view.handleError(el, "Error: Reddit did not respond.");
+      this.disableRequest = false;
     },
 
     handleAnchorMouseEnter(commentAnchor) {
@@ -585,10 +555,9 @@ UserContext.init();
         return;
       }
       clearTimeout(this.timeoutId);
-      const timeoutId = setTimeout(() => {
+      this.timeoutId = setTimeout(() => {
         this.renderCommentFromElement(commentAnchor, true);
       }, 250);
-      this.timeoutId = timeoutId;
     },
 
     handleAnchorMouseLeave(e, prevPageY) {
@@ -635,15 +604,19 @@ UserContext.init();
         dir = 0;
       }
 
-      const data = {
+      type VoteRequest = {
+        id: string,
+        dir: number,
+        uh: string,
+      }
+      const data : VoteRequest = {
         id,
         dir,
         uh: UserContext.get().modhash,
       };
-
-      _request({url: VOTE_URL, type: 'POST', data });
+      _request<VoteRequest, any>({url: VOTE_URL, type: 'POST', data });
       applyVote(arrow.parentElement, dir);
-      this.updateCache(url, commentId);
+      this.model.setCachedHtml(url, this.view.contentHtml());
     },
   };
 
