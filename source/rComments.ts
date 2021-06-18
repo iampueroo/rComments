@@ -17,6 +17,7 @@ import {
 } from "./types/types";
 import Store from "./Store";
 import { getCommentData } from "./data-fetchers/commentFetcher";
+import { getListingUrlPathElement } from "./dom/dom-accessors";
 
 UserContext.init();
 
@@ -229,7 +230,7 @@ UserContext.init();
     commentStatus: new Store(),
     currentListing: {},
 
-    getRequestData(url: string, commentId: string): RequestData {
+    getRequestData(url: string, commentId: string = null): RequestData {
       const params = this.commentStatus.getNextCommentRequestParameters(
         url,
         commentId
@@ -412,17 +413,11 @@ UserContext.init();
 
       // If not first comment, find first parent "thing" div
       // which represents is a comment div with id attribute
-      const commentId = !init && this.findClosestThing(el).id;
+      const commentId = init ? null : this.findClosestThing(el).id || null; // TODO: simplify, needs to be real commentID or null
       const isNextComment = el.classList.contains(R_COMMENTS_MAIN_CLASS);
       // Target URL for request is comment page or comment's permalink
       // Initial request will not have a comment ID, so will use overall comment page
-      let url = el.href || this.model.getUrl(commentId);
-
-      // Sometimes the URL contains query parameters we don't want.
-      // This removes them.
-      if (url === el.href && el.nodeName === "A") {
-        url = url.slice(0, el.search ? url.indexOf(el.search) : url.length);
-      }
+      let url = getListingUrlPathElement(el) || this.model.getUrl(commentId);
       url += ".json";
 
       const cachedHtml =
