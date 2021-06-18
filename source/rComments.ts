@@ -468,7 +468,6 @@ UserContext.init();
       parameters: RequestOptions<RequestParams>
     ): Promise<CommentResponseData> {
       try {
-        // this.request = _request<RequestParams, any>(parameters);
         this.request = getCommentData(parameters);
         const responseData = await this.request;
         return this.getCommentData(
