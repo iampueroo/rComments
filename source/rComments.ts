@@ -18,6 +18,7 @@ import Store from "./Store";
 import { getCommentData } from "./data-fetchers/commentFetcher";
 import { getListingUrlPathElement } from "./dom/dom-accessors";
 import plugins from "./post-processing-plugins/plugins";
+import {extractCommentData, extractListingJson} from "./data-fetchers/commentInspector";
 
 UserContext.init();
 
@@ -27,8 +28,7 @@ UserContext.init();
   const NEXT_COMMENT_TEXT = "&#8595 Next Comment";
 
   const rCommentsView = {
-    show(el, json, listing) {
-      const commentHtml = generateCommentHtml(UserContext.get(), json, listing);
+    show(el, commentHtml) {
       let popup;
       if (this.isFirstComment(el)) {
         popup = this.popup(el);
@@ -246,43 +246,12 @@ UserContext.init();
       data,
       params: RequestParams
     ): ExtractedCommentData | null {
-      const listingJson = this.extractListingJson(data);
-      const commentData = this.extractCommentData(data, params);
+      const listingJson = extractListingJson(data);
+      const commentData = extractCommentData(data, params);
       if (commentData === null) return null;
       this.commentStatus.updateRequestParameters(url, params.comment, params);
       this.setCurrentListing(commentData.json.id, listingJson);
       return commentData;
-    },
-
-    extractListingJson(data) {
-      return data[0].data.children[0].data;
-    },
-
-    extractCommentData(
-      data: Obj,
-      params: RequestParams
-    ): ExtractedCommentData | null {
-      const isCommentReply = params.depth === 2;
-      const commentIndex = params.commentIndex;
-      let commentList = data[1].data.children;
-
-      if (isCommentReply) {
-        commentList = commentList[0].data.replies.data;
-        if (!commentList) return null; // Sometimes reddit lies to us. See below.
-        commentList = commentList.children;
-      }
-
-      // Reddit had replied to parent comment saying there were
-      // more replies. They lied.
-      if (!commentList[commentIndex]) {
-        return null;
-      }
-
-      return {
-        kind: commentList[commentIndex].kind,
-        json: commentList[commentIndex].data,
-        isLastReply: !commentList[commentIndex + 1], // "More comments"
-      };
     },
 
     genKey(url: string, commentId: string | null) {
@@ -552,7 +521,8 @@ UserContext.init();
 
     showComment(data: SuccessfulCommentResponseData): void {
       const { commentJson, isLastReply, url, el } = data;
-      this.view.show(el, commentJson, this.model.currentListing);
+      const commentHtml = generateCommentHtml(UserContext.get(), commentJson, this.model.currentListing);
+      this.view.show(el, commentHtml);
       this.view.updateParentComment(el, isLastReply);
       // Do we need comment id?
       this.model.commentStatus.setCachedHtml(url, this.view.contentHtml());

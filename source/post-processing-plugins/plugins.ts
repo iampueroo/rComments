@@ -1,5 +1,6 @@
 import stickied_automod_comment from "./stickied_automod_comment";
 import { RequestData, SuccessfulCommentResponseData } from "../types/types";
+import aa_video_extractor from "./aa-video-extractor/aa_video_extractor";
 
 export interface PostProcessingPlugin {
   doesApply(
@@ -13,4 +14,4 @@ export interface PostProcessingPlugin {
   ): void;
 }
 
-export default [stickied_automod_comment] as PostProcessingPlugin[];
+export default [stickied_automod_comment, aa_video_extractor] as PostProcessingPlugin[];
