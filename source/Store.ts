@@ -55,7 +55,7 @@ export default class Store {
 
 }
 
-function genKey(postUrl: string, commentId: string|null) {
+export function genKey(postUrl: string, commentId: string|null) {
   const url = cleanUrl(postUrl);
   return commentId ? url + commentId : url;
 }

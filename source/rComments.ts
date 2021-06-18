@@ -1,9 +1,8 @@
 import * as DOM from "./dom/DOM";
 import {UserContext} from "./UserContext";
 import {applyVote, generateCommentHtml, isStickiedModeratorPost,} from "./html-generators/html_generator";
-import _request, {RequestOptions} from "./Request";
+import {_request, RequestOptions} from "./Request";
 import {
-  CachedContent,
   CommentData,
   CommentResponseData,
   ExtractedCommentData,
@@ -12,6 +11,7 @@ import {
   RequestParams, SuccessfulCommentResponseData
 } from "./types/types";
 import Store from "./Store";
+import {getCommentData} from "./data-fetchers/commentFetcher";
 
 UserContext.init();
 
@@ -226,21 +226,17 @@ UserContext.init();
 
     getRequestData(url: string, commentId: string) : RequestData {
       const params = this.commentStatus.getNextCommentRequestParameters(url, commentId);
-
-      const data : RequestData = {
+      return {
         url,
         params,
       };
-
-      return data;
     },
 
-    registerComment(url: string, data, commentId: string|null) : ExtractedCommentData|null {
-      const params = this.commentStatus.getNextCommentRequestParameters(url, commentId);
+    registerComment(url: string, data, params: RequestParams) : ExtractedCommentData|null {
       const listingJson = this.extractListingJson(data);
       const commentData = this.extractCommentData(data, params);
       if (commentData === null) return null;
-      this.commentStatus.updateRequestParameters(url, commentId, params);
+      this.commentStatus.updateRequestParameters(url, params.comment, params);
       this.setCurrentListing(commentData.json.id, listingJson);
       return commentData;
     },
@@ -446,18 +442,25 @@ UserContext.init();
      */
     async executeCommentRequest(el: HTMLElement, commentId: string, parameters: RequestOptions<RequestParams>) : Promise<CommentResponseData> {
       try {
-        this.request = _request<RequestParams, any>(parameters);
+        // this.request = _request<RequestParams, any>(parameters);
+        this.request = getCommentData(parameters);
         const responseData = await this.request;
-        return this.getCommentData(responseData, el, parameters.url, commentId);
+        return this.getCommentData(responseData, el, parameters.url, parameters.data);
       } catch (error) {
-        return this.handleCommentFail(el);
+        this.handleCommentFail(el);
+        return {
+          success: false,
+          el,
+          isLastReply: false,
+          url: parameters.url,
+        };
       } finally {
         delete this.request;
       }
     },
 
-    getCommentData(data: any, el: HTMLElement, url: string, commentId: string) : CommentResponseData {
-      const commentData = this.model.registerComment(url, data, commentId);
+    getCommentData(data: any, el: HTMLElement, url: string, params: RequestParams) : CommentResponseData {
+      const commentData = this.model.registerComment(url, data, params);
       if (commentData === null) {
         // // Failed
         return {
@@ -472,7 +475,7 @@ UserContext.init();
         // actual comment. We'll handle it by upping the limit parameter
         // on the request, which seems to force the "more" thing to expand
         // to actual comments
-        return this.handleMoreThing(el, url, commentId);
+        return this.handleMoreThing(el, url, params.comment);
       }
       return {
         success: true,
@@ -494,7 +497,6 @@ UserContext.init();
      * @returns {Promise<CommentResponseData>}
      */
     async handleMoreThing(el: HTMLElement, url: string, commentId: string|null) : Promise<CommentResponseData> {
-      console.log('HANDLE MORE THING SIREN SIREN');
       const params = this.model.commentStatus.getNextCommentRequestParameters(url, commentId);
       params.commentIndex = params.limit - 2;
       params.limit += 1;
@@ -522,8 +524,7 @@ UserContext.init();
       }
       const parentElement = this.view.getPopup();
       this.view.loading(parentElement);
-      const params = Object.assign({}, requestData.params);
-      params.limit++;
+      const params = this.model.commentStatus.getNextCommentRequestParameters(requestData.url);
       const data = await this.executeCommentRequest(parentElement, null, {
         url: requestData.url,
         data: params,
@@ -593,7 +594,6 @@ UserContext.init();
       ) as HTMLElement;
       const id = parentComment && `t1_${parentComment.id}`;
       const url = `${this.model.currentListing.permalink}.json`;
-      const commentId = (DOM.getFirstParent(arrow, ".comment") as HTMLElement).id;
       let dir;
 
       if (arrow.classList.contains("up")) {
