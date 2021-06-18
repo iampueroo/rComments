@@ -1,12 +1,11 @@
-import {RequestParams} from "./types/types";
+import { RequestParams } from "./types/types";
 
 export default class Store {
-
   requestCache: Map<string, RequestParams>;
   htmlCache: Map<string, string>;
 
-  static getInitialRequestParameters(commentId: string|null) : RequestParams {
-    const params : RequestParams = {
+  static getInitialRequestParameters(commentId: string | null): RequestParams {
+    const params: RequestParams = {
       commentIndex: -1,
       depth: commentId ? 2 : 1,
       limit: commentId ? 1 : 0,
@@ -21,11 +20,11 @@ export default class Store {
     this.htmlCache = new Map<string, string>();
   }
 
-  getCachedHtml(url: string) : string|null {
+  getCachedHtml(url: string): string | null {
     return this.htmlCache.get(cleanUrl(url)) || null;
   }
 
-  setCachedHtml(url: string, html: string) : void {
+  setCachedHtml(url: string, html: string): void {
     this.htmlCache.set(cleanUrl(url), html);
   }
 
@@ -37,25 +36,36 @@ export default class Store {
    * @param url - The main listing URL
    * @param commentId - The optional comment that we are fetching its replies for
    */
-  getNextCommentRequestParameters(url: string, commentId: string|null) : RequestParams {
-    const params = this.getRequestParameters(url, commentId) || Store.getInitialRequestParameters(commentId);
+  getNextCommentRequestParameters(
+    url: string,
+    commentId: string | null
+  ): RequestParams {
+    const params =
+      this.getRequestParameters(url, commentId) ||
+      Store.getInitialRequestParameters(commentId);
     params.limit += 1;
     params.commentIndex += 1;
     return params;
   }
 
-  getRequestParameters(postUrl: string, commentId: string|null) : RequestParams|null {
+  getRequestParameters(
+    postUrl: string,
+    commentId: string | null
+  ): RequestParams | null {
     const cachedParams = this.requestCache.get(genKey(postUrl, commentId));
     return cachedParams ? Object.assign({}, cachedParams) : null;
   }
 
-  updateRequestParameters(postUrl: string, commentId: string|null, params: RequestParams) : void {
+  updateRequestParameters(
+    postUrl: string,
+    commentId: string | null,
+    params: RequestParams
+  ): void {
     this.requestCache.set(genKey(postUrl, commentId), params);
   }
-
 }
 
-export function genKey(postUrl: string, commentId: string|null) {
+export function genKey(postUrl: string, commentId: string | null) {
   const url = cleanUrl(postUrl);
   return commentId ? url + commentId : url;
 }

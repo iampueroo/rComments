@@ -1,4 +1,4 @@
-import {_request} from "./Request";
+import { _request } from "./Request";
 
 export class UserContext {
   static singleton: UserContext | undefined;

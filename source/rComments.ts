@@ -1,17 +1,22 @@
 import * as DOM from "./dom/DOM";
-import {UserContext} from "./UserContext";
-import {applyVote, generateCommentHtml, isStickiedModeratorPost,} from "./html-generators/html_generator";
-import {_request, RequestOptions} from "./Request";
+import { UserContext } from "./UserContext";
+import {
+  applyVote,
+  generateCommentHtml,
+  isStickiedModeratorPost,
+} from "./html-generators/html_generator";
+import { _request, RequestOptions } from "./Request";
 import {
   CommentData,
   CommentResponseData,
   ExtractedCommentData,
   Obj,
   RequestData,
-  RequestParams, SuccessfulCommentResponseData
+  RequestParams,
+  SuccessfulCommentResponseData,
 } from "./types/types";
 import Store from "./Store";
-import {getCommentData} from "./data-fetchers/commentFetcher";
+import { getCommentData } from "./data-fetchers/commentFetcher";
 
 UserContext.init();
 
@@ -224,15 +229,22 @@ UserContext.init();
     commentStatus: new Store(),
     currentListing: {},
 
-    getRequestData(url: string, commentId: string) : RequestData {
-      const params = this.commentStatus.getNextCommentRequestParameters(url, commentId);
+    getRequestData(url: string, commentId: string): RequestData {
+      const params = this.commentStatus.getNextCommentRequestParameters(
+        url,
+        commentId
+      );
       return {
         url,
         params,
       };
     },
 
-    registerComment(url: string, data, params: RequestParams) : ExtractedCommentData|null {
+    registerComment(
+      url: string,
+      data,
+      params: RequestParams
+    ): ExtractedCommentData | null {
       const listingJson = this.extractListingJson(data);
       const commentData = this.extractCommentData(data, params);
       if (commentData === null) return null;
@@ -245,7 +257,10 @@ UserContext.init();
       return data[0].data.children[0].data;
     },
 
-    extractCommentData(data: Obj, params: RequestParams) : ExtractedCommentData|null {
+    extractCommentData(
+      data: Obj,
+      params: RequestParams
+    ): ExtractedCommentData | null {
       const isCommentReply = params.depth === 2;
       const commentIndex = params.commentIndex;
       let commentList = data[1].data.children;
@@ -269,7 +284,7 @@ UserContext.init();
       };
     },
 
-    genKey(url: string, commentId: string|null) {
+    genKey(url: string, commentId: string | null) {
       url = this.cleanUrl(url);
       return commentId ? url + commentId : url;
     },
@@ -297,10 +312,10 @@ UserContext.init();
     disableRequest: false,
 
     init() {
-      let active : HTMLAnchorElement|false = false;
-      let yPos : number|false = false;
+      let active: HTMLAnchorElement | false = false;
+      let yPos: number | false = false;
 
-      function isValidCommentAnchor(element: Node) : boolean {
+      function isValidCommentAnchor(element: Node): boolean {
         const isAnchor = element.nodeName === "A";
         if (!isAnchor) {
           return false;
@@ -328,7 +343,7 @@ UserContext.init();
         let a = (isCommentAnchor ? target : null) as HTMLAnchorElement;
         if (!a && target) {
           a = isValidCommentAnchor(target.parentElement as HTMLElement)
-            ? target.parentElement as HTMLAnchorElement
+            ? (target.parentElement as HTMLAnchorElement)
             : null;
         }
         if (!active && !a) {
@@ -390,7 +405,7 @@ UserContext.init();
       return false;
     },
 
-    async renderCommentFromElement(el, init = false) : Promise<void> {
+    async renderCommentFromElement(el, init = false): Promise<void> {
       if (this.request) return;
 
       this.view.loading(el);
@@ -410,7 +425,10 @@ UserContext.init();
       }
       url += ".json";
 
-      const cachedHtml = !isNextComment && !commentId ? this.model.commentStatus.getCachedHtml(url) : null;
+      const cachedHtml =
+        !isNextComment && !commentId
+          ? this.model.commentStatus.getCachedHtml(url)
+          : null;
       if (cachedHtml) {
         this.view.loadContentHtml(el, cachedHtml);
         const id = this.view.getPopup().querySelector("._rcomments_comment").id;
@@ -419,11 +437,15 @@ UserContext.init();
       }
 
       const requestData = this.model.getRequestData(url, commentId);
-      const commentResponseData = await this.executeCommentRequest(el, commentId, {
-        url: requestData.url,
-        data: requestData.params,
-        timeout: 4000,
-      });
+      const commentResponseData = await this.executeCommentRequest(
+        el,
+        commentId,
+        {
+          url: requestData.url,
+          data: requestData.params,
+          timeout: 4000,
+        }
+      );
       if (!commentResponseData.success) {
         return;
       }
@@ -440,12 +462,21 @@ UserContext.init();
      * @param commentId
      * @param parameters
      */
-    async executeCommentRequest(el: HTMLElement, commentId: string, parameters: RequestOptions<RequestParams>) : Promise<CommentResponseData> {
+    async executeCommentRequest(
+      el: HTMLElement,
+      commentId: string,
+      parameters: RequestOptions<RequestParams>
+    ): Promise<CommentResponseData> {
       try {
         // this.request = _request<RequestParams, any>(parameters);
         this.request = getCommentData(parameters);
         const responseData = await this.request;
-        return this.getCommentData(responseData, el, parameters.url, parameters.data);
+        return this.getCommentData(
+          responseData,
+          el,
+          parameters.url,
+          parameters.data
+        );
       } catch (error) {
         this.handleCommentFail(el);
         return {
@@ -459,7 +490,12 @@ UserContext.init();
       }
     },
 
-    getCommentData(data: any, el: HTMLElement, url: string, params: RequestParams) : CommentResponseData {
+    getCommentData(
+      data: any,
+      el: HTMLElement,
+      url: string,
+      params: RequestParams
+    ): CommentResponseData {
       const commentData = this.model.registerComment(url, data, params);
       if (commentData === null) {
         // // Failed
@@ -496,8 +532,15 @@ UserContext.init();
      * @param commentId
      * @returns {Promise<CommentResponseData>}
      */
-    async handleMoreThing(el: HTMLElement, url: string, commentId: string|null) : Promise<CommentResponseData> {
-      const params = this.model.commentStatus.getNextCommentRequestParameters(url, commentId);
+    async handleMoreThing(
+      el: HTMLElement,
+      url: string,
+      commentId: string | null
+    ): Promise<CommentResponseData> {
+      const params = this.model.commentStatus.getNextCommentRequestParameters(
+        url,
+        commentId
+      );
       params.commentIndex = params.limit - 2;
       params.limit += 1;
       this.model.commentStatus.updateRequestParameters(url, commentId, params);
@@ -508,7 +551,7 @@ UserContext.init();
       });
     },
 
-    showComment(data: SuccessfulCommentResponseData) : void {
+    showComment(data: SuccessfulCommentResponseData): void {
       const { commentJson, isLastReply, url, el } = data;
       this.view.show(el, commentJson, this.model.currentListing);
       this.view.updateParentComment(el, isLastReply);
@@ -516,7 +559,10 @@ UserContext.init();
       this.model.commentStatus.setCachedHtml(url, this.view.contentHtml());
     },
 
-    async showNextCommentIfApplicable(commentResponseData: SuccessfulCommentResponseData, requestData: RequestData) : Promise<null> {
+    async showNextCommentIfApplicable(
+      commentResponseData: SuccessfulCommentResponseData,
+      requestData: RequestData
+    ): Promise<null> {
       const commentJson = commentResponseData.commentJson as CommentData;
       const isLastReply = commentResponseData.isLastReply;
       if (isLastReply || !isStickiedModeratorPost(commentJson)) {
@@ -524,7 +570,9 @@ UserContext.init();
       }
       const parentElement = this.view.getPopup();
       this.view.loading(parentElement);
-      const params = this.model.commentStatus.getNextCommentRequestParameters(requestData.url);
+      const params = this.model.commentStatus.getNextCommentRequestParameters(
+        requestData.url
+      );
       const data = await this.executeCommentRequest(parentElement, null, {
         url: requestData.url,
         data: params,
@@ -605,16 +653,16 @@ UserContext.init();
       }
 
       type VoteRequest = {
-        id: string,
-        dir: number,
-        uh: string,
-      }
-      const data : VoteRequest = {
+        id: string;
+        dir: number;
+        uh: string;
+      };
+      const data: VoteRequest = {
         id,
         dir,
         uh: UserContext.get().modhash,
       };
-      _request<VoteRequest, any>({url: VOTE_URL, type: 'POST', data });
+      _request<VoteRequest, any>({ url: VOTE_URL, type: "POST", data });
       applyVote(arrow.parentElement, dir);
       this.model.setCachedHtml(url, this.view.contentHtml());
     },

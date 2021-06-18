@@ -3,10 +3,13 @@ export type RequestOptions<T> = {
   type?: string;
   data: T;
   timeout?: number;
-}
+};
 
 // screw you jQuery
-export function _request<T, R>(_url: string|RequestOptions<T>, _options: RequestOptions<T>|null = null) : Promise<R> {
+export function _request<T, R>(
+  _url: string | RequestOptions<T>,
+  _options: RequestOptions<T> | null = null
+): Promise<R> {
   let url: string;
   let options: RequestOptions<T>;
   if (typeof _url === "object") {
@@ -15,9 +18,9 @@ export function _request<T, R>(_url: string|RequestOptions<T>, _options: Request
   } else {
     url = _url;
     options = _options || {
-     url,
-     type: 'GET',
-     data: null,
+      url,
+      type: "GET",
+      data: null,
     };
   }
   const type = options.type || "GET";

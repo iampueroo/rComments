@@ -47,45 +47,45 @@ export type RequestParams = {
   limit: number;
   sort: string;
   comment?: string; // This is actually commentId
-}
+};
 
 export type CachedContent = {
-  content: string,
-  commentId: string,
-}
+  content: string;
+  commentId: string;
+};
 
 export type RequestData = {
   url: string;
   params: RequestParams;
   cached?: CachedContent;
-}
+};
 
 export type Obj = {
   [key: string]: any;
-}
-export type EmptyObject = {
-}
+};
+export type EmptyObject = {};
 
 export type FailedCommentResponseData = {
-  success: false,
-  el: HTMLElement,
-  isLastReply: boolean,
-  url: string,
-}
+  success: false;
+  el: HTMLElement;
+  isLastReply: boolean;
+  url: string;
+};
 export type SuccessfulCommentResponseData = {
-  success: true,
-  el: HTMLElement,
-  isLastReply: boolean,
-  url: string,
-  commentJson: CommentData,
-  commentId: string,
-}
+  success: true;
+  el: HTMLElement;
+  isLastReply: boolean;
+  url: string;
+  commentJson: CommentData;
+  commentId: string;
+};
 
-export type CommentResponseData = SuccessfulCommentResponseData | FailedCommentResponseData;
+export type CommentResponseData =
+  | SuccessfulCommentResponseData
+  | FailedCommentResponseData;
 
 export type ExtractedCommentData = {
-  kind: string,
-  json: CommentData,
-  isLastReply: boolean,
-}
-
+  kind: string;
+  json: CommentData;
+  isLastReply: boolean;
+};

@@ -1,6 +1,6 @@
-import {_request, RequestOptions} from "../Request";
-import {RequestParams} from "../types/types";
-import {genKey} from "../Store";
+import { _request, RequestOptions } from "../Request";
+import { RequestParams } from "../types/types";
+import { genKey } from "../Store";
 
 type CommentFetcherCacheValue = {
   responseData: any;
@@ -9,12 +9,17 @@ type CommentFetcherCacheValue = {
 
 const dataCache = new Map<string, CommentFetcherCacheValue>();
 
-export async function getCommentData(requestOptions: RequestOptions<RequestParams>): Promise<any> {
+export async function getCommentData(
+  requestOptions: RequestOptions<RequestParams>
+): Promise<any> {
   // This is the data that is currently active
   const key = genKey(requestOptions.url, requestOptions.data.comment);
   const currentParams = dataCache.get(key);
-  if (!currentParams || requestOptions.data.limit >= currentParams.params.limit) {
-    const requestParams = transformParams((requestOptions.data));
+  if (
+    !currentParams ||
+    requestOptions.data.limit >= currentParams.params.limit
+  ) {
+    const requestParams = transformParams(requestOptions.data);
     const newRequestOptions = Object.assign({}, requestOptions, {
       data: requestParams,
     });
@@ -29,6 +34,6 @@ export async function getCommentData(requestOptions: RequestOptions<RequestParam
 
 function transformParams(params: RequestParams): RequestParams {
   return Object.assign({}, params, {
-    limit: params.limit + 10
+    limit: params.limit + 10,
   });
 }

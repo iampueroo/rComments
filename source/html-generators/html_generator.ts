@@ -180,9 +180,9 @@ export function voteTagHtml(
     return "";
   }
   if (userContext.usesNewStyles()) {
-    return `<span class="score unvoted ${DOM.classed(
-      "score"
-    )}">${commentData.score} points</span>`;
+    return `<span class="score unvoted ${DOM.classed("score")}">${
+      commentData.score
+    } points</span>`;
   }
   const votes = commentData.ups - commentData.downs;
   const unvoted = `<span class="score unvoted">${votes} points</span>`;
