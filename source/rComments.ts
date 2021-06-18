@@ -663,7 +663,7 @@ UserContext.init();
       };
       _request<VoteRequest, any>({ url: VOTE_URL, type: "POST", data });
       applyVote(arrow.parentElement, dir);
-      this.model.setCachedHtml(url, this.view.contentHtml());
+      this.model.commentStatus.setCachedHtml(url, this.view.contentHtml());
     },
   };
 
