@@ -12,10 +12,18 @@ type CommentFetcherCacheValue = {
 
 const dataCache = new Map<string, CommentFetcherCacheValue>();
 
+/**
+ * This function acts as a layer in between the popup controller
+ * and hitting the Reddit API. The popup controller sends requests parameters that
+ * only fetch the next comment it needs, but what this layer does is fetch additional
+ * comments in batch so as to reduce latency. Thus, in most cases any sibling comment
+ * will have already been fetched.
+ *
+ * @param requestOptions
+ */
 export async function getCommentData(
   requestOptions: RequestOptions<RequestParams>
 ): Promise<any> {
-  // This is the data that is currently active
   const key = genKey(requestOptions.url, requestOptions.data.comment);
   let currentParams = dataCache.get(key);
   const requestedLimit = requestOptions.data.limit;
