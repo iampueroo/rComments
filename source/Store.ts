@@ -40,11 +40,19 @@ export default class Store {
     url: string,
     commentId: string | null = null
   ): RequestParams {
+    return this.getNNextCommentRequestParameters(1, url, commentId);
+  }
+
+  getNNextCommentRequestParameters(
+      n: number,
+      url: string,
+      commentId: string | null = null
+  ): RequestParams {
     const params =
-      this.getRequestParameters(url, commentId) ||
-      Store.getInitialRequestParameters(commentId);
-    params.limit += 1;
-    params.commentIndex += 1;
+        this.getRequestParameters(url, commentId) ||
+        Store.getInitialRequestParameters(commentId);
+    params.commentIndex += 1; // TODO: remove commentIndex from here
+    params.limit += n;
     return params;
   }
 
