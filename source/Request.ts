@@ -30,14 +30,12 @@ export function _request<T, R>(
     url += `?${data}`;
     data = undefined;
   }
-  const controller = new AbortController();
   const payload = {
     method: type,
     headers: {
       "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
     },
     body: isPostRequest ? data : null,
-    signal: controller.signal,
   };
   if (url[0] === "/") {
     url = `${window.origin}${url}`;
@@ -74,12 +72,7 @@ export function _request<T, R>(
       });
   });
   promises.push(requestPromise);
-  const masterPromise = Promise.race(promises);
-  // @ts-ignore TODO
-  masterPromise.abort = function abort() {
-    controller.abort();
-  };
-  return masterPromise;
+  return Promise.race(promises);
 }
 
 function formEncode(data) {

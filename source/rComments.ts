@@ -465,6 +465,7 @@ UserContext.init();
       try {
         this.request = getCommentData(parameters);
         const responseData = await this.request;
+        delete this.request;
         return this.getCommentData(
           responseData,
           el,
@@ -607,21 +608,15 @@ UserContext.init();
       clearTimeout(this.timeoutId);
 
       if (prevPageY >= e.pageY) {
-        // If leaving through the side or top, cancel any request
-        // and hide the popup
-        this.abortOngoingRequest();
+        // If leaving through the side or top, delete any ongoing request.
+        // and hide the popup. The resolved request will cache the data, but
+        // not open the popup.
+        delete this.request;
         this.view.hidePopup();
       } else {
         // Still try to hide the popup, but the timeout
         // will be canceled if we hover over the popup
         this.view.hidePopupSoon();
-      }
-    },
-
-    abortOngoingRequest() {
-      if (this.request) {
-        this.request.abort();
-        delete this.request;
       }
     },
 
