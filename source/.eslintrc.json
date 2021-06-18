@@ -17,7 +17,12 @@
   "env": {
     "browser": true
   },
-  "extends": ["airbnb-base", "prettier"],
+  "extends": [
+    "airbnb-base",
+    "prettier",
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended"
+  ],
   "plugins": ["import"],
   "parser": "@typescript-eslint/parser"
 }

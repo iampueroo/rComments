@@ -7,7 +7,6 @@ import {
 } from "./html-generators/html_generator";
 import { _request, RequestOptions } from "./Request";
 import {
-  CommentData,
   CommentResponseData,
   ExtractedCommentData,
   Obj,
@@ -18,6 +17,7 @@ import {
 import Store from "./Store";
 import { getCommentData } from "./data-fetchers/commentFetcher";
 import { getListingUrlPathElement } from "./dom/dom-accessors";
+import plugins from "./post-processing-plugins/plugins";
 
 UserContext.init();
 
@@ -445,7 +445,11 @@ UserContext.init();
         return;
       }
       this.showComment(commentResponseData);
-      this.showNextCommentIfApplicable(commentResponseData, requestData);
+      plugins.forEach((plugin) => {
+        if (plugin.doesApply(commentResponseData, requestData)) {
+          plugin.execute.call(this, commentResponseData, requestData);
+        }
+      });
     },
 
     /**
@@ -558,7 +562,7 @@ UserContext.init();
       commentResponseData: SuccessfulCommentResponseData,
       requestData: RequestData
     ): Promise<null> {
-      const commentJson = commentResponseData.commentJson as CommentData;
+      const commentJson = commentResponseData.commentJson;
       const isLastReply = commentResponseData.isLastReply;
       if (isLastReply || !isStickiedModeratorPost(commentJson)) {
         return null;

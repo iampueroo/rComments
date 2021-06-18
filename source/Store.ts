@@ -38,7 +38,7 @@ export default class Store {
    */
   getNextCommentRequestParameters(
     url: string,
-    commentId: string | null
+    commentId: string | null = null
   ): RequestParams {
     const params =
       this.getRequestParameters(url, commentId) ||
