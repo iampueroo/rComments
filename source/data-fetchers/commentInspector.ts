@@ -32,7 +32,7 @@ export function extractCommentData(
   };
 }
 
-export function extractCommentList(data: Obj, params: RequestParams) : any {
+function extractCommentList(data: Obj, params: RequestParams) : any {
   const isCommentReply = params.depth === 2;
   let commentList = data[1].data.children;
   if (isCommentReply) {
