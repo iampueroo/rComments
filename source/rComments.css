@@ -138,6 +138,10 @@
   padding: 5px 5px 5px 10px;
 }
 
+._rcomments_extracted_links {
+  background-color: antiquewhite;
+}
+
 /**********************************/
 /* START new reddit overrides
 /**********************************/
