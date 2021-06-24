@@ -3,6 +3,7 @@ import {isStickiedModeratorPost} from "../../html-generators/html_generator";
 import {PostProcessingPlugin} from "../plugins";
 import {getCommentData} from "../../data-fetchers/commentFetcher";
 import {extractAllComments} from "../../data-fetchers/commentInspector";
+import {decodeHTML} from "../../dom/DOM";
 
 export default {
   doesApply(
@@ -36,7 +37,7 @@ export default {
      *
      */
     const html = generateTableHtml(comments);
-    this.view.show(commentResponseData.el, html);
+    this.view.show(this.view.getPopup(), html);
     /**
      *
      * HERE HERE HERE -> NEED TO GENERATE HTML AND ADD IT
@@ -56,6 +57,7 @@ function isSoccerAAPostWithReplies(json: CommentData) : boolean {
 }
 
 type ExtractedLinkInfo = {
+  linkBody: string,
   linkHtml: string,
   author: string,
   votes: number,
@@ -63,6 +65,7 @@ type ExtractedLinkInfo = {
 
 function generateTableHtml(comments: ExtractedCommentData[]) : string {
  return `
+  <div class="_rcomments_body_html">
   <table>
   <thead>
   <tr>
@@ -72,9 +75,10 @@ function generateTableHtml(comments: ExtractedCommentData[]) : string {
 </tr>
 </thead>
   <tbody>
-  ${comments.map((data) => convertCommentToHtml(data.json))}
+  ${comments.map((data) => convertCommentToHtml(data.json)).join('')}
 </tbody>
   </table>
+  </div>
  `;
 }
 
@@ -84,16 +88,30 @@ function convertCommentToHtml(commentData: CommentData) : string {
     return '';
   }
   return `<tr>
-<td>${linkInfo.linkHtml}</td>
+<td>${linkInfo.linkBody}</td>
 <td>${linkInfo.author}</td>
 <td>${linkInfo.votes}</td>
 </tr>`
 }
 
 function extractLinkInfoFromComment(commentData: CommentData) : ExtractedLinkInfo|null {
+  const regex = /<a href=(?:"|')(.*)(?:"|').*>(.*)<\/a>/gm;
+  const matches = [];
+  const commentHtml = decodeHTML(commentData.body_html);
+  let match = regex.exec(commentHtml);
+  while(match) {
+    matches.push(match);
+    match = regex.exec(commentHtml);
+  }
+  const fakeHtml = matches.map(m => {
+    const div = document.createElement('div');
+    div.innerHTML = m[0];
+   return `<a href="${m[1]}">${div.textContent}</a>`;
+  }).join('');
   return {
     author: commentData.author,
     votes: commentData.ups - commentData.downs, // TODO dedupe code,
-    linkHtml: "<a href=\"https://streamable.com/g4t1bc\" class=\"_3t5uN8xUmg0TOwRCOGQEcU\" rel=\"noopener nofollow ugc\" target=\"_blank\">Streamable mirror</a>"
+    linkHtml: commentData.body_html,
+    linkBody: fakeHtml,
   }
 }

@@ -3,13 +3,11 @@ import { UserContext } from "./UserContext";
 import {
   applyVote,
   generateCommentHtml,
-  isStickiedModeratorPost,
 } from "./html-generators/html_generator";
 import { _request, RequestOptions } from "./Request";
 import {
   CommentResponseData,
   ExtractedCommentData,
-  Obj,
   RequestData,
   RequestParams,
   SuccessfulCommentResponseData,
@@ -138,7 +136,7 @@ UserContext.init();
 
     hidePopup() {
       if (this._popup) {
-        this._popup.style.display = "none";
+        // this._popup.style.display = "none";
       }
     },
 
@@ -526,31 +524,6 @@ UserContext.init();
       this.view.updateParentComment(el, isLastReply);
       // Do we need comment id?
       this.model.commentStatus.setCachedHtml(url, this.view.contentHtml());
-    },
-
-    async showNextCommentIfApplicable(
-      commentResponseData: SuccessfulCommentResponseData,
-      requestData: RequestData
-    ): Promise<null> {
-      const commentJson = commentResponseData.commentJson;
-      const isLastReply = commentResponseData.isLastReply;
-      if (isLastReply || !isStickiedModeratorPost(commentJson)) {
-        return null;
-      }
-      const parentElement = this.view.getPopup();
-      this.view.loading(parentElement);
-      const params = this.model.commentStatus.getNextCommentRequestParameters(
-        requestData.url
-      );
-      const data = await this.executeCommentRequest(parentElement, null, {
-        url: requestData.url,
-        data: params,
-        timeout: 4000,
-      });
-      if (data.success) {
-        this.showComment(data);
-      }
-      return null;
     },
 
     handleCommentFail(el) {
