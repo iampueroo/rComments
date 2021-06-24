@@ -1,5 +1,6 @@
 rComments - Reddit Hover Comments
 =========
+![](https://img.shields.io/chrome-web-store/v/njkilkdmdolbjonbfjhmknefhdccioig) ![](https://img.shields.io/amo/v/rComments)
 
 **Installation:** [Add to Chrome](https://chrome.google.com/webstore/detail/rcomments-for-reddit/njkilkdmdolbjonbfjhmknefhdccioig) | [Add to FireFox](https://addons.mozilla.org/en-US/firefox/addon/rcomments)
 
