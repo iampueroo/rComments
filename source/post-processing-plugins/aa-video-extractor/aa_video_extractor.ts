@@ -1,4 +1,4 @@
-import {CommentData, ExtractedCommentData, RequestData, SuccessfulCommentResponseData} from "../../types/types";
+import {CommentData, ExtractedCommentData, Obj, RequestData, SuccessfulCommentResponseData} from "../../types/types";
 import {isStickiedModeratorPost} from "../../html-generators/html_generator";
 import {PostProcessingPlugin} from "../plugins";
 import {getCommentData} from "../../data-fetchers/commentFetcher";
@@ -37,7 +37,7 @@ export default {
      *
      */
     const html = generateTableHtml(comments);
-    this.view.show(this.view.getPopup(), html);
+    this.view.appendToComment(commentResponseData.commentId, html);
     /**
      *
      * HERE HERE HERE -> NEED TO GENERATE HTML AND ADD IT
@@ -48,12 +48,37 @@ export default {
   },
 } as PostProcessingPlugin;
 
+type PostMatcher = {
+  author: string,
+  subreddit : string,
+  bodyMatch: RegExp,
+  replies?: string|Obj[]
+}
+
 function isSoccerAAPostWithReplies(json: CommentData) : boolean {
-  if (json.subreddit !== 'soccer' || json.author !== 'AutoModerator' || !json.body.includes('Alternate Angles')) {
-    return false;
-  }
   const replies = json.replies;
-  return typeof replies !== 'string';
+  if (typeof replies === 'string' || !replies) {
+    return;
+  }
+  const options: PostMatcher[] = [
+    {
+      subreddit: 'soccer',
+      author: 'AutoModerator',
+      bodyMatch: /alternate angles/,
+    },
+    {
+      subreddit: 'nba',
+      author: 'NBA_MOD',
+      bodyMatch: /replay/,
+    },
+  ];
+  for (let i = 0; i < options.length; i++) {
+    const match = options[i];
+    if (match.subreddit === json.subreddit && match.author === json.author && match.bodyMatch.test(json.body.toLowerCase())) {
+      return true;
+    }
+  }
+  return false;
 }
 
 type ExtractedLinkInfo = {
@@ -65,7 +90,7 @@ type ExtractedLinkInfo = {
 
 function generateTableHtml(comments: ExtractedCommentData[]) : string {
  return `
-  <div class="_rcomments_body_html">
+  <div class="_rcomments_extracted_links _rcomments_body_html">
   <table>
   <thead>
   <tr>
@@ -95,23 +120,38 @@ function convertCommentToHtml(commentData: CommentData) : string {
 }
 
 function extractLinkInfoFromComment(commentData: CommentData) : ExtractedLinkInfo|null {
-  const regex = /<a href=(?:"|')(.*)(?:"|').*>(.*)<\/a>/gm;
+  const regex = /<a href=(?:"|')(.*?)(?:"|').*>(.*)<\/a>/gm;
   const matches = [];
   const commentHtml = decodeHTML(commentData.body_html);
   let match = regex.exec(commentHtml);
-  while(match) {
+  while (match) {
     matches.push(match);
     match = regex.exec(commentHtml);
   }
-  const fakeHtml = matches.map(m => {
+  if (matches.length === 0) {
+    return null;
+  }
+  const links : string[] = matches.map(m => {
     const div = document.createElement('div');
     div.innerHTML = m[0];
-   return `<a href="${m[1]}">${div.textContent}</a>`;
-  }).join('');
+    const text = div.textContent;
+    const url = m[1];
+    if (!text || !url) {
+      return '';
+    }
+    return `<a href="${url}" rel="noopener" target="_blank">${text}</a>`;
+  }).filter(v => v !== '');
   return {
     author: commentData.author,
     votes: commentData.ups - commentData.downs, // TODO dedupe code,
     linkHtml: commentData.body_html,
-    linkBody: fakeHtml,
+    linkBody: generateHtmlFromLinks(links),
   }
+}
+
+function generateHtmlFromLinks(links: string[]) : string {
+  if (links.length < 2) {
+    return links.join('');
+  }
+  return `<ul>${links.map(l => `<li>${l}</li>`).join('')}</ul>`;
 }

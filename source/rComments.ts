@@ -51,6 +51,12 @@ UserContext.init();
       }
     },
 
+    appendToComment(commentId: string, html: string) : void {
+      const commentDiv = this.getPopup().querySelector('#' + commentId);
+      const nextChildren = commentDiv.querySelector('.children');
+      nextChildren.innerHTML = html + nextChildren.innerHTML;
+    },
+
     hasAlreadyBuiltPopup() {
       return !!this._popup;
     },
@@ -136,7 +142,7 @@ UserContext.init();
 
     hidePopup() {
       if (this._popup) {
-        // this._popup.style.display = "none";
+        this._popup.style.display = "none";
       }
     },
 
