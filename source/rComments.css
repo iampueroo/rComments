@@ -32,6 +32,7 @@
 ._rcomments_next_reply,
 ._rcomments_next_comment {
   cursor: pointer;
+  user-select: none;
 }
 
 ._rcomments_next_reply,
