@@ -61,16 +61,21 @@
         Update: <strong>HAHA!</strong> Removed jQuery! Down to 11.3 KB!
         </p>
         <section>
-            <h2>Upcoming (v1.4.0)</h2>
-            <p>Version 1.4.0 will have <strong>huge</strong> performance boost via batched queries! Instead of waiting for the next comment to load, additional comment replies will now render instantly (like, in 1 millisecond), as opposed to the ~250-500ms previously.</p>
+            <h2>Upcoming (v1.5.0)</h2>
+            <p>Inspired by the Euro Cup and Copa America, I'm building an automatic AA/Mirror link extractor that pulls the links from the replies of the Automoderator and renders them in the popup. For example, see the stickied comment on <a href="https://www.reddit.com/r/soccer/comments/o6pdv8/brazil_0_1_colombia_luis_d%C3%ADaz_great_goal_10/">this post</a>.
             <p>Still planning out what additional features will be rolled out soon. If you have any thoughts, feel free to create a <a href="https://github.com/iampueroo/rComments/issues">Github issue</a> or <a href="https://twitter.com/iampuero">hit me up</a> on twitter.</p>
         </section>
         <section class="changelog">
             <h2 id="changelog">Changelog</h2>
-            <h4 id="v1.3.0">Version 1.3.0 <strong>(Current)</strong></h4>
+            <h4 id="v1.4.0">Version 1.4.0 <strong>(Current) - Released June 23<sup>rd</sup>, 2021</strong></h4>
+            <ul>
+               <li>✨ <strong>Added</strong> HUGE performance boost in viewing additional comments by implementing batched queries. Instead of waiting for the next comment to load, additional comment replies will now render instantly (like, in 1 millisecond), as opposed to the ~250-500ms previously.</li>
+               <li>🐛 <strong>Fixed</strong> bug causing duplicate posts to appear when the first comemnt was a stickied mod comment.</li>
+            </ul>
+            <h4 id="v1.3.0">Version 1.3.0</h4>
             <ul>
                 <li id="automod-comment-feature">
-                    ✨ <strong>Added</strong> functionality when the first comment of a post is a stickied automod comment. Now, rComments will automatically load the next comment for you. Thanks to <a href="https://github.com/arafatamim">@arafatamim</a> for submitting the <a href="https://github.com/iampueroo/rComments/issues/20">feature request!</a>
+                    ✨ <strong>Added</strong> functionality when the first comment of a post is a stickied mod comment. Now, rComments will automatically load the next comment for you. Thanks to <a href="https://github.com/arafatamim">@arafatamim</a> for submitting the <a href="https://github.com/iampueroo/rComments/issues/20">feature request!</a>
                     <ul>
                         <li><strong>Do you have feedback?</strong> Please <a href="https://github.com/iampueroo/rComments/issues">add an issue</a> on Github with your thoughts.</li>
                     </ul>
