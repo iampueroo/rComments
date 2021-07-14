@@ -360,6 +360,7 @@ UserContext.init();
           e.stopImmediatePropagation();
           const links = e.target.parentElement.parentElement.querySelector('._rcomments_extracted_links');
           links.classList.toggle('_rcomments_hidden');
+          e.target.remove();
         } else if (
           e.target.classList &&
           e.target.classList.contains("md-spoiler-text")
