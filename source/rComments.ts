@@ -182,23 +182,20 @@ UserContext.init();
       return this._popup.innerHTML;
     },
 
-    updateParentComment(el, isLastReply) {
+    updateParentComment(el: HTMLElement, isLastReply: boolean) {
       if (!isLastReply) return;
 
       let container;
-      for (let i = 0; i < el.children.length; i += 1) {
-        if (el.children[i].classList.contains("entry")) {
-          container = el.children[i].querySelector(
-            `.${DOM.classed("next_reply")}`
-          );
-          break;
-        }
-      }
-
-      if (!container) {
+      if (this.isFirstComment(el)) {
+        // If this is the first comment then we need to toggle the top "Next Comment" button
         container = this._popup.querySelector(
-          `.${DOM.classed("next_comment")}`
+            `.${DOM.classed("next_comment")}`
         );
+      } else if (el.classList.contains('entry')) {
+        // Otherwise, it's triggered from the "Next Reply" button
+        container = el.querySelector(`.${DOM.classed('next_reply')}`);
+      } else {
+        throw 'Unexpected element provided to updateParentComment';
       }
 
       if (container.classList.contains(DOM.classed("next_comment"))) {
