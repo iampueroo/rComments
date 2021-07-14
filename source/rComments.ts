@@ -348,7 +348,7 @@ UserContext.init();
       }
       const popup = this.view.getPopup();
       popup.addEventListener("click", (e) => {
-        if (e.target.className === "_rcomments_next_reply") {
+        if (e.target.classList.contains("_rcomments_next_reply")) {
           this.renderCommentFromElement(e.target.parentElement.parentElement);
         } else if (e.target.className === "_rcomments_next_comment") {
           this.renderCommentFromElement(e.target.parentElement);
