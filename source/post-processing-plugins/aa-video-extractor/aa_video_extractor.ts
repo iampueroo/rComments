@@ -55,7 +55,7 @@ type PostMatcher = {
   replies?: string|Obj[]
 }
 
-function isSoccerAAPostWithReplies(json: CommentData) : boolean {
+export function isSoccerAAPostWithReplies(json: CommentData) : boolean {
   const replies = json.replies;
   if (typeof replies === 'string' || !replies) {
     return;
