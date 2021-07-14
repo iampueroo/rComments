@@ -90,8 +90,8 @@ type ExtractedLinkInfo = {
 
 function generateTableHtml(comments: ExtractedCommentData[]) : string {
  return `
-  <div class="_rcomments_extracted_links _rcomments_body_html">
-  <table>
+  <div class="_rcomments_extracted_links _rcomments_body_html _rcomments_hidden">
+  <table width="100%">
   <thead>
   <tr>
   <th>Comment</th>
@@ -145,7 +145,7 @@ function extractLinkInfoFromComment(commentData: CommentData) : ExtractedLinkInf
     author: commentData.author,
     votes: commentData.ups - commentData.downs, // TODO dedupe code,
     linkHtml: commentData.body_html,
-    linkBody: generateHtmlFromLinks(links),
+    linkBody: decodeHTML(commentData.body_html),//generateHtmlFromLinks(links),
   }
 }
 

@@ -29,18 +29,17 @@
   padding: 10px;
 }
 
-._rcomments_next_reply,
-._rcomments_next_comment {
+._rcomments_comment_action {
   cursor: pointer;
   user-select: none;
 }
 
-._rcomments_next_reply,
-._rcomments_no_reply {
+._rcomments_comment_actions {
   padding-top: 5px;
   margin-bottom: 8px;
 }
 
+._rcomments_aa_mirror:hover,
 ._rcomments_next_reply:hover {
   text-decoration: underline;
 }
@@ -184,10 +183,14 @@
   padding-left: 8px;
 }
 
-._rcomments_new_reddit_styles ._rcomments_next_reply,
+._rcomments_new_reddit_styles ._rcomments_comment_actions,
 ._rcomments_loading,
 ._rcomments_no_reply {
   font-size: 10px;
+}
+
+._rcomments_new_reddit_styles ._rcomments_aa_mirror {
+  padding-left: 10px;
 }
 
 ._rcomments_new_reddit_styles ._rcomments_loading {

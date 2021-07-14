@@ -5,7 +5,7 @@ export function extractListingJson(data) {
 }
 
 export function extractAllComments(data: Obj, params: RequestParams) : ExtractedCommentData[] {
-  const commentList = extractCommentList(data, params);
+  const commentList = extractCommentList(data, params) || [];
   return commentList.map((data, index): any => ({
     kind: data.kind,
     json: data.data,

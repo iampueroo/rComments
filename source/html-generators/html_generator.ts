@@ -166,9 +166,12 @@ function getModeratorTagHtml(userContext: UserContext): string {
 
 export function nextReplyPromptHtml(hasMoreReplies: boolean) {
   const NEXT_REPLY_TEXT = "&#8618 Next Reply";
-  const _class = DOM.classed(hasMoreReplies ? "next_reply" : "no_reply");
+  const actionClass = DOM.classed('comment_action');
   const html = hasMoreReplies ? NEXT_REPLY_TEXT : "No Replies";
-  return `<div class="${_class}" style="padding-top:5px">${html}</div>`;
+  return `<div class="${DOM.classed('comment_actions')}" style="padding-top:5px">
+    <span class="${DOM.classed(hasMoreReplies ? "next_reply" : "no_reply")} ${actionClass}">${html}</span>
+    <span class="${DOM.classed('aa_mirror')} ${actionClass}">${hasMoreReplies ? 'AA/Mirrors' : ''}</span>
+    </div>`;
 }
 
 export function voteTagHtml(
