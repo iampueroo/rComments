@@ -4,6 +4,7 @@ import {PostProcessingPlugin} from "../plugins";
 import {getCommentData} from "../../data-fetchers/commentFetcher";
 import {extractAllComments} from "../../data-fetchers/commentInspector";
 import {decodeHTML} from "../../dom/DOM";
+import * as DOM from "../../dom/DOM";
 
 export default {
   doesApply(
@@ -30,13 +31,14 @@ export default {
       timeout: 4000
     });
     const comments = extractAllComments(response, params);
+    const links = comments.map(comment => extractLinkInfoFromComment(comment.json)).filter(info => info !== null);
     /**
      *
      * HERE HERE HERE -> NEED TO GENERATE HTML AND ADD IT
      * NICELY AS A rCOMMENTS MESSAGE INSTEAD OF ANYTHING ELSE
      *
      */
-    const html = generateTableHtml(comments);
+    const html = generateTableHtml(links);
     this.view.appendToComment(commentResponseData.commentId, html);
     /**
      *
@@ -44,6 +46,13 @@ export default {
      * NICELY AS A rCOMMENTS MESSAGE INSTEAD OF ANYTHING ELSE
      *
      */
+    const commentDiv = this.view.getCommentDiv(commentResponseData.commentId);
+    const actionsDiv = commentDiv.querySelector('._rcomments_comment_actions');
+    let buttonSpan = actionsDiv.querySelector('._rcomments_aa_mirror');
+    if (!buttonSpan) {
+      buttonSpan = createActionSpanElement(links.length);
+      actionsDiv.appendChild(buttonSpan);
+    }
     return;
   },
 } as PostProcessingPlugin;
@@ -88,7 +97,15 @@ type ExtractedLinkInfo = {
   votes: number,
 }
 
-function generateTableHtml(comments: ExtractedCommentData[]) : string {
+function createActionSpanElement(count: number) : HTMLElement {
+  const actionClass = DOM.classed('comment_action');
+  const action : HTMLSpanElement = document.createElement('span');
+  action.classList.add(DOM.classed('aa_mirror'), actionClass);
+  action.innerText = `AA/Mirrors (${count})`;
+  return action;
+}
+
+function generateTableHtml(links: ExtractedLinkInfo[]) : string {
  return `
   <div class="_rcomments_extracted_links _rcomments_body_html _rcomments_hidden">
   <table width="100%">
@@ -100,18 +117,14 @@ function generateTableHtml(comments: ExtractedCommentData[]) : string {
 </tr>
 </thead>
   <tbody>
-  ${comments.map((data) => convertCommentToHtml(data.json)).join('')}
+  ${links.map(convertCommentToHtml).join('')}
 </tbody>
   </table>
   </div>
  `;
 }
 
-function convertCommentToHtml(commentData: CommentData) : string {
-  const linkInfo = extractLinkInfoFromComment(commentData);
-  if (!linkInfo) {
-    return '';
-  }
+function convertCommentToHtml(linkInfo: ExtractedLinkInfo) : string {
   return `<tr>
 <td>${linkInfo.linkBody}</td>
 <td>${linkInfo.author}</td>
@@ -131,16 +144,6 @@ function extractLinkInfoFromComment(commentData: CommentData) : ExtractedLinkInf
   if (matches.length === 0) {
     return null;
   }
-  const links : string[] = matches.map(m => {
-    const div = document.createElement('div');
-    div.innerHTML = m[0];
-    const text = div.textContent;
-    const url = m[1];
-    if (!text || !url) {
-      return '';
-    }
-    return `<a href="${url}" rel="noopener" target="_blank">${text}</a>`;
-  }).filter(v => v !== '');
   return {
     author: commentData.author,
     votes: commentData.ups - commentData.downs, // TODO dedupe code,

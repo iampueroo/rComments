@@ -52,9 +52,13 @@ UserContext.init();
     },
 
     appendToComment(commentId: string, html: string) : void {
-      const commentDiv = this.getPopup().querySelector('#' + commentId);
+      const commentDiv = this.getCommentDiv(commentId);
       const nextChildren = commentDiv.querySelector('.children');
       nextChildren.innerHTML = html + nextChildren.innerHTML;
+    },
+
+    getCommentDiv(commentId: string) : HTMLDivElement {
+      return this.getPopup().querySelector(`#${commentId}`);
     },
 
     hasAlreadyBuiltPopup() {

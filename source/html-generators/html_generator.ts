@@ -1,7 +1,6 @@
 import * as DOM from "../dom/DOM";
 import { Award, CommentData, ListingData } from "../types/types";
 import { UserContext } from "../UserContext";
-import {isSoccerAAPostWithReplies} from "../post-processing-plugins/aa-video-extractor/aa_video_extractor";
 
 export function generateCommentHtml(
   context: UserContext,
@@ -171,11 +170,6 @@ export function getActionsPromptHtml(commentData: CommentData) {
   const html = hasMoreReplies ? "&#8618 Next Reply" : "No Replies";
   return `<div class="${DOM.classed('comment_actions')}" style="padding-top:5px">
     <span class="${DOM.classed(hasMoreReplies ? "next_reply" : "no_reply")} ${actionClass}">${html}</span>
-    ${
-    isSoccerAAPostWithReplies(commentData) ?
-        `<span class="${DOM.classed('aa_mirror')} ${actionClass}">${hasMoreReplies ? 'AA/Mirrors' : ''}</span>`
-        : ''
-  }
     </div>`;
 }
 
