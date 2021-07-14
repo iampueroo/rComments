@@ -165,11 +165,15 @@ function getModeratorTagHtml(userContext: UserContext): string {
   return `&nbsp<span class="${DOM.classed("mod")}">MOD</span>`;
 }
 
-export function getActionsPromptHtml(hasMoreReplies: boolean) : string {
-  const actionClass = DOM.classed('comment_action');
+export function getActionsPromptHtml(hasMoreReplies: boolean): string {
+  const actionClass = DOM.classed("comment_action");
   const html = hasMoreReplies ? "&#8618 Next Reply" : "No Replies";
-  return `<div class="${DOM.classed('comment_actions')}" style="padding-top:5px">
-    <span class="${DOM.classed(hasMoreReplies ? "next_reply" : "no_reply")} ${actionClass}">${html}</span>
+  return `<div class="${DOM.classed(
+    "comment_actions"
+  )}" style="padding-top:5px">
+    <span class="${DOM.classed(
+      hasMoreReplies ? "next_reply" : "no_reply"
+    )} ${actionClass}">${html}</span>
     </div>`;
 }
 

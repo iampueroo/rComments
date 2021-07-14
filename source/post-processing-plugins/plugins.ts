@@ -14,4 +14,7 @@ export interface PostProcessingPlugin {
   ): Promise<boolean>;
 }
 
-export default [stickied_automod_comment, aa_video_extractor] as PostProcessingPlugin[];
+export default [
+  stickied_automod_comment,
+  aa_video_extractor,
+] as PostProcessingPlugin[];

@@ -1,28 +1,23 @@
 [
   {
     "kind": "Listing",
-    "data":
-    {
+    "data": {
       "modhash": "btu881uhz08d5d9701977fde7a9ee7a4fa7cbdcfef42d43b49",
       "dist": 1,
-      "children":
-      [
+      "children": [
         {
           "kind": "t3",
-          "data":
-          {
+          "data": {
             "approved_at_utc": null,
             "subreddit": "soccer",
             "selftext": "",
-            "user_reports":
-            [],
+            "user_reports": [],
             "saved": false,
             "mod_reason_title": null,
             "gilded": 1,
             "clicked": false,
             "title": "Dubravka save vs Isak 71’ [UEFA EURO 2020]",
-            "link_flair_richtext":
-            [
+            "link_flair_richtext": [
               {
                 "e": "text",
                 "t": "Media"
@@ -44,8 +39,7 @@
             "subreddit_type": "public",
             "ups": 2225,
             "total_awards_received": 6,
-            "media_embed":
-            {
+            "media_embed": {
               "content": "&lt;iframe class=\"embedly-embed\" src=\"https://cdn.embedly.com/widgets/media.html?src=https%3A%2F%2Fwww.clippituser.tv%2Fc%2Ftwitter%2Fyzvebk&amp;display_name=Clippit&amp;url=https%3A%2F%2Fwww.clippituser.tv%2Fc%2Fyzvebk&amp;image=https%3A%2F%2Fclips.clippit.tv%2Fyzvebk%2Fthumbnail_share.jpg&amp;key=ed8fa8699ce04833838e66ce79ba05f1&amp;type=text%2Fhtml&amp;schema=clippituser\" width=\"600\" height=\"337\" scrolling=\"no\" title=\"Clippit embed\" frameborder=\"0\" allow=\"autoplay; fullscreen\" allowfullscreen=\"true\"&gt;&lt;/iframe&gt;",
               "width": 600,
               "scrolling": false,
@@ -54,10 +48,8 @@
             "author_flair_template_id": "a8ad979e-7c07-11e9-b588-0e55aa3940a6",
             "is_original_content": false,
             "author_fullname": "t2_33ehu0gl",
-            "secure_media":
-            {
-              "oembed":
-              {
+            "secure_media": {
+              "oembed": {
                 "provider_url": "http://clippit.tv",
                 "description": "Dubravka save vs Isak 71' [UEFA EURO 2020]",
                 "title": "UEFA Euro 2020 Soccer: Sweden vs. Slovakia | ESPN",
@@ -76,8 +68,7 @@
             "is_reddit_media_domain": false,
             "is_meta": false,
             "category": null,
-            "secure_media_embed":
-            {
+            "secure_media_embed": {
               "content": "&lt;iframe class=\"embedly-embed\" src=\"https://cdn.embedly.com/widgets/media.html?src=https%3A%2F%2Fwww.clippituser.tv%2Fc%2Ftwitter%2Fyzvebk&amp;display_name=Clippit&amp;url=https%3A%2F%2Fwww.clippituser.tv%2Fc%2Fyzvebk&amp;image=https%3A%2F%2Fclips.clippit.tv%2Fyzvebk%2Fthumbnail_share.jpg&amp;key=ed8fa8699ce04833838e66ce79ba05f1&amp;type=text%2Fhtml&amp;schema=clippituser\" width=\"600\" height=\"337\" scrolling=\"no\" title=\"Clippit embed\" frameborder=\"0\" allow=\"autoplay; fullscreen\" allowfullscreen=\"true\"&gt;&lt;/iframe&gt;",
               "width": 600,
               "scrolling": false,
@@ -93,16 +84,14 @@
             "thumbnail": "",
             "edited": false,
             "author_flair_css_class": null,
-            "author_flair_richtext":
-            [
+            "author_flair_richtext": [
               {
                 "a": ":Real_Madrid:",
                 "u": "https://emoji.redditmedia.com/ahyx6fuw6bd11_t5_2qi58/Real_Madrid",
                 "e": "emoji"
               }
             ],
-            "gildings":
-            {
+            "gildings": {
               "gid_1": 2,
               "gid_2": 1
             },
@@ -128,8 +117,7 @@
             "is_crosspostable": true,
             "pinned": false,
             "over_18": false,
-            "all_awardings":
-            [
+            "all_awardings": [
               {
                 "giver_coin_reward": null,
                 "subreddit_id": null,
@@ -143,8 +131,7 @@
                 "days_of_premium": 7,
                 "icon_height": 512,
                 "tiers_by_required_awardings": null,
-                "resized_icons":
-                [
+                "resized_icons": [
                   {
                     "url": "https://www.redditstatic.com/gold/awards/icon/gold_16.png",
                     "width": 16,
@@ -182,8 +169,7 @@
                 "count": 1,
                 "static_icon_height": 512,
                 "name": "Gold",
-                "resized_static_icons":
-                [
+                "resized_static_icons": [
                   {
                     "url": "https://www.redditstatic.com/gold/awards/icon/gold_16.png",
                     "width": 16,
@@ -229,8 +215,7 @@
                 "days_of_premium": 0,
                 "icon_height": 2048,
                 "tiers_by_required_awardings": null,
-                "resized_icons":
-                [
+                "resized_icons": [
                   {
                     "url": "https://preview.redd.it/award_images/t5_22cerq/klvxk1wggfd41_Helpful.png?width=16&amp;height=16&amp;auto=webp&amp;s=a5662dfbdb402bf67866c050aa76c31c147c2f45",
                     "width": 16,
@@ -268,8 +253,7 @@
                 "count": 2,
                 "static_icon_height": 2048,
                 "name": "Helpful",
-                "resized_static_icons":
-                [
+                "resized_static_icons": [
                   {
                     "url": "https://preview.redd.it/award_images/t5_22cerq/klvxk1wggfd41_Helpful.png?width=16&amp;height=16&amp;auto=webp&amp;s=a5662dfbdb402bf67866c050aa76c31c147c2f45",
                     "width": 16,
@@ -315,8 +299,7 @@
                 "days_of_premium": 0,
                 "icon_height": 2048,
                 "tiers_by_required_awardings": null,
-                "resized_icons":
-                [
+                "resized_icons": [
                   {
                     "url": "https://preview.redd.it/award_images/t5_22cerq/5izbv4fn0md41_Wholesome.png?width=16&amp;height=16&amp;auto=webp&amp;s=92932f465d58e4c16b12b6eac4ca07d27e3d11c0",
                     "width": 16,
@@ -354,8 +337,7 @@
                 "count": 1,
                 "static_icon_height": 2048,
                 "name": "Wholesome",
-                "resized_static_icons":
-                [
+                "resized_static_icons": [
                   {
                     "url": "https://preview.redd.it/award_images/t5_22cerq/5izbv4fn0md41_Wholesome.png?width=16&amp;height=16&amp;auto=webp&amp;s=92932f465d58e4c16b12b6eac4ca07d27e3d11c0",
                     "width": 16,
@@ -401,8 +383,7 @@
                 "days_of_premium": 0,
                 "icon_height": 512,
                 "tiers_by_required_awardings": null,
-                "resized_icons":
-                [
+                "resized_icons": [
                   {
                     "url": "https://www.redditstatic.com/gold/awards/icon/silver_16.png",
                     "width": 16,
@@ -440,8 +421,7 @@
                 "count": 2,
                 "static_icon_height": 512,
                 "name": "Silver",
-                "resized_static_icons":
-                [
+                "resized_static_icons": [
                   {
                     "url": "https://www.redditstatic.com/gold/awards/icon/silver_16.png",
                     "width": 16,
@@ -475,16 +455,14 @@
                 "static_icon_url": "https://www.redditstatic.com/gold/awards/icon/silver_512.png"
               }
             ],
-            "awarders":
-            [],
+            "awarders": [],
             "media_only": false,
             "link_flair_template_id": "8a1f9432-d807-11e5-a837-0e946f872575",
             "can_gild": true,
             "spoiler": false,
             "locked": false,
             "author_flair_text": ":Real_Madrid:",
-            "treatment_tags":
-            [],
+            "treatment_tags": [],
             "visited": false,
             "removed_by": null,
             "num_reports": null,
@@ -501,10 +479,8 @@
             "discussion_type": null,
             "num_comments": 226,
             "send_replies": false,
-            "media":
-            {
-              "oembed":
-              {
+            "media": {
+              "oembed": {
                 "provider_url": "http://clippit.tv",
                 "description": "Dubravka save vs Isak 71' [UEFA EURO 2020]",
                 "title": "UEFA Euro 2020 Soccer: Sweden vs. Slovakia | ESPN",
@@ -530,8 +506,7 @@
             "subreddit_subscribers": 2760389,
             "created_utc": 1624026438.0,
             "num_crossposts": 1,
-            "mod_reports":
-            [],
+            "mod_reports": [],
             "is_video": false
           }
         }
@@ -542,21 +517,17 @@
   },
   {
     "kind": "Listing",
-    "data":
-    {
+    "data": {
       "modhash": "btu881uhz08d5d9701977fde7a9ee7a4fa7cbdcfef42d43b49",
       "dist": null,
-      "children":
-      [
+      "children": [
         {
           "kind": "t1",
-          "data":
-          {
+          "data": {
             "total_awards_received": 0,
             "approved_at_utc": null,
             "comment_type": null,
-            "awarders":
-            [],
+            "awarders": [],
             "mod_reason_by": null,
             "banned_by": null,
             "ups": 875,
@@ -565,24 +536,19 @@
             "link_id": "t3_o2qcxx",
             "author_flair_template_id": null,
             "likes": null,
-            "replies":
-            {
+            "replies": {
               "kind": "Listing",
-              "data":
-              {
+              "data": {
                 "modhash": "btu881uhz08d5d9701977fde7a9ee7a4fa7cbdcfef42d43b49",
                 "dist": null,
-                "children":
-                [
+                "children": [
                   {
                     "kind": "t1",
-                    "data":
-                    {
+                    "data": {
                       "total_awards_received": 0,
                       "approved_at_utc": null,
                       "comment_type": null,
-                      "awarders":
-                      [],
+                      "awarders": [],
                       "mod_reason_by": null,
                       "banned_by": null,
                       "ups": 315,
@@ -591,26 +557,21 @@
                       "link_id": "t3_o2qcxx",
                       "author_flair_template_id": null,
                       "likes": null,
-                      "replies":
-                      {
+                      "replies": {
                         "kind": "Listing",
-                        "data":
-                        {
+                        "data": {
                           "modhash": "btu881uhz08d5d9701977fde7a9ee7a4fa7cbdcfef42d43b49",
                           "dist": null,
-                          "children":
-                          [
+                          "children": [
                             {
                               "kind": "more",
-                              "data":
-                              {
+                              "data": {
                                 "count": 0,
                                 "name": "t1__",
                                 "id": "_",
                                 "parent_id": "t1_h27p6o1",
                                 "depth": 2,
-                                "children":
-                                []
+                                "children": []
                               }
                             }
                           ],
@@ -618,8 +579,7 @@
                           "before": null
                         }
                       },
-                      "user_reports":
-                      [],
+                      "user_reports": [],
                       "saved": false,
                       "id": "h27p6o1",
                       "banned_at_utc": null,
@@ -635,8 +595,7 @@
                       "author_fullname": "t2_6o6o6eqz",
                       "report_reasons": null,
                       "approved_by": null,
-                      "all_awardings":
-                      [],
+                      "all_awardings": [],
                       "subreddit_id": "t5_2qi58",
                       "collapsed": false,
                       "body": "Yeah, lad was riding tackles like it was the 80s out there.",
@@ -644,8 +603,7 @@
                       "author_flair_css_class": "",
                       "is_submitter": false,
                       "downs": 0,
-                      "author_flair_richtext":
-                      [
+                      "author_flair_richtext": [
                         {
                           "a": ":English_FA:",
                           "u": "https://emoji.redditmedia.com/lu9u6eu37kv11_t5_2qi58/English_FA",
@@ -654,8 +612,7 @@
                       ],
                       "author_patreon_flair": false,
                       "body_html": "&lt;div class=\"md\"&gt;&lt;p&gt;Yeah, lad was riding tackles like it was the 80s out there.&lt;/p&gt;\n&lt;/div&gt;",
-                      "gildings":
-                      {},
+                      "gildings": {},
                       "collapsed_reason": null,
                       "associated_award": null,
                       "stickied": false,
@@ -672,29 +629,25 @@
                       "created": 1624055452.0,
                       "subreddit": "soccer",
                       "author_flair_text": ":English_FA:",
-                      "treatment_tags":
-                      [],
+                      "treatment_tags": [],
                       "created_utc": 1624026652.0,
                       "subreddit_name_prefixed": "r/soccer",
                       "controversiality": 0,
                       "depth": 1,
                       "author_flair_background_color": "",
                       "collapsed_because_crowd_control": null,
-                      "mod_reports":
-                      [],
+                      "mod_reports": [],
                       "mod_note": null,
                       "distinguished": null
                     }
                   },
                   {
                     "kind": "t1",
-                    "data":
-                    {
+                    "data": {
                       "total_awards_received": 0,
                       "approved_at_utc": null,
                       "comment_type": null,
-                      "awarders":
-                      [],
+                      "awarders": [],
                       "mod_reason_by": null,
                       "banned_by": null,
                       "ups": 82,
@@ -704,8 +657,7 @@
                       "author_flair_template_id": null,
                       "likes": null,
                       "replies": "",
-                      "user_reports":
-                      [],
+                      "user_reports": [],
                       "saved": false,
                       "id": "h27qd3a",
                       "banned_at_utc": null,
@@ -721,8 +673,7 @@
                       "author_fullname": "t2_th7ll",
                       "report_reasons": null,
                       "approved_by": null,
-                      "all_awardings":
-                      [],
+                      "all_awardings": [],
                       "subreddit_id": "t5_2qi58",
                       "collapsed": false,
                       "body": "in the age of clickbate you kinda have to respect this type of understatement",
@@ -730,8 +681,7 @@
                       "author_flair_css_class": " ",
                       "is_submitter": false,
                       "downs": 0,
-                      "author_flair_richtext":
-                      [
+                      "author_flair_richtext": [
                         {
                           "a": ":Real_Zaragoza:",
                           "u": "https://emoji.redditmedia.com/u4adqapeghd11_t5_2qi58/Real_Zaragoza",
@@ -740,8 +690,7 @@
                       ],
                       "author_patreon_flair": false,
                       "body_html": "&lt;div class=\"md\"&gt;&lt;p&gt;in the age of clickbate you kinda have to respect this type of understatement&lt;/p&gt;\n&lt;/div&gt;",
-                      "gildings":
-                      {},
+                      "gildings": {},
                       "collapsed_reason": null,
                       "associated_award": null,
                       "stickied": false,
@@ -758,29 +707,25 @@
                       "created": 1624055979.0,
                       "subreddit": "soccer",
                       "author_flair_text": ":Real_Zaragoza:",
-                      "treatment_tags":
-                      [],
+                      "treatment_tags": [],
                       "created_utc": 1624027179.0,
                       "subreddit_name_prefixed": "r/soccer",
                       "controversiality": 0,
                       "depth": 1,
                       "author_flair_background_color": "",
                       "collapsed_because_crowd_control": null,
-                      "mod_reports":
-                      [],
+                      "mod_reports": [],
                       "mod_note": null,
                       "distinguished": null
                     }
                   },
                   {
                     "kind": "t1",
-                    "data":
-                    {
+                    "data": {
                       "total_awards_received": 0,
                       "approved_at_utc": null,
                       "comment_type": null,
-                      "awarders":
-                      [],
+                      "awarders": [],
                       "mod_reason_by": null,
                       "banned_by": null,
                       "ups": 2,
@@ -790,8 +735,7 @@
                       "author_flair_template_id": null,
                       "likes": null,
                       "replies": "",
-                      "user_reports":
-                      [],
+                      "user_reports": [],
                       "saved": false,
                       "id": "h29f5e2",
                       "banned_at_utc": null,
@@ -807,8 +751,7 @@
                       "author_fullname": "t2_4or3d6x",
                       "report_reasons": null,
                       "approved_by": null,
-                      "all_awardings":
-                      [],
+                      "all_awardings": [],
                       "subreddit_id": "t5_2qi58",
                       "collapsed": false,
                       "body": "Was an impressive save but yeah isak was out there playing with defenders like Neymar at Santos",
@@ -816,8 +759,7 @@
                       "author_flair_css_class": "",
                       "is_submitter": false,
                       "downs": 0,
-                      "author_flair_richtext":
-                      [
+                      "author_flair_richtext": [
                         {
                           "a": ":r_soccer_user:",
                           "u": "https://emoji.redditmedia.com/g8fnz3oiunq61_t5_2qi58/r_soccer_user",
@@ -826,8 +768,7 @@
                       ],
                       "author_patreon_flair": false,
                       "body_html": "&lt;div class=\"md\"&gt;&lt;p&gt;Was an impressive save but yeah isak was out there playing with defenders like Neymar at Santos&lt;/p&gt;\n&lt;/div&gt;",
-                      "gildings":
-                      {},
+                      "gildings": {},
                       "collapsed_reason": null,
                       "associated_award": null,
                       "stickied": false,
@@ -844,16 +785,14 @@
                       "created": 1624083815.0,
                       "subreddit": "soccer",
                       "author_flair_text": ":r_soccer_user:",
-                      "treatment_tags":
-                      [],
+                      "treatment_tags": [],
                       "created_utc": 1624055015.0,
                       "subreddit_name_prefixed": "r/soccer",
                       "controversiality": 0,
                       "depth": 1,
                       "author_flair_background_color": "",
                       "collapsed_because_crowd_control": null,
-                      "mod_reports":
-                      [],
+                      "mod_reports": [],
                       "mod_note": null,
                       "distinguished": null
                     }
@@ -863,8 +802,7 @@
                 "before": null
               }
             },
-            "user_reports":
-            [],
+            "user_reports": [],
             "saved": false,
             "id": "h27ovh3",
             "banned_at_utc": null,
@@ -880,8 +818,7 @@
             "author_fullname": "t2_16x57t",
             "report_reasons": null,
             "approved_by": null,
-            "all_awardings":
-            [],
+            "all_awardings": [],
             "subreddit_id": "t5_2qi58",
             "body": "Is this really the best title? Amazing play by Isak there.",
             "edited": false,
@@ -889,8 +826,7 @@
             "author_flair_css_class": " ",
             "is_submitter": false,
             "collapsed": false,
-            "author_flair_richtext":
-            [
+            "author_flair_richtext": [
               {
                 "a": ":Manchester_United:",
                 "u": "https://emoji.redditmedia.com/66c5gkaw6bd11_t5_2qi58/Manchester_United",
@@ -899,8 +835,7 @@
             ],
             "author_patreon_flair": false,
             "body_html": "&lt;div class=\"md\"&gt;&lt;p&gt;Is this really the best title? Amazing play by Isak there.&lt;/p&gt;\n&lt;/div&gt;",
-            "gildings":
-            {},
+            "gildings": {},
             "collapsed_reason": null,
             "associated_award": null,
             "stickied": false,
@@ -917,16 +852,14 @@
             "created": 1624055307.0,
             "subreddit": "soccer",
             "author_flair_text": ":Manchester_United:",
-            "treatment_tags":
-            [],
+            "treatment_tags": [],
             "created_utc": 1624026507.0,
             "subreddit_name_prefixed": "r/soccer",
             "controversiality": 0,
             "depth": 0,
             "author_flair_background_color": "",
             "collapsed_because_crowd_control": null,
-            "mod_reports":
-            [],
+            "mod_reports": [],
             "mod_note": null,
             "distinguished": null
           }

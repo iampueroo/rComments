@@ -44,13 +44,13 @@ export default class Store {
   }
 
   getNNextCommentRequestParameters(
-      n: number,
-      url: string,
-      commentId: string | null = null
+    n: number,
+    url: string,
+    commentId: string | null = null
   ): RequestParams {
     const params =
-        this.getRequestParameters(url, commentId) ||
-        Store.getInitialRequestParameters(commentId);
+      this.getRequestParameters(url, commentId) ||
+      Store.getInitialRequestParameters(commentId);
     params.commentIndex += 1; // TODO: remove commentIndex from here
     params.limit += n;
     return params;

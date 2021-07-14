@@ -16,7 +16,10 @@ import Store from "./Store";
 import { getCommentData } from "./data-fetchers/commentFetcher";
 import { getListingUrlPathElement } from "./dom/dom-accessors";
 import plugins from "./post-processing-plugins/plugins";
-import {extractCommentData, extractListingJson} from "./data-fetchers/commentInspector";
+import {
+  extractCommentData,
+  extractListingJson,
+} from "./data-fetchers/commentInspector";
 
 UserContext.init();
 
@@ -51,13 +54,13 @@ UserContext.init();
       }
     },
 
-    appendToComment(commentId: string, html: string) : void {
+    appendToComment(commentId: string, html: string): void {
       const commentDiv = this.getCommentDiv(commentId);
-      const nextChildren = commentDiv.querySelector('.children');
+      const nextChildren = commentDiv.querySelector(".children");
       nextChildren.innerHTML = html + nextChildren.innerHTML;
     },
 
-    getCommentDiv(commentId: string) : HTMLDivElement {
+    getCommentDiv(commentId: string): HTMLDivElement {
       return this.getPopup().querySelector(`#${commentId}`);
     },
 
@@ -193,13 +196,13 @@ UserContext.init();
       if (this.isFirstComment(el)) {
         // If this is the first comment then we need to toggle the top "Next Comment" button
         container = this._popup.querySelector(
-            `.${DOM.classed("next_comment")}`
+          `.${DOM.classed("next_comment")}`
         );
-      } else if (el.classList.contains('entry')) {
+      } else if (el.classList.contains("entry")) {
         // Otherwise, it's triggered from the "Next Reply" button
-        container = el.querySelector(`.${DOM.classed('next_reply')}`);
+        container = el.querySelector(`.${DOM.classed("next_reply")}`);
       } else {
-        throw 'Unexpected element provided to updateParentComment';
+        throw "Unexpected element provided to updateParentComment";
       }
 
       if (container.classList.contains(DOM.classed("next_comment"))) {
@@ -356,10 +359,15 @@ UserContext.init();
         } else if (e.target.classList && e.target.classList[0] === "arrow") {
           e.stopImmediatePropagation();
           this.handleVote(e.target);
-        } else if (e.target.classList && e.target.classList[0] === "_rcomments_aa_mirror") {
+        } else if (
+          e.target.classList &&
+          e.target.classList[0] === "_rcomments_aa_mirror"
+        ) {
           e.stopImmediatePropagation();
-          const links = e.target.parentElement.parentElement.querySelector('._rcomments_extracted_links');
-          links.classList.toggle('_rcomments_hidden');
+          const links = e.target.parentElement.parentElement.querySelector(
+            "._rcomments_extracted_links"
+          );
+          links.classList.toggle("_rcomments_hidden");
           e.target.remove();
         } else if (
           e.target.classList &&
@@ -426,9 +434,16 @@ UserContext.init();
       this.showComment(commentResponseData);
       plugins.forEach((plugin) => {
         if (plugin.doesApply(commentResponseData, requestData)) {
-          plugin.execute.call(this, commentResponseData, requestData).then(
-              (success) => success ? this.model.commentStatus.setCachedHtml(commentResponseData.url, this.view.contentHtml()) : null
-          );
+          plugin.execute
+            .call(this, commentResponseData, requestData)
+            .then((success) =>
+              success
+                ? this.model.commentStatus.setCachedHtml(
+                    commentResponseData.url,
+                    this.view.contentHtml()
+                  )
+                : null
+            );
         }
       });
     },
@@ -533,7 +548,11 @@ UserContext.init();
 
     showComment(data: SuccessfulCommentResponseData): void {
       const { commentJson, isLastReply, url, el } = data;
-      const commentHtml = generateCommentHtml(UserContext.get(), commentJson, this.model.currentListing);
+      const commentHtml = generateCommentHtml(
+        UserContext.get(),
+        commentJson,
+        this.model.currentListing
+      );
       this.view.show(el, commentHtml);
       this.view.updateParentComment(el, isLastReply);
       // Do we need comment id?

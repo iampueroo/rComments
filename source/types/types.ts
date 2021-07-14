@@ -27,23 +27,23 @@ export type CommentData = {
 type Thing = MoreThing | ListingThing;
 
 type MoreThing = {
-  kind: "more",
+  kind: "more";
   data: {
-    children: [],
-    count: number,
-    depth: number,
-    id: string,
-    name: string,
-    parent_id: string,
-  },
-}
+    children: [];
+    count: number;
+    depth: number;
+    id: string;
+    name: string;
+    parent_id: string;
+  };
+};
 
 type ListingThing = {
-  kind: "Listing", // Enum,
+  kind: "Listing"; // Enum,
   data: {
-    children: []
-  }
-}
+    children: [];
+  };
+};
 
 export type Award = {
   resized_icons: AwardIcon[];
