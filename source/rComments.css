@@ -29,7 +29,7 @@
   padding: 10px;
 }
 
-._rcomments_comment_action {
+._rcomments_comment_action:not(._rcomments_no_reply) {
   cursor: pointer;
   user-select: none;
 }
