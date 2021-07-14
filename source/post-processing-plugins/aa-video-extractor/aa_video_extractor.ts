@@ -1,4 +1,4 @@
-import {CommentData, ExtractedCommentData, Obj, RequestData, SuccessfulCommentResponseData} from "../../types/types";
+import {CommentData, Obj, RequestData, SuccessfulCommentResponseData} from "../../types/types";
 import {isStickiedModeratorPost} from "../../html-generators/html_generator";
 import {PostProcessingPlugin} from "../plugins";
 import {getCommentData} from "../../data-fetchers/commentFetcher";
@@ -18,7 +18,7 @@ export default {
   async execute(
       commentResponseData: SuccessfulCommentResponseData,
       requestData: RequestData
-  ): Promise<void> {
+  ): Promise<boolean> {
     // Get all params
     const params = this.model.commentStatus.getNNextCommentRequestParameters(
         5,
@@ -32,6 +32,9 @@ export default {
     });
     const comments = extractAllComments(response, params);
     const links = comments.map(comment => extractLinkInfoFromComment(comment.json)).filter(info => info !== null);
+    if (links.length === 0) {
+      return false;
+    }
     /**
      *
      * HERE HERE HERE -> NEED TO GENERATE HTML AND ADD IT
@@ -53,7 +56,7 @@ export default {
       buttonSpan = createActionSpanElement(links.length);
       actionsDiv.appendChild(buttonSpan);
     }
-    return;
+    return true;
   },
 } as PostProcessingPlugin;
 

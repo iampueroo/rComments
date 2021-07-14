@@ -11,7 +11,7 @@ export interface PostProcessingPlugin {
   execute(
     commentResponseData: SuccessfulCommentResponseData,
     requestData: RequestData
-  ): void;
+  ): Promise<boolean>;
 }
 
 export default [stickied_automod_comment, aa_video_extractor] as PostProcessingPlugin[];

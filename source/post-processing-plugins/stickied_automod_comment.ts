@@ -15,7 +15,7 @@ export default {
   async execute(
     commentResponseData: SuccessfulCommentResponseData,
     requestData: RequestData
-  ): Promise<void> {
+  ): Promise<boolean> {
     const parentElement = this.view.getPopup();
     this.view.loading(parentElement);
     const params = this.model.commentStatus.getNextCommentRequestParameters(
@@ -29,5 +29,6 @@ export default {
     if (data.success) {
       this.showComment(data);
     }
+    return data.success;
   },
 } as PostProcessingPlugin;

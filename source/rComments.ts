@@ -427,7 +427,7 @@ UserContext.init();
       plugins.forEach((plugin) => {
         if (plugin.doesApply(commentResponseData, requestData)) {
           plugin.execute.call(this, commentResponseData, requestData).then(
-              () => this.model.commentStatus.setCachedHtml(commentResponseData.url, this.view.contentHtml())
+              (success) => success ? this.model.commentStatus.setCachedHtml(commentResponseData.url, this.view.contentHtml()) : null
           );
         }
       });
