@@ -129,6 +129,11 @@
   );
   cursor: pointer;
 }
+
+._rcomments_next_comment, ._rcomments_next_comment_none {
+  user-select: none;
+}
+
 ._rcomments_next_comment_none,
 ._rcomments_no_reply {
   color: lightgray;
