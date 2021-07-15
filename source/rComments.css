@@ -127,6 +127,7 @@
     rgba(0, 0, 0, 0.3),
     rgba(255, 255, 255, 0.9)
   );
+  cursor: pointer;
 }
 ._rcomments_next_comment_none,
 ._rcomments_no_reply {
