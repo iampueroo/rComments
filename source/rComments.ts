@@ -193,8 +193,10 @@ UserContext.init();
       if (!isLastReply) return;
 
       let container;
-      if (this.isFirstComment(el)) {
+      if (this.isFirstComment(el) || el.classList.contains(R_COMMENTS_MAIN_CLASS)) {
         // If this is the first comment then we need to toggle the top "Next Comment" button
+        // Similarly, if the element is the overall div that signifies we clicked the "Next Comment"
+        // button and are rendering the last top-level comment
         container = this._popup.querySelector(
           `.${DOM.classed("next_comment")}`
         );
