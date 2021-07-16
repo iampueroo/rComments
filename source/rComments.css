@@ -143,14 +143,6 @@
   padding: 5px 5px 5px 10px;
 }
 
-._rcomments_extracted_links {
-  background-color: antiquewhite;
-}
-
-.res-nightmode ._rcomments_extracted_links {
-  background-color: inherit;
-}
-
 /**********************************/
 /* START new reddit overrides
 /**********************************/

@@ -124,7 +124,7 @@ function createActionSpanElement(count: number): HTMLElement {
 
 function generateTableHtml(links: ExtractedLinkInfo[]): string {
   return `
-  <div class="_rcomments_extracted_links _rcomments_body_html _rcomments_hidden">
+  <div class="_rcomments_extracted_links _rcomments_body_html _rcomments_hidden md">
   <table width="100%">
   <thead>
   <tr>
