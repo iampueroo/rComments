@@ -27,7 +27,6 @@ export default {
     commentResponseData: SuccessfulCommentResponseData,
     requestData: RequestData
   ): Promise<boolean> {
-    // Get all params
     const params = this.model.commentStatus.getNNextCommentRequestParameters(
       5,
       commentResponseData.url,
