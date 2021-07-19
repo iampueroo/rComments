@@ -19,7 +19,7 @@ export default {
     const commentJson = commentResponseData.commentJson;
     return (
       isStickiedModeratorPost(commentJson) &&
-      isSoccerAAPostWithReplies(commentJson)
+      shouldAttemptVideoExtraction(commentJson)
     );
   },
 
@@ -77,7 +77,7 @@ type PostMatcher = {
   replies?: string | Obj[];
 };
 
-export function isSoccerAAPostWithReplies(json: CommentData): boolean {
+export function shouldAttemptVideoExtraction(json: CommentData): boolean {
   const replies = json.replies;
   if (typeof replies === "string" || !replies) {
     return;
