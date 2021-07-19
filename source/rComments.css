@@ -339,3 +339,14 @@
 /**********************************/
 /* END new reddit overrides
 /**********************************/
+
+._rcomments_extracted_links {
+    overflow-x: scroll;
+}
+
+._rcomments_extracted_links_msg {
+  text-align: center;
+  padding-bottom: 4px;
+  text-align: center;
+  font-size: 12px;
+}
