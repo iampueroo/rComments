@@ -168,13 +168,6 @@ function extractLinkInfoFromComment(
     author: commentData.author,
     votes: commentData.ups - commentData.downs, // TODO dedupe code,
     linkHtml: commentData.body_html,
-    linkBody: decodeHTML(commentData.body_html), //generateHtmlFromLinks(links),
+    linkBody: decodeHTML(commentData.body_html),
   };
-}
-
-function generateHtmlFromLinks(links: string[]): string {
-  if (links.length < 2) {
-    return links.join("");
-  }
-  return `<ul>${links.map((l) => `<li>${l}</li>`).join("")}</ul>`;
 }
