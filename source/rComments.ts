@@ -20,6 +20,10 @@ import {
   extractCommentData,
   extractListingJson,
 } from "./data-fetchers/commentInspector";
+import {
+  handleAAExtractorClick,
+  isAALinksTogglerElement
+} from "./post-processing-plugins/aa-video-extractor/aa_video_extractor";
 
 UserContext.init();
 
@@ -361,16 +365,8 @@ UserContext.init();
         } else if (e.target.classList && e.target.classList[0] === "arrow") {
           e.stopImmediatePropagation();
           this.handleVote(e.target);
-        } else if (
-          e.target.classList &&
-          e.target.classList[0] === "_rcomments_aa_mirror"
-        ) {
-          e.stopImmediatePropagation();
-          const links = e.target.parentElement.parentElement.querySelector(
-            "._rcomments_extracted_links"
-          );
-          links.classList.toggle("_rcomments_hidden");
-          e.target.remove();
+        } else if (isAALinksTogglerElement(e)) {
+          handleAAExtractorClick(e)
         } else if (
           e.target.classList &&
           e.target.classList.contains("md-spoiler-text")

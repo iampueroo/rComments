@@ -106,6 +106,22 @@ export function shouldAttemptVideoExtraction(json: CommentData): boolean {
   return false;
 }
 
+export function isAALinksTogglerElement(event): boolean {
+  return event.target.classList && event.target.classList.contains('_rcomments_aa_mirror');
+}
+
+export function handleAAExtractorClick(event): void {
+  event.stopImmediatePropagation();
+  const links = event.target.parentElement.parentElement.querySelector(
+      "._rcomments_extracted_links"
+  );
+  if (!links) {
+   return;
+  }
+  links.classList.toggle("_rcomments_hidden");
+  event.target.remove();
+}
+
 type ExtractedLinkInfo = {
   linkBody: string;
   linkHtml: string;
