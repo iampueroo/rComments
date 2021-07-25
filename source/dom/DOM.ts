@@ -15,7 +15,7 @@ export function decodeHTML(html: string): string {
 export function getFirstParent(
   el: HTMLElement,
   selector: string
-): HTMLElement | boolean {
+): HTMLElement | false {
   if (!el.parentElement) {
     return false;
   }
@@ -38,4 +38,8 @@ export function getParents(el: HTMLElement, selector: string): HTMLElement[] {
 
 export function classed(classes: string): string {
   return R_COMMENTS_CLASS_PREFIX + classes;
+}
+
+export function classedSelector(classes: string): string {
+  return "." + R_COMMENTS_CLASS_PREFIX + classes;
 }

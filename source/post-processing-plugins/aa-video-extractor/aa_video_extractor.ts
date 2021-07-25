@@ -8,7 +8,7 @@ import { isStickiedModeratorPost } from "../../html-generators/html_generator";
 import { PostProcessingPlugin } from "../plugins";
 import { getCommentData } from "../../data-fetchers/commentFetcher";
 import { extractAllComments } from "../../data-fetchers/commentInspector";
-import { decodeHTML } from "../../dom/DOM";
+import { decodeHTML, getFirstParent } from "../../dom/DOM";
 import * as DOM from "../../dom/DOM";
 
 export default {
@@ -38,29 +38,20 @@ export default {
       timeout: 4000,
     });
     const comments = extractAllComments(response, params);
+
     const links = comments
       .map((comment) => extractLinkInfoFromComment(comment.json))
       .filter((info) => info !== null);
     if (links.length === 0) {
       return false;
     }
-    /**
-     *
-     * HERE HERE HERE -> NEED TO GENERATE HTML AND ADD IT
-     * NICELY AS A rCOMMENTS MESSAGE INSTEAD OF ANYTHING ELSE
-     *
-     */
     const html = generateTableHtml(links);
     this.view.appendToComment(commentResponseData.commentId, html);
-    /**
-     *
-     * HERE HERE HERE -> NEED TO GENERATE HTML AND ADD IT
-     * NICELY AS A rCOMMENTS MESSAGE INSTEAD OF ANYTHING ELSE
-     *
-     */
     const commentDiv = this.view.getCommentDiv(commentResponseData.commentId);
-    const actionsDiv = commentDiv.querySelector("._rcomments_comment_actions");
-    let buttonSpan = actionsDiv.querySelector("._rcomments_aa_mirror");
+    const actionsDiv = commentDiv.querySelector(
+      DOM.classedSelector("comment_actions")
+    );
+    let buttonSpan = actionsDiv.querySelector(DOM.classedSelector("aa_mirror"));
     if (!buttonSpan) {
       buttonSpan = createActionSpanElement(links.length);
       actionsDiv.appendChild(buttonSpan);
@@ -106,20 +97,30 @@ export function shouldAttemptVideoExtraction(json: CommentData): boolean {
   return false;
 }
 
-export function isAALinksTogglerElement(event): boolean {
-  return event.target.classList && event.target.classList.contains('_rcomments_aa_mirror');
+export function isAALinksTogglerElement(element: HTMLElement | null): boolean {
+  if (!element) {
+    return false;
+  }
+  return (
+    element.classList && element.classList.contains(DOM.classed("aa_mirror"))
+  );
 }
 
 export function handleAAExtractorClick(event): void {
   event.stopImmediatePropagation();
-  const links = event.target.parentElement.parentElement.querySelector(
-      "._rcomments_extracted_links"
-  );
+  const parentEntryDiv = getWrapperElement(event.target);
+  const links = parentEntryDiv.querySelector("._rcomments_extracted_links");
   if (!links) {
-   return;
+    // No links were created, this shouldn't be clicked
+    return;
   }
   links.classList.toggle("_rcomments_hidden");
   event.target.remove();
+}
+
+function getWrapperElement(element: HTMLElement): HTMLElement | null {
+  const parent = getFirstParent(element, `.${DOM.classed("entry")}`);
+  return parent || null;
 }
 
 type ExtractedLinkInfo = {

@@ -134,7 +134,9 @@
   cursor: pointer;
 }
 
-._rcomments_next_comment, ._rcomments_next_comment_none, ._rcomments_comment_action {
+._rcomments_next_comment,
+._rcomments_next_comment_none,
+._rcomments_comment_action {
   user-select: none;
 }
 
@@ -341,7 +343,7 @@
 /**********************************/
 
 ._rcomments_extracted_links {
-    overflow-x: scroll;
+  overflow-x: scroll;
 }
 
 ._rcomments_extracted_links_msg {

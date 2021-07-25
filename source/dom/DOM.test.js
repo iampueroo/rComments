@@ -1,4 +1,4 @@
-import { decodeHTML, getFirstParent, getParents } from "./DOM";
+import { classedSelector, decodeHTML, getFirstParent, getParents } from "./DOM";
 
 test("should decode HTML as expected", () => {
   const output = decodeHTML(
@@ -33,4 +33,8 @@ test("should implement getParents() as expected", () => {
   const grandparent = document.createElement("div");
   grandparent.appendChild(parent);
   expect(getParents(el, "div")).toEqual([parent, grandparent]);
+});
+
+test("classedSelector should work as expected", () => {
+  expect(classedSelector("className")).toBe("._rcomments_className");
 });
