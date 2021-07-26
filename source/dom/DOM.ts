@@ -25,7 +25,7 @@ export function getFirstParent(
   return getFirstParent(el.parentElement, selector);
 }
 
-export function getParents(el: HTMLElement, selector: string): HTMLElement[] {
+export function getParents(el: Element, selector: string): HTMLElement[] {
   const parents = [];
   while (el.parentElement && el.parentElement.matches) {
     el = el.parentElement;

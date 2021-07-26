@@ -33,7 +33,7 @@ UserContext.init();
   const NEXT_COMMENT_TEXT = "&#8595 Next Comment";
 
   const rCommentsView = {
-    show(el, commentHtml) {
+    show(el: HTMLElement, commentHtml: string) {
       let popup;
       if (this.isFirstComment(el)) {
         popup = this.popup(el);
