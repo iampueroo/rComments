@@ -60,13 +60,20 @@
         <span class='strike-through'>I used jQuery. Sue me.</span>
         Update: <strong>HAHA!</strong> Removed jQuery! Down to 11.3 KB!
         </p>
-        <section>
-            <h2>Upcoming (v1.5.0)</h2>
-            <p>Inspired by the Euro Cup and Copa America, I'm building an automatic AA/Mirror link extractor that pulls the links from the replies of the Automoderator and renders them in the popup. For example, see the stickied comment on <a href="https://www.reddit.com/r/soccer/comments/o6pdv8/brazil_0_1_colombia_luis_d%C3%ADaz_great_goal_10/">this post</a>.
-            <p>Still planning out what additional features will be rolled out soon. If you have any thoughts, feel free to create a <a href="https://github.com/iampueroo/rComments/issues">Github issue</a> or <a href="https://twitter.com/iampuero">hit me up</a> on twitter.</p>
-        </section>
         <section class="changelog">
             <h2 id="changelog">Changelog</h2>
+            <h4 id="v1.5.0">Version 1.5.0 (Upcoming, not released yet)</h4>
+            <ul>
+                <li>✨ <strong>Added</strong> automatic extraction of alternative angles (AA) and mirror links from the stickied moderator posts on r/soccer and r/nba. Now you can immediately view all the additional links without having to look through comments! Check it out ⬇️
+                    <video autoplay loop muted style="max-width: 100%;margin-top:10px">
+                        <source src="./img/aa-example.mov">
+                    </video>
+                    <p><strong>How it works:</strong> When the extension detects that the first comment is an AA/Mirror comment, it automatically fetches all of the first-level replies which have links and turns them in an easy-to-digest table. The table can be viewed by clicking the "AA/Mirrors" button that shows up next to the "Next Reply".</p>
+                    <p><strong>Have questions or suggestions?</strong> I want to hear from you! Reach out to me on <a href="https://twitter.com/iampuero">twitter</a>, or <a href="https://github.com/iampueroo/rComments/issues">Github</a>, or <a href="mailto:ignaciorampuero@gmail.com">email me</a>.
+                    <p><strong>See a bug?</strong> Please <a href="https://github.com/iampueroo/rComments/issues">create an issue</a> on the project's Github.</p>
+                </li>
+
+            </ul>
             <h4 id="v1.4.0">Version 1.4.0 <strong>(Current) - Released June 23<sup>rd</sup>, 2021</strong></h4>
             <ul>
                <li>✨ <strong>Added</strong> HUGE performance boost in viewing additional comments by implementing batched queries. Instead of waiting for the next comment to load, additional comment replies will now render instantly (like, in 1 millisecond), as opposed to the ~250-500ms previously.</li>
