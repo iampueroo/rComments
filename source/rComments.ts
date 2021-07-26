@@ -3,14 +3,11 @@ import { UserContext } from "./UserContext";
 import {
   applyVote,
   generateCommentHtml,
-  isStickiedModeratorPost,
 } from "./html-generators/html_generator";
 import { _request, RequestOptions } from "./Request";
 import {
-  CommentData,
   CommentResponseData,
   ExtractedCommentData,
-  Obj,
   RequestData,
   RequestParams,
   SuccessfulCommentResponseData,
@@ -18,6 +15,15 @@ import {
 import Store from "./Store";
 import { getCommentData } from "./data-fetchers/commentFetcher";
 import { getListingUrlPathElement } from "./dom/dom-accessors";
+import plugins from "./post-processing-plugins/plugins";
+import {
+  extractCommentData,
+  extractListingJson,
+} from "./data-fetchers/commentInspector";
+import {
+  handleAAExtractorClick,
+  isAALinksTogglerElement,
+} from "./post-processing-plugins/aa-video-extractor/aa_video_extractor";
 
 UserContext.init();
 
@@ -27,8 +33,7 @@ UserContext.init();
   const NEXT_COMMENT_TEXT = "&#8595 Next Comment";
 
   const rCommentsView = {
-    show(el, json, listing) {
-      const commentHtml = generateCommentHtml(UserContext.get(), json, listing);
+    show(el: HTMLElement, commentHtml: string) {
       let popup;
       if (this.isFirstComment(el)) {
         popup = this.popup(el);
@@ -51,6 +56,16 @@ UserContext.init();
         }
         content.innerHTML = commentHtml + content.innerHTML;
       }
+    },
+
+    appendToComment(commentId: string, html: string): void {
+      const commentDiv = this.getCommentDiv(commentId);
+      const nextChildren = commentDiv.querySelector(".children");
+      nextChildren.innerHTML = html + nextChildren.innerHTML;
+    },
+
+    getCommentDiv(commentId: string): HTMLDivElement {
+      return this.getPopup().querySelector(`#${commentId}`);
     },
 
     hasAlreadyBuiltPopup() {
@@ -178,23 +193,25 @@ UserContext.init();
       return this._popup.innerHTML;
     },
 
-    updateParentComment(el, isLastReply) {
+    updateParentComment(el: HTMLElement, isLastReply: boolean) {
       if (!isLastReply) return;
 
       let container;
-      for (let i = 0; i < el.children.length; i += 1) {
-        if (el.children[i].classList.contains("entry")) {
-          container = el.children[i].querySelector(
-            `.${DOM.classed("next_reply")}`
-          );
-          break;
-        }
-      }
-
-      if (!container) {
+      if (
+        this.isFirstComment(el) ||
+        el.classList.contains(R_COMMENTS_MAIN_CLASS)
+      ) {
+        // If this is the first comment then we need to toggle the top "Next Comment" button
+        // Similarly, if the element is the overall div that signifies we clicked the "Next Comment"
+        // button and are rendering the last top-level comment
         container = this._popup.querySelector(
           `.${DOM.classed("next_comment")}`
         );
+      } else if (el.classList.contains("entry")) {
+        // Otherwise, it's triggered from the "Next Reply" button
+        container = el.querySelector(`.${DOM.classed("next_reply")}`);
+      } else {
+        throw "Unexpected element provided to updateParentComment";
       }
 
       if (container.classList.contains(DOM.classed("next_comment"))) {
@@ -246,43 +263,12 @@ UserContext.init();
       data,
       params: RequestParams
     ): ExtractedCommentData | null {
-      const listingJson = this.extractListingJson(data);
-      const commentData = this.extractCommentData(data, params);
+      const listingJson = extractListingJson(data);
+      const commentData = extractCommentData(data, params);
       if (commentData === null) return null;
       this.commentStatus.updateRequestParameters(url, params.comment, params);
       this.setCurrentListing(commentData.json.id, listingJson);
       return commentData;
-    },
-
-    extractListingJson(data) {
-      return data[0].data.children[0].data;
-    },
-
-    extractCommentData(
-      data: Obj,
-      params: RequestParams
-    ): ExtractedCommentData | null {
-      const isCommentReply = params.depth === 2;
-      const commentIndex = params.commentIndex;
-      let commentList = data[1].data.children;
-
-      if (isCommentReply) {
-        commentList = commentList[0].data.replies.data;
-        if (!commentList) return null; // Sometimes reddit lies to us. See below.
-        commentList = commentList.children;
-      }
-
-      // Reddit had replied to parent comment saying there were
-      // more replies. They lied.
-      if (!commentList[commentIndex]) {
-        return null;
-      }
-
-      return {
-        kind: commentList[commentIndex].kind,
-        json: commentList[commentIndex].data,
-        isLastReply: !commentList[commentIndex + 1], // "More comments"
-      };
     },
 
     genKey(url: string, commentId: string | null) {
@@ -375,13 +361,15 @@ UserContext.init();
       }
       const popup = this.view.getPopup();
       popup.addEventListener("click", (e) => {
-        if (e.target.className === "_rcomments_next_reply") {
+        if (e.target.classList.contains("_rcomments_next_reply")) {
           this.renderCommentFromElement(e.target.parentElement.parentElement);
         } else if (e.target.className === "_rcomments_next_comment") {
           this.renderCommentFromElement(e.target.parentElement);
         } else if (e.target.classList && e.target.classList[0] === "arrow") {
           e.stopImmediatePropagation();
           this.handleVote(e.target);
+        } else if (isAALinksTogglerElement(e.target)) {
+          handleAAExtractorClick(e);
         } else if (
           e.target.classList &&
           e.target.classList.contains("md-spoiler-text")
@@ -445,7 +433,20 @@ UserContext.init();
         return;
       }
       this.showComment(commentResponseData);
-      this.showNextCommentIfApplicable(commentResponseData, requestData);
+      plugins.forEach((plugin) => {
+        if (plugin.doesApply(commentResponseData, requestData)) {
+          plugin.execute
+            .call(this, commentResponseData, requestData)
+            .then((success) =>
+              success
+                ? this.model.commentStatus.setCachedHtml(
+                    commentResponseData.url,
+                    this.view.contentHtml()
+                  )
+                : null
+            );
+        }
+      });
     },
 
     /**
@@ -548,35 +549,15 @@ UserContext.init();
 
     showComment(data: SuccessfulCommentResponseData): void {
       const { commentJson, isLastReply, url, el } = data;
-      this.view.show(el, commentJson, this.model.currentListing);
+      const commentHtml = generateCommentHtml(
+        UserContext.get(),
+        commentJson,
+        this.model.currentListing
+      );
+      this.view.show(el, commentHtml);
       this.view.updateParentComment(el, isLastReply);
       // Do we need comment id?
       this.model.commentStatus.setCachedHtml(url, this.view.contentHtml());
-    },
-
-    async showNextCommentIfApplicable(
-      commentResponseData: SuccessfulCommentResponseData,
-      requestData: RequestData
-    ): Promise<null> {
-      const commentJson = commentResponseData.commentJson as CommentData;
-      const isLastReply = commentResponseData.isLastReply;
-      if (isLastReply || !isStickiedModeratorPost(commentJson)) {
-        return null;
-      }
-      const parentElement = this.view.getPopup();
-      this.view.loading(parentElement);
-      const params = this.model.commentStatus.getNextCommentRequestParameters(
-        requestData.url
-      );
-      const data = await this.executeCommentRequest(parentElement, null, {
-        url: requestData.url,
-        data: params,
-        timeout: 4000,
-      });
-      if (data.success) {
-        this.showComment(data);
-      }
-      return null;
     },
 
     handleCommentFail(el) {

@@ -2,12 +2,14 @@ export type CommentData = {
   id: string;
 
   author: string;
+  subreddit: string;
 
   stickied: boolean;
 
   // admin or moderator
   distinguished: string;
 
+  body: string;
   body_html: string;
 
   ups: number;
@@ -18,7 +20,29 @@ export type CommentData = {
   likes: number;
 
   all_awardings: Award[];
-  replies: [];
+
+  replies: Thing[] | string; // Could be empty string
+};
+
+type Thing = MoreThing | ListingThing;
+
+type MoreThing = {
+  kind: "more";
+  data: {
+    children: [];
+    count: number;
+    depth: number;
+    id: string;
+    name: string;
+    parent_id: string;
+  };
+};
+
+type ListingThing = {
+  kind: "Listing"; // Enum,
+  data: {
+    children: [];
+  };
 };
 
 export type Award = {

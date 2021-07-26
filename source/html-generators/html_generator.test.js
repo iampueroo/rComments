@@ -1,7 +1,7 @@
 import {
   authorTagHtml,
   generateCommentHtml,
-  nextReplyPromptHtml,
+  getActionsPromptHtml,
   voteTagHtml,
 } from "./html_generator";
 import { UserContext } from "../UserContext";
@@ -264,15 +264,15 @@ test("author tag renders sucessfully", () => {
 });
 
 test("next reply rendered succesfully when no replies are left", () => {
-  const html =
-    '<div class="_rcomments_no_reply" style="padding-top:5px">No Replies</div>';
-  expect(nextReplyPromptHtml(false)).toBe(html);
+  const output = getActionsPromptHtml(false);
+  expect(output).toContain("_rcomments_no_reply");
+  expect(output).toContain(">No Replies<");
 });
 
-test("next reply rendered succesfully when no replies are left", () => {
-  const html =
-    '<div class="_rcomments_next_reply" style="padding-top:5px">&#8618 Next Reply</div>';
-  expect(nextReplyPromptHtml(true)).toBe(html);
+test("next reply rendered succesfully when replies exist", () => {
+  const output = getActionsPromptHtml(true);
+  expect(output).toContain("_rcomments_next_reply");
+  expect(output).toContain(">&#8618 Next Reply<");
 });
 
 test("Vote tag renders succesfully", () => {

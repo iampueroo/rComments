@@ -10,12 +10,13 @@ export function generateCommentHtml(
   if (!comment || !comment.id) {
     return noReplyHtml();
   }
+  const hasMoreReplies = !!comment.replies;
   return `
 		<div id="${comment.id}" class="${DOM.classed("comment comment thing")}">
 		  ${getArrowHtml(context, comment)}	
 			<div class="entry ${DOM.classed("entry")}">	
 			  ${commentContentHtml(context, comment, listing)}
-				${nextReplyPromptHtml(!!comment.replies)}
+				${getActionsPromptHtml(hasMoreReplies)}
 				<div class="children"></div>
 			</div>
 		</div>
@@ -164,11 +165,16 @@ function getModeratorTagHtml(userContext: UserContext): string {
   return `&nbsp<span class="${DOM.classed("mod")}">MOD</span>`;
 }
 
-export function nextReplyPromptHtml(hasMoreReplies: boolean) {
-  const NEXT_REPLY_TEXT = "&#8618 Next Reply";
-  const _class = DOM.classed(hasMoreReplies ? "next_reply" : "no_reply");
-  const html = hasMoreReplies ? NEXT_REPLY_TEXT : "No Replies";
-  return `<div class="${_class}" style="padding-top:5px">${html}</div>`;
+export function getActionsPromptHtml(hasMoreReplies: boolean): string {
+  const actionClass = DOM.classed("comment_action");
+  const html = hasMoreReplies ? "&#8618 Next Reply" : "No Replies";
+  return `<div class="${DOM.classed(
+    "comment_actions"
+  )}" style="padding-top:5px">
+    <span class="${DOM.classed(
+      hasMoreReplies ? "next_reply" : "no_reply"
+    )} ${actionClass}">${html}</span>
+    </div>`;
 }
 
 export function voteTagHtml(

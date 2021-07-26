@@ -29,18 +29,21 @@
   padding: 10px;
 }
 
-._rcomments_next_reply,
-._rcomments_next_comment {
+._rcomments_comment_action:not(._rcomments_no_reply) {
   cursor: pointer;
   user-select: none;
 }
 
-._rcomments_next_reply,
-._rcomments_no_reply {
+._rcomments_comment_actions {
   padding-top: 5px;
   margin-bottom: 8px;
 }
 
+._rcomments_aa_mirror {
+  padding-left: 10px;
+}
+
+._rcomments_aa_mirror:hover,
 ._rcomments_next_reply:hover {
   text-decoration: underline;
 }
@@ -128,7 +131,15 @@
     rgba(0, 0, 0, 0.3),
     rgba(255, 255, 255, 0.9)
   );
+  cursor: pointer;
 }
+
+._rcomments_next_comment,
+._rcomments_next_comment_none,
+._rcomments_comment_action {
+  user-select: none;
+}
+
 ._rcomments_next_comment_none,
 ._rcomments_no_reply {
   color: lightgray;
@@ -180,7 +191,7 @@
   padding-left: 8px;
 }
 
-._rcomments_new_reddit_styles ._rcomments_next_reply,
+._rcomments_new_reddit_styles ._rcomments_comment_actions,
 ._rcomments_loading,
 ._rcomments_no_reply {
   font-size: 10px;
@@ -330,3 +341,14 @@
 /**********************************/
 /* END new reddit overrides
 /**********************************/
+
+._rcomments_extracted_links {
+  overflow-x: scroll;
+}
+
+._rcomments_extracted_links_msg {
+  text-align: center;
+  padding-bottom: 4px;
+  text-align: center;
+  font-size: 12px;
+}
