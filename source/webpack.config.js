@@ -3,6 +3,7 @@ const path = require("path");
 module.exports = {
   mode: "development",
   entry: "./rComments.ts",
+  devtool: false,
   module: {
     rules: [
       {
